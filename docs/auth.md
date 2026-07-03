@@ -115,3 +115,10 @@ Since the frontend SPA requests tokens directly from `/oauth/token` (different p
   - `Authorization: Bearer <ACCESS_TOKEN>`
   - `Accept: application/json`
 - **Output**: JSON payload of the authenticated user's model attributes.
+
+### 4. Revoke Access Token (Logout)
+- **Method / URL**: `POST /api/logout`
+- **Headers**:
+  - `Authorization: Bearer <ACCESS_TOKEN>`
+  - `Accept: application/json`
+- **Output**: HTTP 204 No Content response upon successful token revocation.
