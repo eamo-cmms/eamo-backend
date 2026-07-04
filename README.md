@@ -1,34 +1,33 @@
-# EAMO Backend — OAuth & API Server
+# EAMO Backend System Integration and Configuration Report
 
-EAMO Backend acts as the API server and OAuth 2.0 PKCE authentication server for the EAMO client SPA. It utilizes Laravel 13, PostgreSQL, and Laravel Passport.
-
----
-
-## 🛠️ Prerequisites
-
-Make sure you have the following installed on your machine:
-- **PHP** ^8.3 (with `pdo_pgsql`, `openssl`, `mbstring` extensions enabled)
-- **Composer**
-- **NodeJS** & **npm** / **pnpm**
-- **PostgreSQL** Database server
+This repository contains the backend API server and OAuth 2.0 PKCE authentication server for the EAMO (Equipment Asset Management Solution) platform. The application is built using Laravel 13, PostgreSQL, and Laravel Passport.
 
 ---
 
-## 🚀 Quick Start & Installation
+## 1. Prerequisites
 
-Follow these steps to set up the backend server locally:
+The following software must be installed and configured on the host machine prior to deployment:
+- PHP: Version 8.3 or higher (with pdo_pgsql, openssl, and mbstring extensions enabled)
+- Composer: Dependency manager for PHP
+- Node.js & npm/pnpm: For asset compilation
+- PostgreSQL: Database management system
 
-### 1. Install PHP Dependencies
+---
+
+## 2. Installation and Initial Configuration
+
+### 2.1. Dependency Installation
+Install the necessary PHP composer packages:
 ```bash
 composer install
 ```
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env` and set up your PostgreSQL database credentials:
+### 2.2. Environment Configuration
+Duplicate the configuration template file and set up database credentials:
 ```bash
 cp .env.example .env
 ```
-Open `.env` and configure the database block:
+Open the `.env` file and configure the PostgreSQL connection parameters:
 ```ini
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
@@ -38,52 +37,52 @@ DB_USERNAME=postgres
 DB_PASSWORD=your_postgres_password
 ```
 
-### 3. Generate App Key
+### 2.3. Encryption Key Generation
+Generate the unique application key:
 ```bash
 php artisan key:generate
 ```
 
-### 4. Run Migrations & Database Seeds
-This creates all tables (including Passport and cache structures) and registers a default Admin account:
+### 2.4. Database Migration and Seeding
+Execute migrations to create the database schema (including Passport token tables and cache structures) and seed the initial dataset:
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-### 5. Generate Passport JWT Keys
-Generate the encryption keys required by Passport to sign JWT tokens:
+### 2.5. OAuth Key Generation
+Generate the encryption keys required by Laravel Passport to sign the JSON Web Tokens (JWT):
 ```bash
 php artisan passport:keys --force
 ```
 
-### 6. Create OAuth Public Client (PKCE)
-Create a client configuration pointing to the local frontend instance:
+### 2.6. Public OAuth Client Creation
+Register a public client for Proof Key for Code Exchange (PKCE) pointing to the frontend application:
 ```bash
 php artisan passport:client --public --name="Eamo Frontend" --redirect_uri="http://localhost:5173/auth/callback" --no-interaction
 ```
-*Note: Make sure to copy the outputted **Client ID** and paste it into the frontend configuration (`src/services/auth.ts`).*
+Note: Note the generated Client ID and copy it into the frontend application configuration.
 
-### 7. Compile Assets & Start the Server
-Compile the single-page login screen assets and boot up the server:
+### 2.7. Asset Compilation and Execution
+Compile the frontend assets for the single-page Laravel login interface and run the local development server:
 ```bash
 npm install
 npm run build
-
-# Start the Laravel application server
 php artisan serve
 ```
-The server will start at `http://localhost:8000`.
+The server will run on: http://localhost:8000
 
 ---
 
-## 🔑 Seeding Credentials
+## 3. Seeded Accounts
 
-After running `migrate:fresh --seed`, the database is populated with a default admin account:
-- **Email / Username**: `admin`
-- **Password**: `12345678`
+The seeding process registers a default administrative user account:
+- Username: admin
+- Password: 12345678
 
 ---
 
-## 📖 Architecture & Authentication Documentation
+## 4. Documentation References
 
-To learn more about the OAuth 2.0 PKCE implementation details, custom client models, and API endpoints, check the documentation file:
-- [OAuth PKCE Setup Documentation](docs/auth.md)
+For in-depth analysis of the system architecture, authentication flow, and directory layouts, consult the following reports:
+- [OAuth 2.0 PKCE Authentication Flow Report](docs/auth.md)
+- [Backend Directory Structure and Architecture Report](docs/backend_structure.md)
