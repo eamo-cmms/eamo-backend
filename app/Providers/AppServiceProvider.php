@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Bridge\AccessTokenRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use Laravel\Passport\TokenRepository;
+use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +36,16 @@ class AppServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addDays(1));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        // Bind custom AccessTokenRepository to include roles in JWT
+        $this->app->singleton(
+            AccessTokenRepositoryInterface::class,
+            function ($app) {
+                return new AccessTokenRepository(
+                    $app->make(TokenRepository::class),
+                    $app->make(Dispatcher::class)
+                );
+            }
+        );
     }
 }

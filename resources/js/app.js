@@ -6,10 +6,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = (import.meta.env.VITE_APP_NAME || 'Laravel').replace(/EAMO Admin/g, 'EAMO');
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        const displayTitle = title ? `${title} - ${appName}` : appName;
+        return displayTitle.replace(/EAMO Admin/g, 'EAMO');
+    },
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.vue`,

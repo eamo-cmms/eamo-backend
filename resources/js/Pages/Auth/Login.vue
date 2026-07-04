@@ -105,7 +105,9 @@ onMounted(() => {
 
 <template>
     <AConfigProvider :theme="tokenTheme">
-        <Head title="Log in" />
+        <Head title="Login">
+            <link rel="icon" type="image/png" href="/favicon.png" />
+        </Head>
 
         <!-- Root wrapper: dark class drives Tailwind dark: utilities -->
         <div :class="{ dark: isDark }">
@@ -219,7 +221,7 @@ onMounted(() => {
                                     block
                                     :loading="form.processing"
                                 >
-                                    Log in
+                                    Login
                                 </AButton>
                             </AFormItem>
                         </AForm>
@@ -227,7 +229,7 @@ onMounted(() => {
 
                     <!-- Footer -->
                     <p class="text-center text-xs text-slate-400 dark:text-slate-600">
-                        Copyright &copy; 2026 Vben
+                        Copyright &copy; 2026 EAMO
                     </p>
                 </div>
 

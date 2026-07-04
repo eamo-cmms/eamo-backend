@@ -51,6 +51,23 @@ Registered in `AppServiceProvider.php` via:
 Passport::useClientModel(\App\Models\OAuth\Client::class);
 ```
 
+### Custom JWT Claims (User Roles)
+To deliver user roles directly inside the JWT access token (facilitating rapid frontend authorization without extra API roundtrips), we override the default Passport Token Entity and Token Repository:
+- **Custom AccessToken Class**: `app/Bridge/AccessToken.php` inherits from Passport's `AccessToken` and overrides `convertToJWT()` to append the user's role to the token claims under the key `roles`.
+- **Custom AccessTokenRepository Class**: `app/Bridge/AccessTokenRepository.php` returns our custom `AccessToken` entity.
+- **Service Provider Registration**: Bound in `AppServiceProvider.php` to League's `AccessTokenRepositoryInterface` singleton:
+  ```php
+  $this->app->singleton(
+      \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface::class,
+      function ($app) {
+          return new \App\Bridge\AccessTokenRepository(
+              $app->make(\Laravel\Passport\TokenRepository::class),
+              $app->make(\Illuminate\Contracts\Events\Dispatcher::class)
+          );
+      }
+  );
+  ```
+
 ### UUID Keys Configuration
 The `users` table uses UUID values as primary keys. Consequently, all Passport database structures have been migrated to support UUID identifiers:
 - `oauth_auth_codes.user_id` -> `UUID`
@@ -79,6 +96,8 @@ Since the frontend SPA requests tokens directly from `/oauth/token` (different p
 | [`app/Providers/AppServiceProvider.php`](../app/Providers/AppServiceProvider.php) | Bootstraps Passport token durations and binds the custom `Client` model. |
 | [`app/Http/Requests/Auth/LoginRequest.php`](../app/Http/Requests/Auth/LoginRequest.php) | Validates credentials during `/login` POST requests, mapping the `username` field to the database `email` column. |
 | [`app/Models/User.php`](../app/Models/User.php) | Uses `HasApiTokens` and `HasUuids` traits to support UUID auto-generation and Passport token retrieval. |
+| [`app/Bridge/AccessToken.php`](../app/Bridge/AccessToken.php) | Subclasses Passport's `AccessToken` to append custom `roles` claims to the JWT payload. |
+| [`app/Bridge/AccessTokenRepository.php`](../app/Bridge/AccessTokenRepository.php) | Subclasses Passport's `AccessTokenRepository` to return our customized `AccessToken` entity. |
 | [`routes/auth.php`](../routes/auth.php) | Registers minimal Web authentication endpoints (`login` GET/POST and `logout` POST). |
 | [`routes/api.php`](../routes/api.php) | Exposes the protected `/api/user` profile route using the `auth:api` middleware. |
 
