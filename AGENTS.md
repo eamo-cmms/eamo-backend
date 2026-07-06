@@ -141,6 +141,19 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
 
+## Controller & Action Conventions
+
+- When building CRUD controllers, prefer the **Single-Action Controller (Invokable) + Service Pattern**.
+  - Create a directory for the model under `app/Http/Controllers/` (e.g. `app/Http/Controllers/Company/`).
+  - Create separate invokable controllers for each action (`IndexCompanyController`, `StoreCompanyController`, etc.).
+  - Delegate the business/database logic to a corresponding service class in `app/Services/` (e.g. `app/Services/Company/StoreCompanyService`).
+- For `DELETE` (Destroy) API endpoints, return a `200 OK` JSON response with a success message instead of a `204 No Content` response:
+  ```php
+  return response()->json([
+      'message' => 'Entity deleted successfully.',
+  ]);
+  ```
+
 ## URL Generation
 
 - When generating links to other pages, prefer named routes and the `route()` function.
