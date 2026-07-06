@@ -10,12 +10,19 @@ use App\Http\Controllers\Department\IndexDepartmentController;
 use App\Http\Controllers\Department\ShowDepartmentController;
 use App\Http\Controllers\Department\StoreDepartmentController;
 use App\Http\Controllers\Department\UpdateDepartmentController;
+use App\Http\Controllers\User\DestroyUserController;
 use App\Http\Controllers\User\GetAuthenticatedUserController;
+use App\Http\Controllers\User\IndexUserController;
 use App\Http\Controllers\User\LogoutController;
+use App\Http\Controllers\User\ShowUserController;
+use App\Http\Controllers\User\StoreUserController;
+use App\Http\Controllers\User\UpdateAuthenticatedUserController;
+use App\Http\Controllers\User\UpdateUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', GetAuthenticatedUserController::class);
+    Route::put('/user', UpdateAuthenticatedUserController::class);
     Route::post('/logout', LogoutController::class);
 
     // Companies CRUD
@@ -33,4 +40,12 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/departments/{department}', UpdateDepartmentController::class);
     Route::patch('/departments/{department}', UpdateDepartmentController::class);
     Route::delete('/departments/{department}', DestroyDepartmentController::class);
+
+    // Users CRUD
+    Route::get('/users', IndexUserController::class);
+    Route::post('/users', StoreUserController::class);
+    Route::get('/users/{user}', ShowUserController::class);
+    Route::put('/users/{user}', UpdateUserController::class);
+    Route::patch('/users/{user}', UpdateUserController::class);
+    Route::delete('/users/{user}', DestroyUserController::class);
 });

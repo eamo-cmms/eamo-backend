@@ -23,18 +23,37 @@ class DatabaseSeeder extends Seeder
             'contact' => '0123456789',
         ]);
 
-        $department = Department::create([
+        $techDepartment = Department::create([
             'company_id' => $company->id,
             'name' => 'Technology',
             'contact' => 'tech@ouransoft.com',
         ]);
 
+        $additionalDepartments = [
+            Department::create(['company_id' => $company->id, 'name' => 'Human Resources', 'contact' => 'hr@ouransoft.com']),
+            Department::create(['company_id' => $company->id, 'name' => 'Finance', 'contact' => 'finance@ouransoft.com']),
+            Department::create(['company_id' => $company->id, 'name' => 'Marketing', 'contact' => 'marketing@ouransoft.com']),
+            Department::create(['company_id' => $company->id, 'name' => 'Sales', 'contact' => 'sales@ouransoft.com']),
+        ];
+
+        $allDepartments = collect([$techDepartment])->concat($additionalDepartments);
+
+        $password = Hash::make('12345678');
+
+        // Admin User
         User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@gmail.com',
-            'password' => Hash::make('12345678'),
+            'password' => $password,
             'role' => 'admin',
-            'department_id' => $department->id,
+            'department_id' => $techDepartment->id,
+        ]);
+
+        // 50 Random Users distributed across departments
+        User::factory()->count(50)->sequence(fn () => [
+            'department_id' => $allDepartments->random()->id,
+        ])->create([
+            'password' => $password,
         ]);
     }
 }
