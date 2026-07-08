@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\OAuth\Client;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -58,5 +59,18 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(EquipmentSeeder::class);
+
+        // Create the default public OAuth client for Eamo Frontend if it does not exist
+        Client::updateOrCreate(
+            ['id' => '019f3598-1773-73aa-b922-377675fd2b7f'],
+            [
+                'name' => 'Eamo Frontend',
+                'secret' => null,
+                'provider' => null,
+                'redirect_uris' => ['http://localhost:5173/auth/callback'],
+                'grant_types' => ['authorization_code', 'refresh_token'],
+                'revoked' => false,
+            ]
+        );
     }
 }

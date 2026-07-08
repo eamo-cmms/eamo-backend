@@ -15,8 +15,13 @@ final class IndexEquipmentParameterAction
 
     public function asController(Request $request): JsonResponse
     {
-        $parameters = EquipmentParameter::with(['equipment', 'equipmentCategory'])
-            ->paginate($request->integer('per_page', 15));
+        $query = EquipmentParameter::with(['equipment', 'equipmentCategory', 'unit']);
+
+        if ($request->has('equipment_id')) {
+            $query->where('equipment_id', $request->input('equipment_id'));
+        }
+
+        $parameters = $query->paginate($request->integer('per_page', 100));
 
         return response()->json($parameters);
     }

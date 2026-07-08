@@ -15,7 +15,9 @@ final class IndexEquipmentAction
 
     public function asController(Request $request): JsonResponse
     {
-        $equipment = Equipment::with(['equipmentCategory'])
+        $equipment = Equipment::query()
+            ->with(['equipmentCategory', 'equipmentParameters.unit', 'equipmentErrors', 'equipmentState', 'equipmentImages'])
+            ->filter($request->all())
             ->paginate($request->integer('per_page', 15));
 
         return response()->json($equipment);

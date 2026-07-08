@@ -17,9 +17,10 @@ final class ShowEquipmentAction
     {
         $equipment = Equipment::with([
             'equipmentCategory',
-            'equipmentParameters',
+            'equipmentParameters.unit',
             'equipmentErrors',
-            'standardParameters',
+            'equipmentState',
+            'equipmentImages',
         ])->findOrFail($id);
 
         return response()->json($equipment);

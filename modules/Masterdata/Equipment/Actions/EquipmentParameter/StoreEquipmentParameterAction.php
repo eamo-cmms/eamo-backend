@@ -15,7 +15,9 @@ final class StoreEquipmentParameterAction
 
     public function asController(StoreEquipmentParameterRequest $request): JsonResponse
     {
-        $parameter = EquipmentParameter::create($request->validated());
+        $validated = $request->validated();
+
+        $parameter = EquipmentParameter::create($validated);
 
         return response()->json($parameter, 201);
     }

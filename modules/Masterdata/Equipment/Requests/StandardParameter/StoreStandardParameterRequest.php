@@ -22,7 +22,7 @@ class StoreStandardParameterRequest extends FormRequest
             'standard' => ['required', 'numeric'],
             'standard_max' => ['required', 'numeric'],
             'standard_min' => ['required', 'numeric'],
-            'unit_id' => ['nullable', 'string', 'uuid'],
+            'unit_id' => ['nullable', 'string', 'uuid', 'exists:eamo_units,id'],
         ];
     }
 }

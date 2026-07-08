@@ -10,47 +10,34 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Class StandardParameter
+ * Class EquipmentImage
  *
  * @property string $id
  * @property string $equipment_id
- * @property string $equipment_parameter_id
- * @property float $standard
- * @property float $standard_max
- * @property float $standard_min
- * @property string|null $unit_id
+ * @property string $image_id
+ * @property string|null $path
  * @property-read Equipment $equipment
- * @property-read EquipmentParameter $equipmentParameter
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-final class StandardParameter extends Model
+final class EquipmentImage extends Model
 {
     use HasUuids;
 
-    protected $fillable = [
-        'id',
-        'equipment_id',
-        'equipment_parameter_id',
-        'standard',
-        'standard_max',
-        'standard_min',
-        'unit_id',
-    ];
-
     public $incrementing = false;
+
+    protected $fillable = [
+        'equipment_id',
+        'image_id',
+        'path',
+    ];
 
     protected $keyType = 'string';
 
-    protected $table = 'eamo_standard_parameters';
+    protected $table = 'eamo_equipment_images';
 
     public function equipment(): BelongsTo
     {
         return $this->belongsTo(Equipment::class);
-    }
-
-    public function equipmentParameter(): BelongsTo
-    {
-        return $this->belongsTo(EquipmentParameter::class);
     }
 }

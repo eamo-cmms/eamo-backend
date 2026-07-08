@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
 
 /**
  * Class Equipment
@@ -17,14 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $id
  * @property string|null $name
  * @property string $code
- * @property string|null $process_id
- * @property string $work_center_id
- * @property string|null $factory_id
  * @property string|null $equipment_category_id
  * @property string|null $device_id
- * @property int|null $assigned_productivity_per_hour
- * @property string|null $assigned_machine_productivity_person
- * @property string|null $image_id
  * @property bool $is_active
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -38,14 +35,9 @@ final class Equipment extends Model
     protected $fillable = [
         'name',
         'code',
-        'process_id',
         'work_center_id',
-        'factory_id',
         'equipment_category_id',
         'device_id',
-        'assigned_productivity_per_hour',
-        'assigned_machine_productivity_person',
-        'image_id',
         'is_active',
     ];
 
@@ -83,11 +75,19 @@ final class Equipment extends Model
     }
 
     /**
-     * @return HasMany<StandardParameter, $this>
+     * @return HasOne<EquipmentState, $this>
      */
-    public function standardParameters(): HasMany
+    public function equipmentState(): HasOne
     {
-        return $this->hasMany(StandardParameter::class);
+        return $this->hasOne(EquipmentState::class);
+    }
+
+    /**
+     * @return HasMany<EquipmentImage, $this>
+     */
+    public function equipmentImages(): HasMany
+    {
+        return $this->hasMany(EquipmentImage::class);
     }
 
     protected static function boot(): void
@@ -96,16 +96,24 @@ final class Equipment extends Model
 
         self::deleting(function (self $model) {
             $model->equipmentParameters()->delete();
-            $model->standardParameters()->delete();
+            $model->equipmentState()->delete();
+            $model->equipmentImages()->delete();
         });
     }
 
     protected function casts(): array
     {
         return [
-            'assigned_productivity_per_hour' => 'integer',
-            'assigned_machine_productivity_person' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * @param  QueryBuilder  $query
+     * @return EquipmentQueryBuilder<Equipment>
+     */
+    public function newEloquentBuilder($query): EquipmentQueryBuilder
+    {
+        return new EquipmentQueryBuilder($query);
     }
 }

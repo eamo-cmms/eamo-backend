@@ -8,6 +8,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Modules\Masterdata\Equipment\Builders\EquipmentErrorQueryBuilder;
 
 /**
  * Class EquipmentError
@@ -88,5 +90,14 @@ final class EquipmentError extends Model
     protected function casts(): array
     {
         return [];
+    }
+
+    /**
+     * @param  QueryBuilder  $query
+     * @return EquipmentErrorQueryBuilder<EquipmentError>
+     */
+    public function newEloquentBuilder($query): EquipmentErrorQueryBuilder
+    {
+        return new EquipmentErrorQueryBuilder($query);
     }
 }

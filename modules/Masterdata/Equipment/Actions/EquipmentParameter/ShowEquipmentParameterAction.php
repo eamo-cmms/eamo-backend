@@ -18,7 +18,7 @@ final class ShowEquipmentParameterAction
         $parameter = EquipmentParameter::with([
             'equipment',
             'equipmentCategory',
-            'standardParameter',
+            'unit',
         ])->findOrFail($id);
 
         return response()->json($parameter);

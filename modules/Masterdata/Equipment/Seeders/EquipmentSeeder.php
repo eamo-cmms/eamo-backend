@@ -10,7 +10,8 @@ use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentCategory;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 use Modules\Masterdata\Equipment\Models\EquipmentParameter;
-use Modules\Masterdata\Equipment\Models\StandardParameter;
+use Modules\Masterdata\Equipment\Models\EquipmentState;
+use Modules\Masterdata\Equipment\Models\Unit;
 
 class EquipmentSeeder extends Seeder
 {
@@ -105,6 +106,7 @@ class EquipmentSeeder extends Seeder
         foreach ($categories as $catName => $equipments) {
             $cat = EquipmentCategory::create([
                 'id' => (string) Str::uuid(),
+                'code' => Str::slug($catName),
                 'name' => $catName,
             ]);
 
@@ -120,6 +122,14 @@ class EquipmentSeeder extends Seeder
                 // Sync 1-2 random errors to this equipment
                 $errorSlice = array_slice($createdErrors, 0, rand(1, 2));
                 $equipment->equipmentErrors()->sync(collect($errorSlice)->pluck('id')->toArray());
+
+                // Seed initial equipment state
+                $states = ['Running', 'Idle', 'Under Maintenance', 'Stopped', 'Fault'];
+                EquipmentState::create([
+                    'id' => (string) Str::uuid(),
+                    'equipment_id' => $equipment->id,
+                    'state' => $states[array_rand($states)],
+                ]);
 
                 // Seed some parameters
                 $params = [
@@ -150,24 +160,22 @@ class EquipmentSeeder extends Seeder
                 ];
 
                 foreach ($params as $p) {
-                    $paramId = (string) Str::uuid();
+                    $unit = Unit::firstOrCreate([
+                        'code' => $p['unit'],
+                    ], [
+                        'name' => $p['unit'],
+                    ]);
+
                     $eqParam = EquipmentParameter::create([
-                        'id' => $paramId,
+                        'id' => (string) Str::uuid(),
                         'equipment_id' => $equipment->id,
                         'name' => $p['name'],
                         'code' => $p['code'],
-                        'unit_id' => $p['unit'],
+                        'unit_id' => $unit->id,
                         'equipment_category_id' => $cat->id,
-                    ]);
-
-                    StandardParameter::create([
-                        'id' => (string) Str::uuid(),
-                        'equipment_id' => $equipment->id,
-                        'equipment_parameter_id' => $eqParam->id,
                         'standard' => $p['standard'],
                         'standard_max' => $p['max'],
                         'standard_min' => $p['min'],
-                        'unit_id' => $p['unit'],
                     ]);
                 }
             }

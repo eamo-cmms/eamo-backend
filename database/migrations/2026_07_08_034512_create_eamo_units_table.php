@@ -10,19 +10,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('eamo_equipment', function (Blueprint $table): void {
+        Schema::create('eamo_units', function (Blueprint $table): void {
             $table->string('id', 36)->primary();
+            $table->string('name');
             $table->string('code', 32)->unique();
-            $table->string('equipment_category_id', 36)->nullable();
-            $table->string('name')->nullable();
-            $table->string('device_id', 36)->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('eamo_equipment');
+        Schema::dropIfExists('eamo_units');
     }
 };

@@ -23,16 +23,22 @@ use Modules\Masterdata\Equipment\Actions\EquipmentParameter\IndexEquipmentParame
 use Modules\Masterdata\Equipment\Actions\EquipmentParameter\ShowEquipmentParameterAction;
 use Modules\Masterdata\Equipment\Actions\EquipmentParameter\StoreEquipmentParameterAction;
 use Modules\Masterdata\Equipment\Actions\EquipmentParameter\UpdateEquipmentParameterAction;
-use Modules\Masterdata\Equipment\Actions\StandardParameter\DeleteStandardParameterAction;
-use Modules\Masterdata\Equipment\Actions\StandardParameter\IndexStandardParameterAction;
-use Modules\Masterdata\Equipment\Actions\StandardParameter\ShowStandardParameterAction;
-use Modules\Masterdata\Equipment\Actions\StandardParameter\StoreStandardParameterAction;
-use Modules\Masterdata\Equipment\Actions\StandardParameter\UpdateStandardParameterAction;
+use Modules\Masterdata\Equipment\Actions\EquipmentState\DeleteEquipmentStateAction;
+use Modules\Masterdata\Equipment\Actions\EquipmentState\IndexEquipmentStateAction;
+use Modules\Masterdata\Equipment\Actions\EquipmentState\ShowEquipmentStateAction;
+use Modules\Masterdata\Equipment\Actions\EquipmentState\StoreEquipmentStateAction;
+use Modules\Masterdata\Equipment\Actions\EquipmentState\UpdateEquipmentStateAction;
+use Modules\Masterdata\Equipment\Actions\Unit\DeleteUnitAction;
+use Modules\Masterdata\Equipment\Actions\Unit\IndexUnitAction;
+use Modules\Masterdata\Equipment\Actions\Unit\ShowUnitAction;
+use Modules\Masterdata\Equipment\Actions\Unit\StoreUnitAction;
+use Modules\Masterdata\Equipment\Actions\Unit\UpdateUnitAction;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentCategory;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 use Modules\Masterdata\Equipment\Models\EquipmentParameter;
-use Modules\Masterdata\Equipment\Models\StandardParameter;
+use Modules\Masterdata\Equipment\Models\EquipmentState;
+use Modules\Masterdata\Equipment\Models\Unit;
 
 Route::group([], function (): void {
     Route::prefix('v1/equipment')->name('equipment.')->group(function (): void {
@@ -55,16 +61,6 @@ Route::group([], function (): void {
             ->name('destroy');
     });
 
-    Route::prefix('v1/standard-parameters')->name('standard-parameters.')->group(function (): void {
-        Route::get('/', IndexStandardParameterAction::class)->name('index');
-        Route::post('/', StoreStandardParameterAction::class)->name('store');
-        Route::get('/{id}', ShowStandardParameterAction::class)->name('show');
-        Route::put('/{id}', UpdateStandardParameterAction::class)->name('update');
-        Route::delete('/{id}', DeleteStandardParameterAction::class)
-            ->middleware('block.if.referenced:'.StandardParameter::class)
-            ->name('destroy');
-    });
-
     Route::prefix('v1/equipment-errors')->name('equipment-errors.')->group(function (): void {
         Route::get('/', IndexEquipmentErrorAction::class)->name('index');
         Route::post('/', StoreEquipmentErrorAction::class)->name('store');
@@ -82,6 +78,26 @@ Route::group([], function (): void {
         Route::put('/{id}', UpdateEquipmentCategoryAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentCategoryAction::class)
             ->middleware('block.if.referenced:'.EquipmentCategory::class)
+            ->name('destroy');
+    });
+
+    Route::prefix('v1/units')->name('units.')->group(function (): void {
+        Route::get('/', IndexUnitAction::class)->name('index');
+        Route::post('/', StoreUnitAction::class)->name('store');
+        Route::get('/{id}', ShowUnitAction::class)->name('show');
+        Route::put('/{id}', UpdateUnitAction::class)->name('update');
+        Route::delete('/{id}', DeleteUnitAction::class)
+            ->middleware('block.if.referenced:'.Unit::class)
+            ->name('destroy');
+    });
+
+    Route::prefix('v1/equipment-states')->name('equipment-states.')->group(function (): void {
+        Route::get('/', IndexEquipmentStateAction::class)->name('index');
+        Route::post('/', StoreEquipmentStateAction::class)->name('store');
+        Route::get('/{id}', ShowEquipmentStateAction::class)->name('show');
+        Route::put('/{id}', UpdateEquipmentStateAction::class)->name('update');
+        Route::delete('/{id}', DeleteEquipmentStateAction::class)
+            ->middleware('block.if.referenced:'.EquipmentState::class)
             ->name('destroy');
     });
 

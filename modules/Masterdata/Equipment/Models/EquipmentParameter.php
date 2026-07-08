@@ -8,7 +8,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class EquipmentParameter
@@ -20,9 +19,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $code
  * @property string|null $product_category_id
  * @property string|null $equipment_category_id
+ * @property float|null $standard
+ * @property float|null $standard_max
+ * @property float|null $standard_min
  * @property-read Equipment $equipment
  * @property-read EquipmentCategory|null $equipmentCategory
- * @property-read StandardParameter|null $standardParameter
+ * @property-read Unit|null $unit
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -39,6 +41,9 @@ final class EquipmentParameter extends Model
         'product_category_id',
         'equipment_category_id',
         'code',
+        'standard',
+        'standard_max',
+        'standard_min',
     ];
 
     protected $keyType = 'string';
@@ -55,13 +60,17 @@ final class EquipmentParameter extends Model
         return $this->belongsTo(EquipmentCategory::class);
     }
 
-    public function standardParameter(): HasOne
+    public function unit(): BelongsTo
     {
-        return $this->hasOne(StandardParameter::class);
+        return $this->belongsTo(Unit::class);
     }
 
     protected function casts(): array
     {
-        return [];
+        return [
+            'standard' => 'float',
+            'standard_max' => 'float',
+            'standard_min' => 'float',
+        ];
     }
 }

@@ -16,7 +16,9 @@ final class UpdateEquipmentParameterAction
     public function asController(UpdateEquipmentParameterRequest $request, string $id): JsonResponse
     {
         $parameter = EquipmentParameter::findOrFail($id);
-        $parameter->update($request->validated());
+        $validated = $request->validated();
+
+        $parameter->update($validated);
 
         return response()->json($parameter);
     }

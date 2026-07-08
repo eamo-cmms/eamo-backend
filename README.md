@@ -62,7 +62,13 @@ php artisan passport:client --public --name="Eamo Frontend" --redirect_uri="http
 ```
 Note: Note the generated Client ID and copy it into the frontend application configuration.
 
-### 2.7. Asset Compilation and Execution
+### 2.7. Public Storage Symlink
+Create a symbolic link from the public folder to the storage directory to make uploaded assets (like equipment images) accessible from the web:
+```bash
+php artisan storage:link
+```
+
+### 2.8. Asset Compilation and Execution
 Compile the frontend assets for the single-page Laravel login interface and run the local development server:
 ```bash
 npm install

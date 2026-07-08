@@ -15,7 +15,10 @@ final class IndexEquipmentErrorAction
 
     public function asController(Request $request): JsonResponse
     {
-        $errors = EquipmentError::paginate($request->integer('per_page', 15));
+        $errors = EquipmentError::query()
+            ->with(['equipment'])
+            ->filter($request->all())
+            ->paginate($request->integer('per_page', 15));
 
         return response()->json($errors);
     }
