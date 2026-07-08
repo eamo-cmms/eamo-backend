@@ -14,6 +14,6 @@ class ListUsersService
      */
     public function execute(): Collection
     {
-        return User::with('department')->get();
+        return User::with('department.company')->get();
     }
 }

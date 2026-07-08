@@ -14,6 +14,6 @@ class ListDepartmentsService
      */
     public function execute(): Collection
     {
-        return Department::all();
+        return Department::with('company')->get();
     }
 }

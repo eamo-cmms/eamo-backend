@@ -25,6 +25,7 @@ class DepartmentResource extends JsonResource
             'name' => $this->name,
             'contact' => $this->contact,
             'company' => new CompanyResource($this->whenLoaded('company')),
+            'company_name' => $this->relationLoaded('company') ? $this->company?->name : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

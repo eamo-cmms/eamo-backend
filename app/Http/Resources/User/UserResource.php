@@ -23,6 +23,11 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'roles' => $this->role ? [$this->role] : [],
+            'department_id' => $this->department_id,
+            'department_name' => $this->relationLoaded('department') ? $this->department?->name : null,
+            'company_name' => ($this->relationLoaded('department') && $this->department?->relationLoaded('company'))
+                ? $this->department?->company?->name
+                : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
