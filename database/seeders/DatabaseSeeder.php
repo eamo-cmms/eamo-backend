@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Modules\Masterdata\Equipment\Seeders\EquipmentSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -55,5 +56,7 @@ class DatabaseSeeder extends Seeder
         ])->create([
             'password' => $password,
         ]);
+
+        $this->call(EquipmentSeeder::class);
     }
 }

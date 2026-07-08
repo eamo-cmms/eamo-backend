@@ -48,4 +48,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/users/{user}', UpdateUserController::class);
     Route::patch('/users/{user}', UpdateUserController::class);
     Route::delete('/users/{user}', DestroyUserController::class);
+
+    // Equipment Module Routes
+    if (file_exists(base_path('modules/Masterdata/Equipment/routes.php'))) {
+        require base_path('modules/Masterdata/Equipment/routes.php');
+    }
 });
