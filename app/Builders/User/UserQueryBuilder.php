@@ -93,4 +93,22 @@ class UserQueryBuilder extends Builder
                 $query->whereCompanyName($companyName);
             });
     }
+
+    /**
+     * Filter users who have created checklist sessions for a specific equipment.
+     */
+    public function whereHasChecklistForEquipment(string $equipmentId): self
+    {
+        return $this->whereHas('checklistSessions', function ($query) use ($equipmentId) {
+            $query->where('equipment_id', $equipmentId);
+        });
+    }
+
+    /**
+     * Filter users who have created any checklist sessions.
+     */
+    public function whereHasChecklists(): self
+    {
+        return $this->has('checklistSessions');
+    }
 }

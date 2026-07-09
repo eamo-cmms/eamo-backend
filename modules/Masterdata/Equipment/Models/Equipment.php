@@ -10,8 +10,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Modules\Equipment\Checklist\Models\ChecklistDetail;
+use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
+use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
+use Modules\Equipment\Maintenance\Models\MaintenancePlan;
+use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
 
 /**
@@ -88,6 +95,43 @@ final class Equipment extends Model
     public function equipmentImages(): HasMany
     {
         return $this->hasMany(EquipmentImage::class);
+    }
+
+    public function checklistSessions(): HasMany
+    {
+        return $this->hasMany(ChecklistSession::class, 'equipment_id');
+    }
+
+    public function checklistDetails(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ChecklistDetail::class,
+            ChecklistSession::class,
+            'equipment_id',
+            'session_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function maintenancePlans(): HasMany
+    {
+        return $this->hasMany(MaintenancePlan::class, 'equipment_id');
+    }
+
+    public function operatingTimes(): HasMany
+    {
+        return $this->hasMany(OperatingTime::class, 'equipment_id');
+    }
+
+    public function parameterLogs(): HasMany
+    {
+        return $this->hasMany(EquipmentParameterLog::class, 'equipment_id');
+    }
+
+    public function errorLogs(): HasMany
+    {
+        return $this->hasMany(EquipmentErrorLog::class, 'equipment_id');
     }
 
     protected static function boot(): void

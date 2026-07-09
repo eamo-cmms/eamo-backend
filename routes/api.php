@@ -53,4 +53,20 @@ Route::middleware('auth:api')->group(function () {
     if (file_exists(base_path('modules/Masterdata/Equipment/routes.php'))) {
         require base_path('modules/Masterdata/Equipment/routes.php');
     }
+
+    if (file_exists(base_path('modules/Equipment/Checklist/routes.php'))) {
+        require base_path('modules/Equipment/Checklist/routes.php');
+    }
+
+    if (file_exists(base_path('modules/Equipment/Maintenance/routes.php'))) {
+        require base_path('modules/Equipment/Maintenance/routes.php');
+    }
+
+    if (file_exists(base_path('modules/Equipment/ErrorMonitoring/routes.php'))) {
+        require base_path('modules/Equipment/ErrorMonitoring/routes.php');
+    }
+
+    if (file_exists(base_path('modules/Equipment/ParameterLog/routes.php'))) {
+        require base_path('modules/Equipment/ParameterLog/routes.php');
+    }
 });

@@ -208,4 +208,13 @@ final class EquipmentQueryBuilder extends Builder
                 });
             });
     }
+
+    /**
+     * Eager load checklist sessions and details, along with details count.
+     */
+    public function withChecklistSessionsAndDetails(): self
+    {
+        return $this->with(['checklistSessions.details'])
+            ->withCount('checklistDetails');
+    }
 }

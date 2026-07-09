@@ -1820,12 +1820,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/LavioDev/eam-mes-package.git",
-                "reference": "f3bdcd2d227c898a18bda483887c36c5e79d7613"
+                "reference": "622e313fe9efe5e057b417c08529e067afefe6ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LavioDev/eam-mes-package/zipball/f3bdcd2d227c898a18bda483887c36c5e79d7613",
-                "reference": "f3bdcd2d227c898a18bda483887c36c5e79d7613",
+                "url": "https://api.github.com/repos/LavioDev/eam-mes-package/zipball/622e313fe9efe5e057b417c08529e067afefe6ba",
+                "reference": "622e313fe9efe5e057b417c08529e067afefe6ba",
                 "shasum": ""
             },
             "require": {
@@ -1895,7 +1895,7 @@
                 "source": "https://github.com/LavioDev/eam-mes-package/tree/main",
                 "issues": "https://github.com/LavioDev/eam-mes-package/issues"
             },
-            "time": "2026-07-08T01:48:54+00:00"
+            "time": "2026-07-09T02:02:02+00:00"
         },
         {
             "name": "lcobucci/jwt",

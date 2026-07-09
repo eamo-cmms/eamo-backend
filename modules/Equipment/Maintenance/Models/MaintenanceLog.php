@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Equipment\Maintenance\Models;
+
+use App\Concerns\HasDefaultRouteBinding;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * Class MaintenanceLog
+ *
+ * @property string $id
+ * @property string $maintenance_item_id
+ * @property string $maintenance_schedule_id
+ * @property string $type
+ * @property string $result
+ * @property string $note
+ * @property CarbonImmutable $log_date
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
+ */
+final class MaintenanceLog extends Model
+{
+    protected $table = 'eamo_maintenance_logs';
+
+    use HasDefaultRouteBinding, HasUuids;
+
+    protected $fillable = [
+        'maintenance_item_id',
+        'log_date',
+        'note',
+        'result',
+        'type',
+    ];
+
+    protected $casts = [
+        'log_date' => 'date',
+    ];
+
+    public function maintenanceSchedule(): BelongsTo
+    {
+        return $this->belongsTo(MaintenanceSchedule::class);
+    }
+
+}
