@@ -15,7 +15,7 @@ class IndexDepartmentController extends Controller
      */
     public function __invoke(Request $request, ListDepartmentsService $service): AnonymousResourceCollection
     {
-        $departments = $service->execute();
+        $departments = $service->execute($request->integer('per_page', 10));
 
         return DepartmentResource::collection($departments);
     }

@@ -19,6 +19,7 @@ final class StoreChecklistDetailRequest extends FormRequest
             'equipment_id' => ['required_without:session_id', 'string', 'max:36', 'exists:eamo_equipment,id'],
             'session_id' => ['required_without:equipment_id', 'string', 'max:36', 'exists:eamo_checklist_sessions,id'],
             'session_date' => ['nullable', 'date'],
+            'session_name' => ['nullable', 'string', 'max:255'],
             'checklists' => ['required', 'array'],
             'checklists.*.checklist_id' => [
                 'required',

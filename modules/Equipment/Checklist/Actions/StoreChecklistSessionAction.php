@@ -25,6 +25,7 @@ final class StoreChecklistSessionAction
 
         $session = DB::transaction(function () use ($data, $userIds) {
             $session = ChecklistSession::create([
+                'name' => $data['name'],
                 'equipment_id' => $data['equipment_id'],
                 'session_date' => $data['session_date'],
             ]);

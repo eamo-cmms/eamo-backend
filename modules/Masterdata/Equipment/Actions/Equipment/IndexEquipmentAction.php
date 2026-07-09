@@ -17,6 +17,7 @@ final class IndexEquipmentAction
     {
         $equipment = Equipment::query()
             ->with(['equipmentCategory', 'equipmentParameters.unit', 'equipmentErrors', 'equipmentState', 'equipmentImages'])
+            ->withChecklistSessionsAndDetails()
             ->filter($request->all())
             ->paginate($request->integer('per_page', 15));
 

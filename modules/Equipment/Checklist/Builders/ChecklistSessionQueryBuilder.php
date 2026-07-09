@@ -13,6 +13,14 @@ use Modules\Equipment\Checklist\Models\ChecklistSession;
 final class ChecklistSessionQueryBuilder extends Builder
 {
     /**
+     * Filter by name.
+     */
+    public function whereName(string $name): self
+    {
+        return $this->where('name', 'like', "%{$name}%");
+    }
+
+    /**
      * Filter by equipment ID.
      */
     public function whereEquipment(string|array $equipmentId): self
@@ -71,9 +79,12 @@ final class ChecklistSessionQueryBuilder extends Builder
      */
     public function filter(array $filters): self
     {
-        return $this->when($filters['equipment_id'] ?? null, function (self $query, $equipmentId) {
-            $query->whereEquipment($equipmentId);
+        return $this->when($filters['name'] ?? null, function (self $query, string $name) {
+            $query->whereName($name);
         })
+            ->when($filters['equipment_id'] ?? null, function (self $query, $equipmentId) {
+                $query->whereEquipment($equipmentId);
+            })
             ->when($filters['session_date'] ?? null, function (self $query, string $date) {
                 $query->whereSessionDate($date);
             })
@@ -91,7 +102,8 @@ final class ChecklistSessionQueryBuilder extends Builder
             })
             ->when($filters['q'] ?? null, function (self $query, string $q) {
                 $query->where(function (self $subQuery) use ($q) {
-                    $subQuery->where('equipment_id', 'like', "%{$q}%")
+                    $subQuery->where('name', 'like', "%{$q}%")
+                        ->orWhere('equipment_id', 'like', "%{$q}%")
                         ->orWhereHas('users', function (Builder $userQuery) use ($q) {
                             $userQuery->where('name', 'like', "%{$q}%");
                         });

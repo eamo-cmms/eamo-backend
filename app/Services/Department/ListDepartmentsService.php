@@ -3,17 +3,18 @@
 namespace App\Services\Department;
 
 use App\Models\Department;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListDepartmentsService
 {
     /**
      * Get a list of all departments.
      *
-     * @return Collection<int, Department>
+     * @param int|null $perPage
+     * @return LengthAwarePaginator
      */
-    public function execute(): Collection
+    public function execute(?int $perPage = null): LengthAwarePaginator
     {
-        return Department::with('company')->get();
+        return Department::with('company')->paginate($perPage ?? 10);
     }
 }

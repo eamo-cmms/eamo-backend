@@ -13,6 +13,16 @@ use Modules\Equipment\Checklist\Models\ChecklistDetail;
 final class ChecklistDetailQueryBuilder extends Builder
 {
     /**
+     * Filter by session name.
+     */
+    public function whereSessionName(string $name): self
+    {
+        return $this->whereHas('session', function (Builder $query) use ($name) {
+            $query->where('name', 'like', "%{$name}%");
+        });
+    }
+
+    /**
      * Filter by checklist ID.
      */
     public function whereChecklist(string|array $checklistId): self
@@ -79,9 +89,12 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function filter(array $filters): self
     {
-        return $this->when($filters['checklist_id'] ?? null, function (self $query, $checklistId) {
-            $query->whereChecklist($checklistId);
+        return $this->when($filters['session_name'] ?? null, function (self $query, string $name) {
+            $query->whereSessionName($name);
         })
+            ->when($filters['checklist_id'] ?? null, function (self $query, $checklistId) {
+                $query->whereChecklist($checklistId);
+            })
             ->when($filters['session_id'] ?? null, function (self $query, $sessionId) {
                 $query->whereSession($sessionId);
             })

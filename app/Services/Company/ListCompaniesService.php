@@ -3,17 +3,18 @@
 namespace App\Services\Company;
 
 use App\Models\Company;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListCompaniesService
 {
     /**
      * Get a list of all companies.
      *
-     * @return Collection<int, Company>
+     * @param int|null $perPage
+     * @return LengthAwarePaginator
      */
-    public function execute(): Collection
+    public function execute(?int $perPage = null): LengthAwarePaginator
     {
-        return Company::all();
+        return Company::paginate($perPage ?? 10);
     }
 }

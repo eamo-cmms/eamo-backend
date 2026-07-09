@@ -29,12 +29,14 @@ final class StoreChecklistDetailAction
             if (! $sessionId) {
                 // Find or create session for the equipment on the specified date
                 $sessionDate = $data['session_date'] ?? now()->toDateTimeString();
+                $sessionName = $data['session_name'] ?? ('Checklist Session - '.now()->toDateTimeString());
                 $session = ChecklistSession::firstOrCreate(
                     [
                         'equipment_id' => $data['equipment_id'],
                         'session_date' => $sessionDate,
                     ],
                     [
+                        'name' => $sessionName,
                         'created_by' => $request->user()?->id ?? 'system',
                     ]
                 );

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('eamo_checklist_sessions', function (Blueprint $table) {
             $table->string('id', 36)->primary();
+            $table->string('name');
             $table->string('equipment_id', 36);
             $table->datetime('session_date');
             $table->string('created_by', 36);

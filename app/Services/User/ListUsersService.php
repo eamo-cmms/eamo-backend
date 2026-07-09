@@ -3,17 +3,18 @@
 namespace App\Services\User;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListUsersService
 {
     /**
      * List all users.
      *
-     * @return Collection<int, User>
+     * @param int|null $perPage
+     * @return LengthAwarePaginator
      */
-    public function execute(): Collection
+    public function execute(?int $perPage = null): LengthAwarePaginator
     {
-        return User::with('department.company')->get();
+        return User::with('department.company')->paginate($perPage ?? 10);
     }
 }

@@ -16,6 +16,7 @@ final class UpdateChecklistSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['sometimes', 'string', 'max:255'],
             'equipment_id' => ['sometimes', 'string', 'max:36', 'exists:eamo_equipment,id'],
             'session_date' => ['sometimes', 'date'],
             'user_ids' => ['nullable', 'array'],

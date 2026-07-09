@@ -45,6 +45,7 @@ class ChecklistSeeder extends Seeder
 
                 $session = ChecklistSession::create([
                     'id' => (string) Str::uuid(),
+                    'name' => 'Checklist - '.$equipment->name,
                     'equipment_id' => $equipment->id,
                     'session_date' => $sessionDate,
                 ]);

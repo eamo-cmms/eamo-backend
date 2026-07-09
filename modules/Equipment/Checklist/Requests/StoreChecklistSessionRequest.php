@@ -16,6 +16,7 @@ final class StoreChecklistSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['required', 'string', 'max:255'],
             'equipment_id' => ['required', 'string', 'max:36', 'exists:eamo_equipment,id'],
             'session_date' => ['required', 'date'],
             'user_ids' => ['nullable', 'array'],

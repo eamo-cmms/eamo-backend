@@ -43,6 +43,7 @@ final class ChecklistSession extends Model
 
     protected $fillable = [
         'id',
+        'name',
         'session_date',
         'equipment_id',
     ];
