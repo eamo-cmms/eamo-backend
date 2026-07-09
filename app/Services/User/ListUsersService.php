@@ -8,13 +8,28 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class ListUsersService
 {
     /**
-     * List all users.
+     * Get a list of all users.
      *
      * @param int|null $perPage
+     * @param array $filters
      * @return LengthAwarePaginator
      */
-    public function execute(?int $perPage = null): LengthAwarePaginator
+    public function execute(?int $perPage = null, array $filters = []): LengthAwarePaginator
     {
-        return User::with('department.company')->paginate($perPage ?? 10);
+        $query = User::with('department.company')->filter($filters);
+
+        if (!empty($filters['role'])) {
+            $query->where('role', $filters['role']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage ?? 10);
     }
 }

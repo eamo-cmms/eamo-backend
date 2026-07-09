@@ -15,7 +15,10 @@ class IndexUserController extends Controller
      */
     public function __invoke(Request $request, ListUsersService $service): AnonymousResourceCollection
     {
-        $users = $service->execute($request->integer('per_page', 10));
+        $users = $service->execute(
+            $request->integer('per_page', 10),
+            $request->only(['company_id', 'department_id', 'role', 'search'])
+        );
 
         return UserResource::collection($users);
     }

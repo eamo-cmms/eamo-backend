@@ -15,7 +15,10 @@ class IndexCompanyController extends Controller
      */
     public function __invoke(Request $request, ListCompaniesService $service): AnonymousResourceCollection
     {
-        $companies = $service->execute($request->integer('per_page', 10));
+        $companies = $service->execute(
+            $request->integer('per_page', 10),
+            $request->only(['search'])
+        );
 
         return CompanyResource::collection($companies);
     }
