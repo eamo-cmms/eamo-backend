@@ -24,8 +24,6 @@ use Modules\Masterdata\Equipment\Models\Equipment;
  * @property CarbonImmutable $date
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
- *
- * @method static MaintenanceScheduleBuilder query()
  */
 final class MaintenanceSchedule extends Model
 {

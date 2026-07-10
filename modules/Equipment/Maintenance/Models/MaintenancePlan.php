@@ -34,8 +34,6 @@ use Modules\Masterdata\Equipment\Models\EquipmentError;
  * @property int|null $occurrences
  * @property string $created_at
  * @property string $updated_at
- *
- * @method static MaintenancePlanBuilder query()
  */
 final class MaintenancePlan extends Model
 {

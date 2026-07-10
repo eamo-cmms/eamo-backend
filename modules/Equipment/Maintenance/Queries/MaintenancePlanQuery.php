@@ -258,7 +258,6 @@ final class MaintenancePlanQuery
 
     // ─── Internal ─────────────────────────────────────────────────────────────
 
-    /** @return Builder<MaintenancePlan> */
     private function build(): Builder
     {
         if ($this->relations !== []) {
