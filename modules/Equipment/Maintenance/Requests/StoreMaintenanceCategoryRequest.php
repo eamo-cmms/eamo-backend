@@ -44,6 +44,20 @@ final class StoreMaintenanceCategoryRequest extends FormRequest
                 'min:0',
                 'max:255',
             ],
+            'items' => [
+                'nullable',
+                'array',
+            ],
+            'items.*.name' => [
+                'required_with:items',
+                'string',
+                'max:255',
+            ],
+            'items.*.description' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 }

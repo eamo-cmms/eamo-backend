@@ -6,6 +6,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 
 final class DeleteMaintenanceCategoryAction
 {
@@ -13,7 +14,9 @@ final class DeleteMaintenanceCategoryAction
 
     public function asController(string $id): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $category = MaintenanceCategory::findOrFail($id);
+        $category->delete();
+
+        return response()->json(['message' => 'Maintenance category deleted successfully.']);
     }
 }

@@ -38,6 +38,16 @@ final class StoreMaintenanceItemRequest extends FormRequest
                 'min:1',
                 'max:255',
             ],
+            'description' => [
+                'nullable',
+                'string',
+                'max:1000',
+            ],
+            'maintenance_category_id' => [
+                'required',
+                'string',
+                'exists:eamo_maintenance_categories,id',
+            ],
         ];
     }
 }

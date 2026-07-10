@@ -9,18 +9,19 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenanceItem;
 use Modules\Equipment\Maintenance\Requests\StoreMaintenanceItemRequest;
 
-final class StoreMaintenanceItemAction
+final class UpdateMaintenanceItemAction
 {
     use AsAction;
 
-    public function asController(StoreMaintenanceItemRequest $request): JsonResponse
+    public function asController(string $id, StoreMaintenanceItemRequest $request): JsonResponse
     {
-        $item = MaintenanceItem::create([
+        $item = MaintenanceItem::findOrFail($id);
+
+        $item->update([
             'name' => $request->validated('name'),
             'description' => $request->validated('description'),
-            'maintenance_category_id' => $request->validated('maintenance_category_id'),
         ]);
 
-        return response()->json($item, 201);
+        return response()->json($item);
     }
 }

@@ -7,6 +7,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Maintenance\Queries\MaintenanceCategoryQuery;
 
 final class IndexMaintenanceCategoryAction
 {
@@ -14,7 +15,22 @@ final class IndexMaintenanceCategoryAction
 
     public function asController(Request $request): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $query = MaintenanceCategoryQuery::make()
+            ->withItems()
+            ->search($request->input('q'));
+
+        if ($request->boolean('with_plans')) {
+            $query->withPlans();
+        }
+
+        if ($request->boolean('has_items')) {
+            $query->hasItems();
+        }
+
+        $categories = $query
+            ->orderByName()
+            ->paginate($request->integer('per_page', 15));
+
+        return response()->json($categories);
     }
 }

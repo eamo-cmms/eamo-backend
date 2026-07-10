@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Modules\Equipment\Maintenance\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 /**
@@ -65,5 +66,15 @@ final class MaintenanceSchedule extends Model
     public function maintenanceLogs(): HasMany
     {
         return $this->hasMany(MaintenanceLog::class, 'maintenance_schedule_id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'eamo_maintenance_schedule_user',
+            'maintenance_schedule_id',
+            'user_id'
+        );
     }
 }

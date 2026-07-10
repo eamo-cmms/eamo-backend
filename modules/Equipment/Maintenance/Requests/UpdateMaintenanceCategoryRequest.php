@@ -44,6 +44,25 @@ final class UpdateMaintenanceCategoryRequest extends FormRequest
                 'min:0',
                 'max:255',
             ],
+            'items' => [
+                'nullable',
+                'array',
+            ],
+            'items.*.id' => [
+                'nullable',
+                'string',
+                'exists:eamo_maintenance_items,id',
+            ],
+            'items.*.name' => [
+                'required_with:items',
+                'string',
+                'max:255',
+            ],
+            'items.*.description' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 }

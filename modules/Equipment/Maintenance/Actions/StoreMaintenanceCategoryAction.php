@@ -6,6 +6,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 use Modules\Equipment\Maintenance\Requests\StoreMaintenanceCategoryRequest;
 use Throwable;
 
@@ -18,7 +19,21 @@ final class StoreMaintenanceCategoryAction
      */
     public function asController(StoreMaintenanceCategoryRequest $request): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $validated = $request->validated();
+        $category = MaintenanceCategory::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        if (! empty($validated['items'])) {
+            foreach ($validated['items'] as $itemData) {
+                $category->maintenanceItems()->create([
+                    'name' => $itemData['name'],
+                    'description' => $itemData['description'] ?? null,
+                ]);
+            }
+        }
+
+        return response()->json($category->load('maintenanceItems'), 201);
     }
 }

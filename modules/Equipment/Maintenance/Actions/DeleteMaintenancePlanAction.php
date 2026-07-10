@@ -6,6 +6,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 
 final class DeleteMaintenancePlanAction
 {
@@ -13,7 +14,9 @@ final class DeleteMaintenancePlanAction
 
     public function asController(string $id): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $plan = MaintenancePlan::findOrFail($id);
+        $plan->delete();
+
+        return response()->json(['message' => 'Maintenance plan deleted successfully.']);
     }
 }

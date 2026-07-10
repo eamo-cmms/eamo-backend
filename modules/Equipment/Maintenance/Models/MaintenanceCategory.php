@@ -30,4 +30,9 @@ class MaintenanceCategory extends Model
     {
         return $this->hasMany(MaintenancePlan::class, 'maintenance_category_id', 'id');
     }
+
+    public function maintenanceItems(): HasMany
+    {
+        return $this->hasMany(MaintenanceItem::class, 'maintenance_category_id');
+    }
 }

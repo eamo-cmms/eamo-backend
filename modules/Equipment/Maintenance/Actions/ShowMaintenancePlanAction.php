@@ -6,6 +6,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 
 final class ShowMaintenancePlanAction
 {
@@ -13,7 +14,12 @@ final class ShowMaintenancePlanAction
 
     public function asController(string $id): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $plan = MaintenancePlan::with([
+            'equipment',
+            'maintenanceSchedule.maintenanceItem.maintenanceCategory',
+            'maintenanceSchedule.users',
+        ])->findOrFail($id);
+
+        return response()->json($plan);
     }
 }

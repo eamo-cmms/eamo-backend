@@ -17,6 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 
 #[Fillable(['name', 'email', 'password', 'department_id', 'role'])]
 #[Hidden(['password', 'remember_token'])]
@@ -64,6 +65,16 @@ class User extends Authenticatable implements OAuthenticatable
             'eamo_checklist_session_users',
             'user_id',
             'checklist_session_id'
+        );
+    }
+
+    public function maintenancePlans(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MaintenancePlan::class,
+            'eamo_maintenance_plan_user',
+            'user_id',
+            'maintenance_plan_id'
         );
     }
 }

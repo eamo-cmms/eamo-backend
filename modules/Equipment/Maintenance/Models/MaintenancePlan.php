@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Modules\Equipment\Maintenance\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Date;
-use App\Models\User;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
@@ -21,7 +22,6 @@ use Modules\Masterdata\Equipment\Models\EquipmentError;
  * @property string $plan_code
  * @property string $maintenance_type
  * @property string $equipment_id
- * @property string $user_id
  * @property string $notes
  * @property string $maintenance_category_id
  * @property CarbonImmutable|null $date
@@ -31,6 +31,7 @@ use Modules\Masterdata\Equipment\Models\EquipmentError;
  * @property CarbonImmutable|null $actual_end_time
  * @property string|null $cycle_type
  * @property int $cycle_interval
+ * @property int|null $occurrences
  * @property string $created_at
  * @property string $updated_at
  *
@@ -61,9 +62,10 @@ final class MaintenancePlan extends Model
         'actual_end_time',
         'cycle_type',
         'cycle_interval',
+        'occurrences',
         'notes',
         'maintenance_type',
-        'user_id',
+        'maintenance_category_id',
     ];
 
     protected $casts = [
@@ -88,9 +90,22 @@ final class MaintenancePlan extends Model
         return $this->belongsTo(EquipmentError::class, 'equipment_error_id', 'id');
     }
 
-    public function user(): BelongsTo
+    public function maintenanceCategory(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(MaintenanceCategory::class);
+    }
+
+    /**
+     * @return BelongsToMany<User, $this>
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'eamo_maintenance_plan_user',
+            'maintenance_plan_id',
+            'user_id'
+        );
     }
 
     public function maintenanceSchedule()
