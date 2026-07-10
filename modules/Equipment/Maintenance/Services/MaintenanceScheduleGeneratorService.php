@@ -42,7 +42,8 @@ final class MaintenanceScheduleGeneratorService
     }
 
     /**
-     * Generate schedules for a plan.
+     * Generate schedules for a plan (first-time creation).
+     * Sets original_date = date for all new schedules.
      *
      * @throws ValidationException
      */
@@ -71,69 +72,77 @@ final class MaintenanceScheduleGeneratorService
         $dates = $this->generateDates($startDate, $plan->cycle_type, (int) $plan->cycle_interval, $occurrences);
 
         foreach ($dates as $date) {
+            $formattedDate = $date->format('Y-m-d');
             foreach ($items as $item) {
                 MaintenanceSchedule::create([
                     'maintenance_plan_id' => $plan->id,
                     'equipment_id' => $plan->equipment_id,
                     'maintenance_item_id' => $item->id,
-                    'date' => $date->format('Y-m-d'),
+                    'date' => $formattedDate,
+                    'original_date' => $formattedDate,
+                    'is_rescheduled' => false,
                 ]);
             }
         }
     }
 
     /**
-     * Regenerate schedules for a plan, keeping schedules that already have logs.
+     * Regenerate schedules for a plan, preserving:
+     *   1. Schedules that have logs (already executed)
+     *   2. Schedules that have been manually rescheduled (is_rescheduled = true)
+     *
+     * Rescheduled schedules are matched by (item_id, original_date) so they
+     * keep their new date while still occupying their original slot.
      *
      * @throws ValidationException
      */
     public function regenerateForPlan(MaintenancePlan $plan): void
     {
-        // 1. Find schedules associated with this plan that have logs
-        $loggedScheduleIds = MaintenanceLog::whereIn(
-            'maintenance_schedule_id',
-            $plan->maintenanceSchedule()->pluck('id')
-        )->pluck('maintenance_schedule_id')->toArray();
+        // 1. Collect IDs that must never be deleted: logged OR rescheduled
+        $protectedIds = $this->getProtectedScheduleIds($plan);
 
-        // 2. If there are no cycle info details, we do not auto-generate new ones
+        // 2. If no cycle info, delete only unprotected schedules and stop
         if (empty($plan->cycle_type) || empty($plan->cycle_interval) || empty($plan->occurrences)) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $loggedScheduleIds)->delete();
+            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
 
             return;
         }
 
-        // 3. Determine items to generate
+        // 3. Determine items from the category
         $items = MaintenanceItem::where('maintenance_category_id', $plan->maintenance_category_id)->get();
         if ($items->isEmpty()) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $loggedScheduleIds)->delete();
+            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
 
             return;
         }
 
         $currentItemIds = $items->pluck('id')->toArray();
 
-        // 4. Delete schedules of items that no longer exist in the category or have a null item_id
+        // 4. Delete schedules for items no longer in the category (skip protected)
         $plan->maintenanceSchedule()
             ->where(function ($query) use ($currentItemIds) {
                 $query->whereNotIn('maintenance_item_id', $currentItemIds)
                     ->orWhereNull('maintenance_item_id');
             })
-            ->whereNotIn('id', $loggedScheduleIds)
+            ->whereNotIn('id', $protectedIds)
             ->delete();
 
-        // 5. If the cycle fields have changed, delete all remaining non-logged schedules so they get regenerated
+        // 5. If cycle fields changed, delete unprotected schedules so they get regenerated
         $cycleFields = ['cycle_type', 'cycle_interval', 'occurrences', 'date'];
         $cycleChanged = false;
         foreach ($cycleFields as $field) {
-            if ($plan->isDirty($field)) {
+            if ($plan->isDirty($field) || $plan->wasChanged($field)) {
                 $cycleChanged = true;
+
                 break;
             }
         }
+
         if ($cycleChanged) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $loggedScheduleIds)->delete();
+            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
         }
 
+        // 6. Validate total schedule count
         $occurrences = (int) $plan->occurrences;
         $itemsCount = $items->count();
         $totalNewSchedules = $occurrences * $itemsCount;
@@ -144,18 +153,22 @@ final class MaintenanceScheduleGeneratorService
             ]);
         }
 
-        // 6. Generate target schedule entries (date + item_id)
+        // 7. Generate target dates
         $startDate = CarbonImmutable::parse($plan->date);
         $dates = $this->generateDates($startDate, $plan->cycle_type, (int) $plan->cycle_interval, $occurrences);
 
-        // 7. For each target, check if any schedule already exists matching the item and date.
-        // If it exists, keep it. Otherwise, create a new one.
+        // 8. For each slot (item + date), check if a schedule already occupies it.
+        //    Match by original_date so rescheduled records still claim their slot.
         foreach ($dates as $date) {
             $formattedDate = $date->format('Y-m-d');
             foreach ($items as $item) {
                 $exists = $plan->maintenanceSchedule()
                     ->where('maintenance_item_id', $item->id)
-                    ->where('date', $formattedDate)
+                    ->where(function ($query) use ($formattedDate) {
+                        // Match either by current date (unmodified) or original_date (rescheduled)
+                        $query->where('date', $formattedDate)
+                            ->orWhere('original_date', $formattedDate);
+                    })
                     ->exists();
 
                 if (! $exists) {
@@ -164,9 +177,35 @@ final class MaintenanceScheduleGeneratorService
                         'equipment_id' => $plan->equipment_id,
                         'maintenance_item_id' => $item->id,
                         'date' => $formattedDate,
+                        'original_date' => $formattedDate,
+                        'is_rescheduled' => false,
                     ]);
                 }
             }
         }
+    }
+
+    /**
+     * Get IDs of schedules that should not be deleted during regeneration.
+     * Protected = has logs OR is_rescheduled = true.
+     *
+     * @return string[]
+     */
+    private function getProtectedScheduleIds(MaintenancePlan $plan): array
+    {
+        $scheduleIds = $plan->maintenanceSchedule()->pluck('id');
+
+        // Schedules with logs
+        $loggedIds = MaintenanceLog::whereIn('maintenance_schedule_id', $scheduleIds)
+            ->pluck('maintenance_schedule_id')
+            ->toArray();
+
+        // Schedules manually rescheduled
+        $rescheduledIds = $plan->maintenanceSchedule()
+            ->where('is_rescheduled', true)
+            ->pluck('id')
+            ->toArray();
+
+        return array_values(array_unique(array_merge($loggedIds, $rescheduledIds)));
     }
 }

@@ -22,6 +22,8 @@ use Modules\Masterdata\Equipment\Models\Equipment;
  * @property string $maintenance_item_id
  * @property string $maintenance_plan_id
  * @property CarbonImmutable $date
+ * @property bool $is_rescheduled
+ * @property CarbonImmutable|null $original_date
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -36,9 +38,12 @@ final class MaintenanceSchedule extends Model
         'maintenance_item_id',
         'maintenance_plan_id',
         'date',
+        'is_rescheduled',
+        'original_date',
     ];
 
     protected $casts = [
+        'is_rescheduled' => 'boolean',
     ];
 
     public function maintenancePlan(): BelongsTo
