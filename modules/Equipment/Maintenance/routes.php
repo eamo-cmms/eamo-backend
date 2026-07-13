@@ -5,17 +5,21 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\IndexMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\ShowMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\StoreMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceScheduleAction;
 
@@ -28,6 +32,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function () {
 
     Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
     Route::put('maintenance-schedules/{id}', UpdateMaintenanceScheduleAction::class);
+    Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
+    Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
+    Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
+    Route::delete('maintenance-logs/{id}', DeleteMaintenanceLogAction::class);
 
     Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
     Route::post('maintenance-categories', StoreMaintenanceCategoryAction::class);

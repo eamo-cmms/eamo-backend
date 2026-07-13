@@ -63,6 +63,15 @@ final class UpdateMaintenanceCategoryRequest extends FormRequest
                 'string',
                 'max:255',
             ],
+            'items.*.user_ids' => [
+                'nullable',
+                'array',
+            ],
+            'items.*.user_ids.*' => [
+                'required_with:items.*.user_ids',
+                'string',
+                'exists:users,id',
+            ],
         ];
     }
 }

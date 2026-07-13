@@ -116,6 +116,7 @@ class EquipmentSeeder extends Seeder
                     'equipment_category_id' => $cat->id,
                     'name' => $eq['name'],
                     'code' => $eq['code'],
+                    'maintenance_interval_hours' => rand(200, 2000),
                     'is_active' => true,
                 ]);
 

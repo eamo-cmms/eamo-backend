@@ -27,13 +27,17 @@ final class StoreMaintenanceCategoryAction
 
         if (! empty($validated['items'])) {
             foreach ($validated['items'] as $itemData) {
-                $category->maintenanceItems()->create([
+                $item = $category->maintenanceItems()->create([
                     'name' => $itemData['name'],
                     'description' => $itemData['description'] ?? null,
                 ]);
+
+                if (! empty($itemData['user_ids'])) {
+                    $item->users()->sync($itemData['user_ids']);
+                }
             }
         }
 
-        return response()->json($category->load('maintenanceItems'), 201);
+        return response()->json($category->load('maintenanceItems.users'), 201);
     }
 }

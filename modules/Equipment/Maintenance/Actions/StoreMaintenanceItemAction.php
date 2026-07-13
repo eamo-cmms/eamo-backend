@@ -21,6 +21,10 @@ final class StoreMaintenanceItemAction
             'maintenance_category_id' => $request->validated('maintenance_category_id'),
         ]);
 
-        return response()->json($item, 201);
+        if ($request->has('user_ids')) {
+            $item->users()->sync($request->validated('user_ids') ?? []);
+        }
+
+        return response()->json($item->load('users'), 201);
     }
 }

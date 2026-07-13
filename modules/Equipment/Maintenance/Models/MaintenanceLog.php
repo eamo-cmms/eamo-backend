@@ -30,7 +30,7 @@ final class MaintenanceLog extends Model
     use HasDefaultRouteBinding, HasUuids;
 
     protected $fillable = [
-        'maintenance_item_id',
+        'maintenance_schedule_id',
         'log_date',
         'note',
         'result',
@@ -45,5 +45,4 @@ final class MaintenanceLog extends Model
     {
         return $this->belongsTo(MaintenanceSchedule::class);
     }
-
 }

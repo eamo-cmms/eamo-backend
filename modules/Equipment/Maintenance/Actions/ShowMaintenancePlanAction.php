@@ -18,6 +18,7 @@ final class ShowMaintenancePlanAction
             'equipment',
             'maintenanceSchedule.maintenanceItem.maintenanceCategory',
             'maintenanceSchedule.users',
+            'maintenanceSchedule.maintenanceLogs',
         ])->findOrFail($id);
 
         return response()->json($plan);

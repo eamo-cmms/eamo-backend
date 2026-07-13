@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->string('name');
-            $table->string('contact')->nullable();
-            $table->timestamps();
+        Schema::table('eamo_equipment', function (Blueprint $table) {
+            $table->unsignedInteger('maintenance_interval_hours')->nullable()->after('device_id');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::table('eamo_equipment', function (Blueprint $table) {
+            $table->dropColumn('maintenance_interval_hours');
+        });
     }
 };

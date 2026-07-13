@@ -53,7 +53,7 @@ final class MaintenanceScheduleGeneratorService
             return;
         }
 
-        $items = MaintenanceItem::where('maintenance_category_id', $plan->maintenance_category_id)->get();
+        $items = MaintenanceItem::with('users')->where('maintenance_category_id', $plan->maintenance_category_id)->get();
         if ($items->isEmpty()) {
             return;
         }
@@ -74,7 +74,7 @@ final class MaintenanceScheduleGeneratorService
         foreach ($dates as $date) {
             $formattedDate = $date->format('Y-m-d');
             foreach ($items as $item) {
-                MaintenanceSchedule::create([
+                $schedule = MaintenanceSchedule::create([
                     'maintenance_plan_id' => $plan->id,
                     'equipment_id' => $plan->equipment_id,
                     'maintenance_item_id' => $item->id,
@@ -82,6 +82,11 @@ final class MaintenanceScheduleGeneratorService
                     'original_date' => $formattedDate,
                     'is_rescheduled' => false,
                 ]);
+
+                $userIds = $item->users->pluck('id')->toArray();
+                if (! empty($userIds)) {
+                    $schedule->users()->sync($userIds);
+                }
             }
         }
     }
@@ -109,7 +114,7 @@ final class MaintenanceScheduleGeneratorService
         }
 
         // 3. Determine items from the category
-        $items = MaintenanceItem::where('maintenance_category_id', $plan->maintenance_category_id)->get();
+        $items = MaintenanceItem::with('users')->where('maintenance_category_id', $plan->maintenance_category_id)->get();
         if ($items->isEmpty()) {
             $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
 
@@ -172,7 +177,7 @@ final class MaintenanceScheduleGeneratorService
                     ->exists();
 
                 if (! $exists) {
-                    MaintenanceSchedule::create([
+                    $schedule = MaintenanceSchedule::create([
                         'maintenance_plan_id' => $plan->id,
                         'equipment_id' => $plan->equipment_id,
                         'maintenance_item_id' => $item->id,
@@ -180,6 +185,11 @@ final class MaintenanceScheduleGeneratorService
                         'original_date' => $formattedDate,
                         'is_rescheduled' => false,
                     ]);
+
+                    $userIds = $item->users->pluck('id')->toArray();
+                    if (! empty($userIds)) {
+                        $schedule->users()->sync($userIds);
+                    }
                 }
             }
         }

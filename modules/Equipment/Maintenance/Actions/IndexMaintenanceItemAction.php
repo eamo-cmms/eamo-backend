@@ -17,6 +17,7 @@ final class IndexMaintenanceItemAction
     {
         $query = MaintenanceItemQuery::make()
             ->withCategory()
+            ->withUsers()
             ->search($request->input('q'));
 
         if ($request->filled('maintenance_category_id')) {

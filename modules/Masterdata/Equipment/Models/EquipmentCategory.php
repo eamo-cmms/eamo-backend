@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class EquipmentCategory
  *
  * @property string $id
+ * @property string $code
  * @property string $name
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -24,6 +25,7 @@ final class EquipmentCategory extends Model
 
     protected $fillable = [
         'id',
+        'code',
         'name',
     ];
 

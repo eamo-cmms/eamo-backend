@@ -37,20 +37,24 @@ final class UpdateMaintenanceCategoryAction
             foreach ($itemsInput as $itemData) {
                 if (! empty($itemData['id'])) {
                     // Update existing item
-                    $category->maintenanceItems()->where('id', $itemData['id'])->update([
+                    $item = $category->maintenanceItems()->findOrFail($itemData['id']);
+                    $item->update([
                         'name' => $itemData['name'],
                         'description' => $itemData['description'] ?? null,
                     ]);
                 } else {
                     // Create new item
-                    $category->maintenanceItems()->create([
+                    $item = $category->maintenanceItems()->create([
                         'name' => $itemData['name'],
                         'description' => $itemData['description'] ?? null,
                     ]);
                 }
+
+                $userIds = $itemData['user_ids'] ?? [];
+                $item->users()->sync($userIds);
             }
         }
 
-        return response()->json($category->fresh()->load('maintenanceItems'));
+        return response()->json($category->fresh()->load('maintenanceItems.users'));
     }
 }

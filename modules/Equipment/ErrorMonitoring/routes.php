@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Equipment\ErrorMonitoring\Actions\DeleteEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\DeleteOperatingTimeAction;
 use Modules\Equipment\ErrorMonitoring\Actions\EquipmentErrorLogChartAction;
+use Modules\Equipment\ErrorMonitoring\Actions\GetMaintenanceStatusChartAction;
 use Modules\Equipment\ErrorMonitoring\Actions\IndexEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\IndexOperatingTimeAction;
 use Modules\Equipment\ErrorMonitoring\Actions\IndexStockOeeChartAction;
@@ -36,6 +37,7 @@ Route::group([], function (): void {
 
     Route::prefix('v1/equipment/error-monitoring/operating-times')->name('operating-times.')->group(function (): void {
         Route::get('/', IndexOperatingTimeAction::class)->name('index');
+        Route::get('/maintenance-status', GetMaintenanceStatusChartAction::class)->name('maintenance-status');
         Route::post('/', StoreOperatingTimeAction::class)->name('store');
         Route::put('/{id}', UpdateOperatingTimeAction::class)->name('update');
         Route::delete('/{id}', DeleteOperatingTimeAction::class)->name('destroy');

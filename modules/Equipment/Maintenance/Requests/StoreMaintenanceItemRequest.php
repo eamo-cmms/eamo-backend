@@ -48,6 +48,14 @@ final class StoreMaintenanceItemRequest extends FormRequest
                 'string',
                 'exists:eamo_maintenance_categories,id',
             ],
+            'user_ids' => [
+                'nullable',
+                'array',
+            ],
+            'user_ids.*' => [
+                'string',
+                'exists:users,id',
+            ],
         ];
     }
 }

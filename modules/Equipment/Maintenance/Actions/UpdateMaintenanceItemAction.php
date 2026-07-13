@@ -22,6 +22,10 @@ final class UpdateMaintenanceItemAction
             'description' => $request->validated('description'),
         ]);
 
-        return response()->json($item);
+        if ($request->has('user_ids')) {
+            $item->users()->sync($request->validated('user_ids') ?? []);
+        }
+
+        return response()->json($item->load('users'));
     }
 }

@@ -27,6 +27,13 @@ final class UpdateMaintenancePlanAction
 
         $updatedPlan = $updateService->update($plan, $request->validated());
 
+        $updatedPlan->load([
+            'equipment',
+            'maintenanceSchedule.maintenanceItem.maintenanceCategory',
+            'maintenanceSchedule.users',
+            'maintenanceSchedule.maintenanceLogs',
+        ]);
+
         return response()->json($updatedPlan);
     }
 }

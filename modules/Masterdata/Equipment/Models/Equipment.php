@@ -29,6 +29,8 @@ use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
  * @property string $code
  * @property string|null $equipment_category_id
  * @property string|null $device_id
+ * @property int|null $maintenance_interval_hours
+ * @property array|null $last_maintenance
  * @property bool $is_active
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -45,6 +47,8 @@ final class Equipment extends Model
         'work_center_id',
         'equipment_category_id',
         'device_id',
+        'maintenance_interval_hours',
+        'last_maintenance',
         'is_active',
     ];
 
@@ -149,6 +153,8 @@ final class Equipment extends Model
     {
         return [
             'is_active' => 'boolean',
+            'maintenance_interval_hours' => 'integer',
+            'last_maintenance' => 'array',
         ];
     }
 

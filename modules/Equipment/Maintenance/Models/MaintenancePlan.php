@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\Date;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
@@ -37,16 +36,34 @@ use Modules\Masterdata\Equipment\Models\EquipmentError;
  */
 final class MaintenancePlan extends Model
 {
-    // protected static function boot(): void
-    // {
-    //     parent::boot();
+    protected static function boot(): void
+    {
+        parent::boot();
 
-    //     self::creating(function (self $model) {
-    //         if (empty($model->occurred_at)) {
-    //             $model->occurred_at = Date::now();
-    //         }
-    //     });
-    // }
+        self::saved(function (self $plan) {
+            if ($plan->actual_end_time && $plan->user_id) {
+                $equipment = $plan->equipment;
+                if ($equipment) {
+                    $dateStr = $plan->date;
+                    if ($dateStr instanceof \DateTimeInterface) {
+                        $dateStr = $dateStr->format('Y-m-d');
+                    }
+                    $datetime = $dateStr
+                        ? trim($dateStr.' '.$plan->actual_end_time)
+                        : now()->toDateTimeString();
+
+                    $equipment->update([
+                        'last_maintenance' => [
+                            'equipment_id' => $plan->equipment_id,
+                            'maintenance_plan_id' => $plan->id,
+                            'datetime' => $datetime,
+                            'user_id' => $plan->user_id,
+                        ],
+                    ]);
+                }
+            }
+        });
+    }
 
     use HasDefaultRouteBinding, HasUuids;
 
@@ -62,6 +79,7 @@ final class MaintenancePlan extends Model
         'cycle_interval',
         'occurrences',
         'notes',
+        'user_id',
         'maintenance_type',
         'maintenance_category_id',
     ];

@@ -23,6 +23,7 @@ class StoreEquipmentRequest extends FormRequest
             'uploaded_images.*' => ['file', 'image', 'max:2048'],
             'state' => ['nullable', 'string', 'max:255'],
             'device_id' => ['nullable', 'uuid'],
+            'maintenance_interval_hours' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
             'equipment_error_ids' => ['nullable', 'array'],
             'equipment_error_ids.*' => ['string', 'uuid'],
