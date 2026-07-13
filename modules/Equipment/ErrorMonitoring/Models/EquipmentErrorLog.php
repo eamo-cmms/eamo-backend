@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Modules\Equipment\ErrorMonitoring\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
+use App\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
@@ -63,45 +63,6 @@ final class EquipmentErrorLog extends Model
 
     protected $table = 'eamo_equipment_error_logs';
 
-    public static function pruneExcess(): void
-    {
-        $equipmentIds = self::query()
-            ->select('equipment_id')
-            ->groupBy('equipment_id')
-            ->havingRaw('COUNT(*) > ?', [self::MAX_LOG_RECORDS])
-            ->pluck('equipment_id');
-
-        foreach ($equipmentIds as $equipmentId) {
-            $cutoff = self::query()
-                ->where('equipment_id', $equipmentId)
-                ->select(['occurred_at', 'id'])
-                ->orderBy('occurred_at', 'desc')
-                ->orderBy('id', 'desc')
-                ->skip(self::MAX_LOG_RECORDS - 1)
-                ->first();
-
-            if (! $cutoff) {
-                continue;
-            }
-
-            $cutoffOccurredAt = $cutoff->occurred_at;
-            $cutoffId = $cutoff->id;
-
-            self::query()
-                ->where('equipment_id', $equipmentId)
-                ->where(function (Builder $query) use ($cutoffOccurredAt, $cutoffId): void {
-                    $query
-                        ->where('occurred_at', '<', $cutoffOccurredAt)
-                        ->orWhere(function (Builder $query) use ($cutoffOccurredAt, $cutoffId): void {
-                            $query
-                                ->where('occurred_at', $cutoffOccurredAt)
-                                ->where('id', '<', $cutoffId);
-                        });
-                })
-                ->delete();
-        }
-    }
-
     public function handledTime(): Attribute
     {
         return Attribute::get(
@@ -128,11 +89,16 @@ final class EquipmentErrorLog extends Model
     }
 
     /**
-     * @return BelongsTo<User, $this>
+     * @return BelongsToMany<User, $this>
      */
-    public function handler(): BelongsTo
+    public function handlers(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'handler_id', 'id');
+        return $this->belongsToMany(
+            User::class,
+            'eamo_equipment_error_log_user',
+            'error_log_id',
+            'user_id'
+        );
     }
 
     protected static function boot(): void

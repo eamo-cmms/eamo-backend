@@ -14,6 +14,7 @@ use Modules\Equipment\ErrorMonitoring\Actions\SaveEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\ShowEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\StoreEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\StoreOperatingTimeAction;
+use Modules\Equipment\ErrorMonitoring\Actions\SyncResolvedErrorsAction;
 use Modules\Equipment\ErrorMonitoring\Actions\UpdateEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\UpdateOperatingTimeAction;
 
@@ -24,9 +25,11 @@ Route::group([], function (): void {
         Route::get('/oee', IndexStockOeeChartAction::class)->name('oee');
         Route::get('/oee-home', IndexStockOeeHomeChartAction::class)->name('oee-home');
         Route::get('/chart', EquipmentErrorLogChartAction::class)->name('chart');
+        Route::post('/sync-resolved', SyncResolvedErrorsAction::class)->name('sync-resolved');
         Route::get('/{id}', ShowEquipmentErrorLogAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentErrorLogAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentErrorLogAction::class)->name('destroy');
+        Route::post('/{id}/sync-resolved', SyncResolvedErrorsAction::class)->name('sync-resolved-one');
 
         Route::post('/save', SaveEquipmentErrorLogAction::class)->name('save');
     });

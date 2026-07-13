@@ -15,7 +15,7 @@ final class IndexEquipmentErrorLogAction
 
     public function asController(Request $request): JsonResponse
     {
-        $logs = EquipmentErrorLog::with(['equipment', 'equipmentError', 'handler'])->latest('occurred_at')->get();
+        $logs = EquipmentErrorLog::with(['equipment', 'equipmentError', 'handlers'])->latest('occurred_at')->get();
 
         return response()->json([
             'status' => 'success',

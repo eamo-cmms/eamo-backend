@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Requests\UpdateEquipmentErrorLogRequest;
+use Modules\Equipment\ErrorMonitoring\Services\UpdateEquipmentErrorLogService;
 use Throwable;
 
 final class UpdateEquipmentErrorLogAction
@@ -17,14 +18,17 @@ final class UpdateEquipmentErrorLogAction
     /**
      * @throws Throwable
      */
-    public function asController(string $id, UpdateEquipmentErrorLogRequest $request): JsonResponse
-    {
+    public function asController(
+        string $id,
+        UpdateEquipmentErrorLogRequest $request,
+        UpdateEquipmentErrorLogService $service
+    ): JsonResponse {
         $log = EquipmentErrorLog::findOrFail($id);
-        $log->update($request->validated());
+        $updatedLog = $service->execute($log, $request->validated());
 
         return response()->json([
             'status' => 'success',
-            'data' => $log->load(['equipment', 'equipmentError', 'handler']),
+            'data' => $updatedLog,
         ]);
     }
 }

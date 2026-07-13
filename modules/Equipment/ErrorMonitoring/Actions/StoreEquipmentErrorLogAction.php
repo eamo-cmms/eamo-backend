@@ -6,8 +6,8 @@ namespace Modules\Equipment\ErrorMonitoring\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Requests\StoreEquipmentErrorLogRequest;
+use Modules\Equipment\ErrorMonitoring\Services\StoreEquipmentErrorLogService;
 use Throwable;
 
 final class StoreEquipmentErrorLogAction
@@ -17,13 +17,15 @@ final class StoreEquipmentErrorLogAction
     /**
      * @throws Throwable
      */
-    public function asController(StoreEquipmentErrorLogRequest $request): JsonResponse
-    {
-        $log = EquipmentErrorLog::create($request->validated());
+    public function asController(
+        StoreEquipmentErrorLogRequest $request,
+        StoreEquipmentErrorLogService $service
+    ): JsonResponse {
+        $log = $service->execute($request->validated());
 
         return response()->json([
             'status' => 'success',
-            'data' => $log->load(['equipment', 'equipmentError', 'handler']),
+            'data' => $log,
         ], 201);
     }
 }

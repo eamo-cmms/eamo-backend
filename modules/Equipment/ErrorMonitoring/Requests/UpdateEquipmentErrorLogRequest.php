@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\ErrorMonitoring\Requests;
 
+use App\Models\User;
 use App\Rules\IsValidId;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
-use App\Models\User;
 
 /**
  * @property-read string|null $name
@@ -48,8 +48,9 @@ final class UpdateEquipmentErrorLogRequest extends FormRequest
             'occurred_at' => ['sometimes', 'required', 'date'],
             'restarted_at' => ['nullable', 'date'],
             'handled_at' => ['nullable', 'date'],
-            'handler_id' => [
-                'nullable',
+            'handler_ids' => ['nullable', 'array'],
+            'handler_ids.*' => [
+                'required',
                 'string',
                 'max:36',
                 new IsValidId,
