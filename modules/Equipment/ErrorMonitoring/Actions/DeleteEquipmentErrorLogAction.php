@@ -6,6 +6,7 @@ namespace Modules\Equipment\ErrorMonitoring\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 
 final class DeleteEquipmentErrorLogAction
 {
@@ -13,7 +14,12 @@ final class DeleteEquipmentErrorLogAction
 
     public function asController(string $id): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $log = EquipmentErrorLog::findOrFail($id);
+        $log->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Equipment error log deleted successfully',
+        ]);
     }
 }

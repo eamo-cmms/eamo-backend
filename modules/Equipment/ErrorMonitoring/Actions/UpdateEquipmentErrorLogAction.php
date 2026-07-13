@@ -6,6 +6,7 @@ namespace Modules\Equipment\ErrorMonitoring\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Requests\UpdateEquipmentErrorLogRequest;
 use Throwable;
 
@@ -18,7 +19,12 @@ final class UpdateEquipmentErrorLogAction
      */
     public function asController(string $id, UpdateEquipmentErrorLogRequest $request): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $log = EquipmentErrorLog::findOrFail($id);
+        $log->update($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $log->load(['equipment', 'equipmentError', 'handler']),
+        ]);
     }
 }

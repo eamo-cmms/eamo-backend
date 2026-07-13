@@ -7,6 +7,7 @@ namespace Modules\Equipment\ErrorMonitoring\Actions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 
 final class IndexEquipmentErrorLogAction
 {
@@ -14,7 +15,11 @@ final class IndexEquipmentErrorLogAction
 
     public function asController(Request $request): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $logs = EquipmentErrorLog::with(['equipment', 'equipmentError', 'handler'])->latest('occurred_at')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $logs,
+        ]);
     }
 }

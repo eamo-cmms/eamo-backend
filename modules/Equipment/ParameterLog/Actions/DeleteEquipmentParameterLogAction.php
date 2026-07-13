@@ -6,6 +6,7 @@ namespace Modules\Equipment\ParameterLog\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 
 final class DeleteEquipmentParameterLogAction
 {
@@ -13,7 +14,12 @@ final class DeleteEquipmentParameterLogAction
 
     public function asController(string $id): JsonResponse
     {
-        // TODO: Implement custom logic
-        return response()->json([]);
+        $log = EquipmentParameterLog::findOrFail($id);
+        $log->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Equipment parameter log deleted successfully',
+        ]);
     }
 }

@@ -38,13 +38,16 @@ final class StoreEquipmentParameterLogRequest extends FormRequest
                 'max:36',
             ],
             'unit_id' => [
-                'required',
+                'sometimes',
+                'nullable',
                 'string',
-                'min:1',
                 new IsValidId,
                 'max:36',
             ],
             'value' => ['required', 'string', 'min:1', 'max:36'],
+            'product_id' => ['sometimes', 'nullable', 'string', 'max:36'],
+            'lot_id' => ['sometimes', 'nullable', 'string', 'max:36'],
+            'component_id' => ['sometimes', 'nullable', 'string', 'max:36'],
         ];
     }
 }

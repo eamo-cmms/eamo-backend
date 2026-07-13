@@ -9,6 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
+use App\Models\User;
 
 /**
  * @property-read string $name
@@ -21,7 +22,7 @@ final class StoreEquipmentErrorLogRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
@@ -41,6 +42,16 @@ final class StoreEquipmentErrorLogRequest extends FormRequest
                 'max:36',
                 new IsValidId,
                 Rule::exists(EquipmentError::class, 'id'),
+            ],
+            'occurred_at' => ['required', 'date'],
+            'restarted_at' => ['nullable', 'date'],
+            'handled_at' => ['nullable', 'date'],
+            'handler_id' => [
+                'nullable',
+                'string',
+                'max:36',
+                new IsValidId,
+                Rule::exists(User::class, 'id'),
             ],
         ];
     }
