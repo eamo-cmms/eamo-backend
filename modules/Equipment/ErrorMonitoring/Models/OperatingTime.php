@@ -54,4 +54,24 @@ final class OperatingTime extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::saving(function (self $model) {
+            $overlapExists = self::query()
+                ->where('equipment_id', $model->equipment_id)
+                ->where('start_time', '<', $model->end_time)
+                ->where('end_time', '>', $model->start_time)
+                ->when($model->exists, function ($query) use ($model) {
+                    $query->where('id', '!=', $model->id);
+                })
+                ->exists();
+
+            if ($overlapExists) {
+                throw new \InvalidArgumentException('The operating time overlaps with an existing operating time for this equipment.');
+            }
+        });
+    }
 }

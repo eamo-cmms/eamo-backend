@@ -22,6 +22,10 @@ final class SyncResolvedErrorsService
         if ($id) {
             $log = EquipmentErrorLog::findOrFail($id);
 
+            if ($log->is_synced) {
+                throw new InvalidArgumentException('This error log has already been synced.');
+            }
+
             if (! $log->handled_at || ! $log->equipment_error_id) {
                 throw new InvalidArgumentException('Error log is not resolved or has no associated error.');
             }
@@ -29,19 +33,23 @@ final class SyncResolvedErrorsService
             $equipment = Equipment::findOrFail($log->equipment_id);
             $equipment->equipmentErrors()->detach($log->equipment_error_id);
 
+            $log->update(['is_synced' => true]);
+
             return 1;
         }
 
         $resolvedLogs = EquipmentErrorLog::query()
             ->whereNotNull('handled_at')
             ->whereNotNull('equipment_error_id')
-            ->get(['equipment_id', 'equipment_error_id']);
+            ->where('is_synced', false)
+            ->get();
 
         $synced = 0;
         foreach ($resolvedLogs as $log) {
             $equipment = Equipment::find($log->equipment_id);
             if ($equipment) {
                 $equipment->equipmentErrors()->detach($log->equipment_error_id);
+                $log->update(['is_synced' => true]);
                 $synced++;
             }
         }
