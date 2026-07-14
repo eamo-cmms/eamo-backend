@@ -15,11 +15,16 @@ final class IndexEquipmentAction
 
     public function asController(Request $request): JsonResponse
     {
-        $equipment = Equipment::query()
+        $query = Equipment::query()
             ->with(['equipmentCategory', 'equipmentParameters.unit', 'equipmentErrors', 'equipmentState', 'equipmentImages'])
             ->withChecklistSessionsAndDetails()
-            ->filter($request->all())
-            ->paginate($request->integer('per_page', 15));
+            ->filter($request->all());
+
+        if ($request->boolean('all') || $request->input('paginate') === 'false') {
+            return response()->json($query->get());
+        }
+
+        $equipment = $query->paginate($request->integer('per_page', 15));
 
         return response()->json($equipment);
     }

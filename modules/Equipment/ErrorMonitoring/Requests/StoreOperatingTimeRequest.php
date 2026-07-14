@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
 
-final class StoreOperatingTimeRequest extends FormRequest
+class StoreOperatingTimeRequest extends FormRequest
 {
     public function authorize(): bool
     {
