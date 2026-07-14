@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Actions;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
@@ -12,7 +13,7 @@ use Throwable;
 
 final class UpdateMaintenanceCategoryAction
 {
-    use AsAction;
+    use AsAction, SyncsUsersWithNotification;
 
     /**
      * @throws Throwable
@@ -51,7 +52,13 @@ final class UpdateMaintenanceCategoryAction
                 }
 
                 $userIds = $itemData['user_ids'] ?? [];
-                $item->users()->sync($userIds);
+                $this->syncUsersAndNotify(
+                    $item->users(),
+                    $userIds,
+                    'maintenance_item',
+                    $item->id,
+                    $item->name
+                );
             }
         }
 

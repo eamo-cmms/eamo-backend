@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Services;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
 use Throwable;
 
 final class MaintenancePlanUpdateService
 {
+    use SyncsUsersWithNotification;
+
     public function __construct(
         private readonly MaintenanceScheduleGeneratorService $generatorService
     ) {}
@@ -68,14 +71,32 @@ final class MaintenancePlanUpdateService
                     if (! empty($scheduleData['id'])) {
                         $schedule = MaintenanceSchedule::find($scheduleData['id']);
                         if ($schedule) {
-                            $schedule->users()->sync($scheduleData['user_ids'] ?? []);
+                            $schedule->loadMissing('maintenanceItem');
+                            $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                            $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                            $this->syncUsersAndNotify(
+                                $schedule->users(),
+                                $scheduleData['user_ids'] ?? [],
+                                'maintenance_schedule',
+                                $schedule->id,
+                                $label
+                            );
                         }
                     } else {
                         $plan->maintenanceSchedule()
                             ->where('maintenance_item_id', $scheduleData['maintenance_item_id'])
                             ->get()
                             ->each(function ($schedule) use ($scheduleData) {
-                                $schedule->users()->sync($scheduleData['user_ids'] ?? []);
+                                $schedule->loadMissing('maintenanceItem');
+                                $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                                $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                                $this->syncUsersAndNotify(
+                                    $schedule->users(),
+                                    $scheduleData['user_ids'] ?? [],
+                                    'maintenance_schedule',
+                                    $schedule->id,
+                                    $label
+                                );
                             });
                     }
                 }
@@ -106,7 +127,16 @@ final class MaintenancePlanUpdateService
                         }
 
                         $schedule->update($updateData);
-                        $schedule->users()->sync($scheduleData['user_ids'] ?? []);
+                        $schedule->loadMissing('maintenanceItem');
+                        $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                        $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                        $this->syncUsersAndNotify(
+                            $schedule->users(),
+                            $scheduleData['user_ids'] ?? [],
+                            'maintenance_schedule',
+                            $schedule->id,
+                            $label
+                        );
                     }
                 } else {
                     // Create new schedule
@@ -118,7 +148,16 @@ final class MaintenancePlanUpdateService
                         'original_date' => $scheduleData['date'],
                         'is_rescheduled' => false,
                     ]);
-                    $schedule->users()->sync($scheduleData['user_ids'] ?? []);
+                    $schedule->loadMissing('maintenanceItem');
+                    $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                    $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                    $this->syncUsersAndNotify(
+                        $schedule->users(),
+                        $scheduleData['user_ids'] ?? [],
+                        'maintenance_schedule',
+                        $schedule->id,
+                        $label
+                    );
                 }
             }
         }

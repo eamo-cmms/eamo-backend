@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Actions;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
@@ -14,7 +15,7 @@ use Throwable;
 
 final class StoreMaintenancePlanAction
 {
-    use AsAction;
+    use AsAction, SyncsUsersWithNotification;
 
     /**
      * @throws Throwable
@@ -47,7 +48,16 @@ final class StoreMaintenancePlanAction
                         ->where('maintenance_item_id', $scheduleData['maintenance_item_id'])
                         ->get()
                         ->each(function ($schedule) use ($scheduleData) {
-                            $schedule->users()->sync($scheduleData['user_ids'] ?? []);
+                            $schedule->loadMissing('maintenanceItem');
+                            $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                            $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                            $this->syncUsersAndNotify(
+                                $schedule->users(),
+                                $scheduleData['user_ids'] ?? [],
+                                'maintenance_schedule',
+                                $schedule->id,
+                                $label
+                            );
                         });
                 }
             }
@@ -61,7 +71,16 @@ final class StoreMaintenancePlanAction
                 ]);
 
                 if (! empty($scheduleData['user_ids'])) {
-                    $schedule->users()->sync($scheduleData['user_ids']);
+                    $schedule->loadMissing('maintenanceItem');
+                    $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                    $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                    $this->syncUsersAndNotify(
+                        $schedule->users(),
+                        $scheduleData['user_ids'],
+                        'maintenance_schedule',
+                        $schedule->id,
+                        $label
+                    );
                 }
             }
         }

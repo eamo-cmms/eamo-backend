@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Actions;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -13,7 +14,7 @@ use Throwable;
 
 final class UpdateChecklistSessionAction
 {
-    use AsAction;
+    use AsAction, SyncsUsersWithNotification;
 
     /**
      * @throws Throwable
@@ -29,7 +30,13 @@ final class UpdateChecklistSessionAction
             $session->update($sessionData);
 
             if (array_key_exists('user_ids', $data)) {
-                $session->users()->sync($data['user_ids'] ?? []);
+                $this->syncUsersAndNotify(
+                    $session->users(),
+                    $data['user_ids'] ?? [],
+                    'checklist_session',
+                    $session->id,
+                    $session->name
+                );
             }
 
             return $session;

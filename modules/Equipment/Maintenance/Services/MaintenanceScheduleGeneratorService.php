@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Services;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\ValidationException;
 use Modules\Equipment\Maintenance\Models\MaintenanceItem;
@@ -13,6 +14,8 @@ use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
 
 final class MaintenanceScheduleGeneratorService
 {
+    use SyncsUsersWithNotification;
+
     public const MAX_SCHEDULES = 100;
 
     /**
@@ -85,7 +88,16 @@ final class MaintenanceScheduleGeneratorService
 
                 $userIds = $item->users->pluck('id')->toArray();
                 if (! empty($userIds)) {
-                    $schedule->users()->sync($userIds);
+                    $schedule->loadMissing('maintenanceItem');
+                    $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                    $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                    $this->syncUsersAndNotify(
+                        $schedule->users(),
+                        $userIds,
+                        'maintenance_schedule',
+                        $schedule->id,
+                        $label
+                    );
                 }
             }
         }
@@ -188,7 +200,16 @@ final class MaintenanceScheduleGeneratorService
 
                     $userIds = $item->users->pluck('id')->toArray();
                     if (! empty($userIds)) {
-                        $schedule->users()->sync($userIds);
+                        $schedule->loadMissing('maintenanceItem');
+                        $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
+                        $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
+                        $this->syncUsersAndNotify(
+                            $schedule->users(),
+                            $userIds,
+                            'maintenance_schedule',
+                            $schedule->id,
+                            $label
+                        );
                     }
                 }
             }

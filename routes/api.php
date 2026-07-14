@@ -10,6 +10,11 @@ use App\Http\Controllers\Department\IndexDepartmentController;
 use App\Http\Controllers\Department\ShowDepartmentController;
 use App\Http\Controllers\Department\StoreDepartmentController;
 use App\Http\Controllers\Department\UpdateDepartmentController;
+use App\Http\Controllers\Notification\GetUnreadCountNotificationController;
+use App\Http\Controllers\Notification\GetUserNotificationsController;
+use App\Http\Controllers\Notification\IndexNotificationController;
+use App\Http\Controllers\Notification\ReadAllNotificationsController;
+use App\Http\Controllers\Notification\ReadNotificationController;
 use App\Http\Controllers\User\DestroyUserController;
 use App\Http\Controllers\User\GetAuthenticatedUserController;
 use App\Http\Controllers\User\IndexUserController;
@@ -24,6 +29,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', GetAuthenticatedUserController::class);
     Route::put('/user', UpdateAuthenticatedUserController::class);
     Route::post('/logout', LogoutController::class);
+
+    // Notifications
+    Route::get('/notifications', IndexNotificationController::class);
+    Route::get('/notifications/unread-count', GetUnreadCountNotificationController::class);
+    Route::patch('/notifications/read-all', ReadAllNotificationsController::class);
+    Route::patch('/notifications/{id}/read', ReadNotificationController::class);
+    Route::get('/users/{user}/notifications', GetUserNotificationsController::class)->middleware('own.notifications');
 
     // Companies CRUD
     Route::get('/companies', IndexCompanyController::class);

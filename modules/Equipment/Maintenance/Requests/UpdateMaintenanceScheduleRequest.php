@@ -41,7 +41,8 @@ final class UpdateMaintenanceScheduleRequest extends FormRequest
             'note' => ['nullable', 'string', 'min:0', 'max:1000'],
             'proof' => ['nullable', 'array'],
             'proof.*' => ['string', 'min:1', 'max:255'],
-
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['string', 'exists:users,id'],
         ];
     }
 }
