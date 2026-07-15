@@ -42,12 +42,19 @@ final class StoreChecklistSessionAction
             }
 
             if (! empty($data['details'])) {
-                foreach ($data['details'] as $detail) {
-                    $session->details()->create([
-                        'checklist_id' => $detail['checklist_id'],
-                        'result' => $detail['result'],
-                        'description' => $detail['description'] ?? null,
+                foreach ($data['details'] as $detailData) {
+                    $detail = $session->details()->create([
+                        'checklist_id' => $detailData['checklist_id'],
+                        'description' => $detailData['description'] ?? null,
                     ]);
+
+                    $log = $detail->logs()->create([
+                        'result' => $detailData['result'],
+                    ]);
+
+                    if (! empty($userIds)) {
+                        $log->users()->sync($userIds);
+                    }
                 }
             }
 

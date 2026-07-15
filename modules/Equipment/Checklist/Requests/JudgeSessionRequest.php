@@ -27,6 +27,9 @@ class JudgeSessionRequest extends FormRequest
             'results.*.checklist_id' => ['required', 'string', 'max:36'],
             'results.*.result' => ['required', 'in:pass,fail'],
             'results.*.description' => ['nullable', 'string'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['required', 'string', 'exists:users,id'],
+            'timestamp' => ['nullable', 'string'],
         ];
     }
 }

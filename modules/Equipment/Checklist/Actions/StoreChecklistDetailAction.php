@@ -22,8 +22,9 @@ final class StoreChecklistDetailAction
     public function asController(StoreChecklistDetailRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $currentUser = $request->user();
 
-        $insertedDetails = DB::transaction(function () use ($data, $request) {
+        $insertedDetails = DB::transaction(function () use ($data, $currentUser) {
             $sessionId = $data['session_id'] ?? null;
 
             if (! $sessionId) {
@@ -37,7 +38,7 @@ final class StoreChecklistDetailAction
                     ],
                     [
                         'name' => $sessionName,
-                        'created_by' => $request->user()?->id ?? 'system',
+                        'created_by' => $currentUser?->id ?? 'system',
                     ]
                 );
                 $sessionId = $session->id;
@@ -45,12 +46,21 @@ final class StoreChecklistDetailAction
 
             $details = [];
             foreach ($data['checklists'] as $item) {
-                $details[] = ChecklistDetail::create([
+                $detail = ChecklistDetail::create([
                     'session_id' => $sessionId,
                     'checklist_id' => $item['checklist_id'],
-                    'result' => $item['result'],
                     'description' => $item['description'] ?? null,
                 ]);
+
+                $log = $detail->logs()->create([
+                    'result' => $item['result'],
+                ]);
+
+                if ($currentUser) {
+                    $log->users()->sync([$currentUser->id]);
+                }
+
+                $details[] = $detail;
             }
 
             return $details;

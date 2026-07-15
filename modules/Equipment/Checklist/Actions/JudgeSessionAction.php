@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Checklist\Models\ChecklistDetail;
+use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Requests\JudgeSessionRequest;
 use Throwable;
 
@@ -22,20 +23,38 @@ final class JudgeSessionAction
     {
         $data = $request->validated();
         $sessionId = $data['session_id'];
+        $currentUser = $request->user();
 
-        $details = DB::transaction(function () use ($sessionId, $data) {
+        $details = DB::transaction(function () use ($sessionId, $data, $currentUser) {
             $updated = [];
             foreach ($data['results'] as $item) {
-                $updated[] = ChecklistDetail::updateOrCreate(
+                $detail = ChecklistDetail::updateOrCreate(
                     [
                         'session_id' => $sessionId,
                         'checklist_id' => $item['checklist_id'],
                     ],
                     [
-                        'result' => $item['result'],
                         'description' => $item['description'] ?? null,
                     ]
                 );
+
+                $log = new ChecklistLog([
+                    'result' => $item['result'],
+                ]);
+
+                if (! empty($data['timestamp'])) {
+                    $log->created_at = $data['timestamp'];
+                    $log->updated_at = $data['timestamp'];
+                }
+
+                $detail->logs()->save($log);
+
+                $targetUserIds = $data['user_ids'] ?? ($currentUser ? [$currentUser->id] : []);
+                if (! empty($targetUserIds)) {
+                    $log->users()->sync($targetUserIds);
+                }
+
+                $updated[] = $detail;
             }
 
             return $updated;

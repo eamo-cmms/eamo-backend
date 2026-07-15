@@ -22,20 +22,30 @@ final class UpdateChecklistDetailAction
     {
         $data = $request->validated();
         $sessionId = $data['session_id'];
+        $currentUser = $request->user();
 
-        $updatedDetails = DB::transaction(function () use ($sessionId, $data) {
+        $updatedDetails = DB::transaction(function () use ($sessionId, $data, $currentUser) {
             $details = [];
             foreach ($data['checklists'] as $item) {
-                $details[] = ChecklistDetail::updateOrCreate(
+                $detail = ChecklistDetail::updateOrCreate(
                     [
                         'session_id' => $sessionId,
                         'checklist_id' => $item['checklist_id'],
                     ],
                     [
-                        'result' => $item['result'],
                         'description' => $item['description'] ?? null,
                     ]
                 );
+
+                $log = $detail->logs()->create([
+                    'result' => $item['result'],
+                ]);
+
+                if ($currentUser) {
+                    $log->users()->sync([$currentUser->id]);
+                }
+
+                $details[] = $detail;
             }
 
             return $details;

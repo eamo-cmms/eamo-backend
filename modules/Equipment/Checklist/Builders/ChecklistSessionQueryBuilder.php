@@ -69,7 +69,7 @@ final class ChecklistSessionQueryBuilder extends Builder
      */
     public function whereHasResult(string|array $result): self
     {
-        return $this->whereHas('details', function (Builder $query) use ($result) {
+        return $this->whereHas('details.logs', function (Builder $query) use ($result) {
             $query->whereIn('result', (array) $result);
         });
     }

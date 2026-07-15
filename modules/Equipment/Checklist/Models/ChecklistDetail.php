@@ -44,7 +44,15 @@ final class ChecklistDetail extends Model
         'checklist_id',
         'session_id',
         'description',
-        'result',
+    ];
+
+    /**
+     * The relations to eager load on every query.
+     *
+     * @var array<string>
+     */
+    protected $with = [
+        'logs',
     ];
 
     // public function checklist(): BelongsTo
@@ -54,5 +62,13 @@ final class ChecklistDetail extends Model
     public function session()
     {
         return $this->belongsTo(ChecklistSession::class, 'session_id'); // ✅ CORRECT
+    }
+
+    /**
+     * Get the logs for the checklist detail.
+     */
+    public function logs()
+    {
+        return $this->hasMany(ChecklistLog::class, 'checklist_detail_id');
     }
 }

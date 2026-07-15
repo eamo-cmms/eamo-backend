@@ -43,7 +43,9 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function whereResult(string|array $result): self
     {
-        return $this->whereIn('result', (array) $result);
+        return $this->whereHas('logs', function (Builder $query) use ($result) {
+            $query->whereIn('result', (array) $result);
+        });
     }
 
     /**

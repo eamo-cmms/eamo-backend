@@ -61,13 +61,22 @@ class ChecklistSeeder extends Seeder
                     $result = rand(0, 5) === 0 ? 'fail' : 'pass'; // 16.7% fail rate
                     $failReason = $result === 'fail' ? 'Minor wear detected or out of spec' : null;
 
-                    ChecklistDetail::create([
+                    $detail = ChecklistDetail::create([
                         'id' => (string) Str::uuid(),
                         'session_id' => $session->id,
                         'checklist_id' => 'CHK-ID-'.str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT),
-                        'result' => $result,
                         'description' => $failReason ?? $description,
                     ]);
+
+                    $log = $detail->logs()->create([
+                        'result' => $result,
+                        'created_at' => $sessionDate,
+                        'updated_at' => $sessionDate,
+                    ]);
+
+                    if (! empty($sessionUsers)) {
+                        $log->users()->sync($sessionUsers);
+                    }
                 }
             }
         }
