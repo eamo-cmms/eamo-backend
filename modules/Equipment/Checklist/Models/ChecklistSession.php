@@ -6,6 +6,7 @@ namespace Modules\Equipment\Checklist\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $equipment_id
  * @property string $session_date
  * @property string $created_by
- * @property string $created_at
- * @property string $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -44,12 +45,15 @@ final class ChecklistSession extends Model
     protected $fillable = [
         'id',
         'name',
-        'session_date',
         'equipment_id',
+        'session_date',
+        'cycle_type',
+        'cycle_interval',
     ];
 
     protected $casts = [
-        'session_date' => 'date',
+        'session_date' => 'datetime',
+        'cycle_interval' => 'integer',
     ];
 
     public function equipment(): BelongsTo
@@ -60,6 +64,11 @@ final class ChecklistSession extends Model
     public function details()
     {
         return $this->hasMany(ChecklistDetail::class, 'session_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(ChecklistSchedule::class, 'checklist_session_id');
     }
 
     public function users(): BelongsToMany

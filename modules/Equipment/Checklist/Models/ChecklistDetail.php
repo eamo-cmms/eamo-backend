@@ -52,7 +52,6 @@ final class ChecklistDetail extends Model
      * @var array<string>
      */
     protected $with = [
-        'logs',
     ];
 
     // public function checklist(): BelongsTo
@@ -65,10 +64,10 @@ final class ChecklistDetail extends Model
     }
 
     /**
-     * Get the logs for the checklist detail.
+     * Get the schedules for the checklist detail.
      */
-    public function logs()
+    public function schedules()
     {
-        return $this->hasMany(ChecklistLog::class, 'checklist_detail_id');
+        return $this->hasMany(ChecklistSchedule::class, 'checklist_detail_id');
     }
 }

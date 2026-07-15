@@ -43,7 +43,7 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function whereResult(string|array $result): self
     {
-        return $this->whereHas('logs', function (Builder $query) use ($result) {
+        return $this->whereHas('schedules.logs', function (Builder $query) use ($result) {
             $query->whereIn('result', (array) $result);
         });
     }
@@ -71,8 +71,8 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function whereSessionDate(string $date): self
     {
-        return $this->whereHas('session', function (Builder $query) use ($date) {
-            $query->whereDate('session_date', $date);
+        return $this->whereHas('schedules', function (Builder $query) use ($date) {
+            $query->whereDate('date', $date);
         });
     }
 
@@ -81,8 +81,8 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function whereSessionDateBetween(string $startDate, string $endDate): self
     {
-        return $this->whereHas('session', function (Builder $query) use ($startDate, $endDate) {
-            $query->whereBetween('session_date', [$startDate, $endDate]);
+        return $this->whereHas('schedules', function (Builder $query) use ($startDate, $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate]);
         });
     }
 

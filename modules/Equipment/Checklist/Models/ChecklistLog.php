@@ -6,6 +6,7 @@ namespace Modules\Equipment\Checklist\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,8 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property string $id
- * @property string $checklist_detail_id
- * @property string $result
+ * @property string $checklist_schedule_id
+ * @property 'pending'|'completed' $status
+ * @property 'pass'|'fail'|null $result
+ * @property CarbonImmutable|null $checked_at
  * @property string $created_at
  * @property string $updated_at
  */
@@ -29,8 +32,14 @@ final class ChecklistLog extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'checklist_detail_id',
+        'checklist_schedule_id',
+        'status',
         'result',
+        'checked_at',
+    ];
+
+    protected $casts = [
+        'checked_at' => 'immutable_datetime',
     ];
 
     /**
@@ -43,11 +52,11 @@ final class ChecklistLog extends Model
     ];
 
     /**
-     * Get the checklist detail that owns the log.
+     * Get the checklist schedule that owns the log.
      */
-    public function checklistDetail(): BelongsTo
+    public function checklistSchedule(): BelongsTo
     {
-        return $this->belongsTo(ChecklistDetail::class, 'checklist_detail_id');
+        return $this->belongsTo(ChecklistSchedule::class, 'checklist_schedule_id');
     }
 
     /**

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('id', 36)->primary();
             $table->string('name');
             $table->string('equipment_id', 36);
-            $table->datetime('session_date');
+            $table->datetime('session_date')->nullable();
             $table->string('created_by', 36);
             $table->timestamps();
         });

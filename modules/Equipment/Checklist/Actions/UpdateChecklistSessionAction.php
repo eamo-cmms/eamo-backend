@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Actions;
 
-use App\Concerns\SyncsUsersWithNotification;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
 use Modules\Equipment\Checklist\Requests\UpdateChecklistSessionRequest;
+use Modules\Equipment\Checklist\Services\ChecklistSessionUpdateService;
 use Throwable;
 
 final class UpdateChecklistSessionAction
 {
-    use AsAction, SyncsUsersWithNotification;
+    use AsAction;
+
+    public function __construct(
+        private readonly ChecklistSessionUpdateService $updateService
+    ) {}
 
     /**
      * @throws Throwable
@@ -22,26 +28,24 @@ final class UpdateChecklistSessionAction
     public function asController(string $id, UpdateChecklistSessionRequest $request): JsonResponse
     {
         $data = $request->validated();
-
         $session = DB::transaction(function () use ($id, $data) {
             $session = ChecklistSession::findOrFail($id);
 
-            $sessionData = array_diff_key($data, array_flip(['user_ids']));
-            $session->update($sessionData);
-
-            if (array_key_exists('user_ids', $data)) {
-                $this->syncUsersAndNotify(
-                    $session->users(),
-                    $data['user_ids'] ?? [],
-                    'checklist_session',
-                    $session->id,
-                    $session->name
-                );
-            }
-
-            return $session;
+            return $this->updateService->update($session, $data);
         });
 
-        return response()->json($session->load('users'));
+        $sessionResponse = $session->toArray();
+        if (isset($data['session_date'])) {
+            $sessionResponse['session_date'] = $data['session_date'];
+        } else {
+            $latestSchedule = ChecklistSchedule::where('checklist_session_id', $session->id)->latest('date')->first();
+            $latestDate = $latestSchedule?->date;
+            $sessionResponse['session_date'] = $latestDate
+                ? CarbonImmutable::parse($latestDate)->toDateString()
+                : null;
+        }
+        $sessionResponse['users'] = $session->users;
+
+        return response()->json($sessionResponse);
     }
 }

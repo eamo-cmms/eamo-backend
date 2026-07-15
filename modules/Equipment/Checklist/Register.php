@@ -6,14 +6,10 @@ namespace Modules\Equipment\Checklist;
 
 use App\Providers\IModuleProvider;
 use Illuminate\Support\ServiceProvider;
-use Modules\Equipment\Checklist\Seeders\ChecklistSeeder;
 
 final class Register extends ServiceProvider implements IModuleProvider
 {
-    public function seed(): void
-    {
-        app(ChecklistSeeder::class)->run();
-    }
+    public function seed(): void {}
 
     public function getRoutePath(): string
     {

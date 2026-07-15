@@ -8,6 +8,7 @@ use App\Concerns\HasDefaultRouteBinding;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class OperatingTime
@@ -73,5 +74,10 @@ final class OperatingTime extends Model
                 throw new \InvalidArgumentException('The operating time overlaps with an existing operating time for this equipment.');
             }
         });
+    }
+
+    public function equipment(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Masterdata\Equipment\Models\Equipment::class, 'equipment_id');
     }
 }

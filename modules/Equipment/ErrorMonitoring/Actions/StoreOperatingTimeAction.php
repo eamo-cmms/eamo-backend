@@ -42,6 +42,7 @@ final class StoreOperatingTimeAction
         $data['date'] = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
 
         $time = OperatingTime::create($data);
+        $time->load('equipment');
 
         return response()->json([
             'status' => 'success',

@@ -15,7 +15,7 @@ final class IndexOperatingTimeAction
 
     public function asController(Request $request): JsonResponse
     {
-        $times = OperatingTime::latest()->get();
+        $times = OperatingTime::with('equipment')->latest()->get();
 
         return response()->json([
             'status' => 'success',

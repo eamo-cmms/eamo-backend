@@ -9,9 +9,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Checklist\Models\ChecklistDetail;
+use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
-use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class CreateDailySessionAction
 {
@@ -28,10 +27,9 @@ final class CreateDailySessionAction
         $dateString = $request->input('date') ?? Carbon::today()->toDateString();
         $date = Carbon::parse($dateString);
 
-        // Verify if a session already exists
-        $exists = ChecklistSession::query()
-            ->where('equipment_id', $equipmentId)
-            ->whereDate('session_date', $date)
+        // Verify schedules exist for this equipment on this date
+        $exists = ChecklistSchedule::where('equipment_id', $equipmentId)
+            ->whereDate('date', $date)
             ->exists();
 
         if ($exists) {
@@ -40,44 +38,63 @@ final class CreateDailySessionAction
             ], 422);
         }
 
-        $equipment = Equipment::findOrFail($equipmentId);
+        // Require an existing session template for this equipment
+        $session = ChecklistSession::where('equipment_id', $equipmentId)->first();
+        if (! $session) {
+            return response()->json([
+                'message' => 'No checklist session template found for this equipment. Please create one first.',
+            ], 404);
+        }
 
-        // Create a new session dynamically
-        $session = ChecklistSession::create([
-            'id' => (string) Str::uuid(),
-            'name' => "Checklist - {$equipment->name} - {$date->toDateString()}",
-            'equipment_id' => $equipmentId,
-            'session_date' => $date,
-        ]);
-
-        // Sync the user who initiated it to the session
+        // Generate ChecklistSchedule records for this date from session details
+        $details = $session->details;
         $currentUser = $request->user();
-        if ($currentUser) {
-            $session->users()->sync([$currentUser->id]);
-        }
+        $userIds = $currentUser ? [$currentUser->id] : [];
 
-        // Populate default checklist items
-        $defaultItems = [
-            'CHK-ID-001' => 'Visual inspection of machine body for damage',
-            'CHK-ID-002' => 'Verify emergency stop switch function',
-            'CHK-ID-003' => 'Check coolant / fluid levels',
-            'CHK-ID-004' => 'Verify safety guard sensors and interlocks',
-            'CHK-ID-005' => 'Check power cables and grounding wires',
-            'CHK-ID-006' => 'Verify calibration parameters',
-        ];
-
-        foreach ($defaultItems as $checklistId => $description) {
-            ChecklistDetail::create([
+        foreach ($details as $detail) {
+            $schedule = ChecklistSchedule::create([
                 'id' => (string) Str::uuid(),
-                'session_id' => $session->id,
-                'checklist_id' => $checklistId,
-                'description' => $description,
+                'equipment_id' => $equipmentId,
+                'checklist_session_id' => $session->id,
+                'checklist_detail_id' => $detail->id,
+                'date' => $date->toDateString(),
+                'original_date' => $date->toDateString(),
+                'is_rescheduled' => false,
             ]);
+
+            $schedule->logs()->create([
+                'status' => 'pending',
+                'result' => null,
+            ]);
+
+            if (! empty($userIds)) {
+                $schedule->users()->sync($userIds);
+            }
         }
 
-        // Refresh the session with details and logs (eager loaded by default)
-        $session->load('details');
+        // Fetch new schedules and return
+        $schedules = ChecklistSchedule::with(['checklistDetail', 'logs', 'users'])
+            ->where('checklist_session_id', $session->id)
+            ->whereDate('date', $date)
+            ->get();
 
-        return response()->json($session, 201);
+        $detailsData = $schedules->map(function ($schedule) {
+            return [
+                'id' => $schedule->checklist_detail_id,
+                'schedule_id' => $schedule->id,
+                'checklist_id' => $schedule->checklistDetail?->checklist_id,
+                'description' => $schedule->checklistDetail?->description,
+                'logs' => $schedule->logs,
+                'users' => $schedule->users,
+            ];
+        });
+
+        return response()->json([
+            'id' => $session->id,
+            'name' => $session->name,
+            'equipment_id' => $equipmentId,
+            'session_date' => $date->toDateString(),
+            'details' => $detailsData,
+        ], 201);
     }
 }

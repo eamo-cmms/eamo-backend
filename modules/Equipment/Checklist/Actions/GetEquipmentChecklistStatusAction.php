@@ -8,8 +8,10 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\Checklist\Models\ChecklistLog;
+use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class GetEquipmentChecklistStatusAction
@@ -25,175 +27,126 @@ final class GetEquipmentChecklistStatusAction
 
         $endDateString = $request->input('end_date') ?? Carbon::today()->toDateString();
         $startDateString = $request->input('start_date') ?? Carbon::parse($endDateString)->subDays(6)->toDateString();
-
         $startDate = Carbon::parse($startDateString);
         $endDate = Carbon::parse($endDateString);
 
-        // Fetch all active sessions that could be active in the range (session_date >= startDate)
-        $allSessions = ChecklistSession::query()
-            ->where('session_date', '>=', $startDate->startOfDay()->toDateTimeString())
-            ->with(['details.logs'])
-            ->get();
+        $schedulesByDate = ChecklistSchedule::query()
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->with('logs')
+            ->get()
+            ->groupBy(fn (ChecklistSchedule $schedule): string => Carbon::parse($schedule->date)->toDateString());
 
-        $period = CarbonPeriod::create($startDate, $endDate);
         $dailyStats = [];
-
-        foreach ($period as $date) {
-            $dateStr = $date->toDateString();
-            $dateStart = $date->copy()->startOfDay();
-            $dateEnd = $date->copy()->endOfDay();
-
-            // Active sessions on this specific date are those where session_date >= date
-            $activeSessionsForDay = $allSessions->filter(function ($session) use ($dateStr) {
-                return Carbon::parse($session->session_date)->toDateString() >= $dateStr;
-            });
-
-            $totalDetailsForDay = 0;
-            $passedForDay = 0;
-            $failedForDay = 0;
-
-            foreach ($activeSessionsForDay as $session) {
-                foreach ($session->details as $detail) {
-                    $totalDetailsForDay++;
-
-                    // Find logs for this detail created on this specific day
-                    $dayLogs = $detail->logs->filter(function ($log) use ($dateStart, $dateEnd) {
-                        return $log->created_at >= $dateStart && $log->created_at <= $dateEnd;
-                    });
-
-                    if (! $dayLogs->isEmpty()) {
-                        $latestLog = $dayLogs->sortBy('created_at')->last();
-                        if ($latestLog && $latestLog->result === 'pass') {
-                            $passedForDay++;
-                        } elseif ($latestLog && $latestLog->result === 'fail') {
-                            $failedForDay++;
-                        }
-                    }
-                }
-            }
-
-            $pendingForDay = $totalDetailsForDay - ($passedForDay + $failedForDay);
-            $completionRate = $totalDetailsForDay > 0 ? (int) round(($passedForDay / $totalDetailsForDay) * 100) : 0;
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+            $dateString = $date->toDateString();
+            $stats = $this->summarizeSchedules($schedulesByDate->get($dateString, collect()));
 
             $dailyStats[] = [
-                'date' => $dateStr,
-                'total_checklists' => $totalDetailsForDay,
-                'passed' => $passedForDay,
-                'failed' => $failedForDay,
-                'pending' => $pendingForDay,
-                'completion_rate' => $completionRate,
+                'date' => $dateString,
+                'total_checklists' => $stats['total'],
+                'passed' => $stats['passed'],
+                'failed' => $stats['failed'],
+                'pending' => $stats['pending'],
+                'completion_rate' => $stats['total'] > 0
+                    ? (int) round(($stats['completed'] / $stats['total']) * 100)
+                    : 0,
             ];
         }
 
-        // Today's details
-        $todayStr = $endDate->toDateString();
-        $todayStart = $endDate->copy()->startOfDay();
-        $todayEnd = $endDate->copy()->endOfDay();
-
-        $activeSessionsToday = $allSessions->filter(function ($session) use ($todayStr) {
-            return Carbon::parse($session->session_date)->toDateString() >= $todayStr;
-        });
-        $activeSessionsByEquipment = $activeSessionsToday->keyBy('equipment_id');
-
-        $todayTotalDetails = 0;
-        $todayPassed = 0;
-        $todayFailed = 0;
-
-        foreach ($activeSessionsToday as $session) {
-            foreach ($session->details as $detail) {
-                $todayTotalDetails++;
-
-                $dayLogs = $detail->logs->filter(function ($log) use ($todayStart, $todayEnd) {
-                    return $log->created_at >= $todayStart && $log->created_at <= $todayEnd;
-                });
-
-                if (! $dayLogs->isEmpty()) {
-                    $latestLog = $dayLogs->sortBy('created_at')->last();
-                    if ($latestLog && $latestLog->result === 'pass') {
-                        $todayPassed++;
-                    } elseif ($latestLog && $latestLog->result === 'fail') {
-                        $todayFailed++;
-                    }
-                }
-            }
-        }
-        $todayPending = $todayTotalDetails - ($todayPassed + $todayFailed);
-
-        // Fetch all active equipments for the detailed listing
+        $todaySchedules = $schedulesByDate->get($endDate->toDateString(), collect());
+        $todayStats = $this->summarizeSchedules($todaySchedules);
+        $schedulesByEquipment = $todaySchedules->groupBy('equipment_id');
         $equipments = Equipment::query()->where('is_active', true)->get();
-        $detailedEquipments = [];
 
-        foreach ($equipments as $equipment) {
-            $session = $activeSessionsByEquipment->get($equipment->id);
+        $detailedEquipments = $equipments->map(function (Equipment $equipment) use ($schedulesByEquipment): array {
+            $schedules = $schedulesByEquipment->get($equipment->id, collect());
+            $stats = $this->summarizeSchedules($schedules);
+            $firstSchedule = $schedules->first();
 
-            $status = 'pending';
-            $reason = 'No active session (session_date >= today)';
-            $totalDetails = 0;
-            $loggedDetails = 0;
-
-            if ($session) {
-                $details = $session->details ?? collect();
-                $totalDetails = $details->count();
-                $sessionPassed = 0;
-                $sessionFailed = 0;
-
-                foreach ($details as $detail) {
-                    $dayLogs = $detail->logs->filter(function ($log) use ($todayStart, $todayEnd) {
-                        return $log->created_at >= $todayStart && $log->created_at <= $todayEnd;
-                    });
-
-                    if (! $dayLogs->isEmpty()) {
-                        $loggedDetails++;
-                        $latestLog = $dayLogs->sortBy('created_at')->last();
-                        if ($latestLog && $latestLog->result === 'pass') {
-                            $sessionPassed++;
-                        } else {
-                            $sessionFailed++;
-                        }
-                    }
-                }
-
-                if ($loggedDetails < $totalDetails) {
-                    $status = 'pending';
-                    $reason = 'Some checklist items are missing logs';
-                } else {
-                    if ($sessionFailed > 0) {
-                        $status = 'failed';
-                        $reason = 'Some checklist items failed';
-                    } else {
-                        $status = 'passed';
-                        $reason = 'All checklist items passed';
-                    }
-                }
+            if ($stats['total'] === 0) {
+                $status = 'pending';
+                $reason = 'No checklist schedule for this date';
+            } elseif ($stats['pending'] > 0) {
+                $status = 'pending';
+                $reason = 'Some checklist items are not completed';
+            } elseif ($stats['failed'] > 0) {
+                $status = 'failed';
+                $reason = 'Some checklist items failed';
+            } else {
+                $status = 'passed';
+                $reason = 'All checklist items passed';
             }
 
-            $detailedEquipments[] = [
+            return [
                 'id' => $equipment->id,
                 'name' => $equipment->name,
                 'code' => $equipment->code,
                 'status' => $status,
                 'reason' => $reason,
-                'session_id' => $session?->id ?? null,
-                'total_details' => $totalDetails,
-                'logged_details' => $loggedDetails,
-                'completion_rate' => $totalDetails > 0 ? (int) round(($loggedDetails / $totalDetails) * 100) : 0,
+                'session_id' => $firstSchedule?->checklist_session_id,
+                'total_details' => $stats['total'],
+                'logged_details' => $stats['completed'],
+                'completion_rate' => $stats['total'] > 0
+                    ? (int) round(($stats['completed'] / $stats['total']) * 100)
+                    : 0,
             ];
-        }
+        })->values();
 
         return response()->json([
             'start_date' => $startDateString,
             'end_date' => $endDateString,
             'total_active_equipments' => $equipments->count(),
-            'total_equipments' => $todayTotalDetails,
+            'total_equipments' => $todayStats['total'],
             'daily_stats' => $dailyStats,
             'today' => [
-                'date' => $todayStr,
-                'total_checklists' => $todayTotalDetails,
-                'passed' => $todayPassed,
-                'failed' => $todayFailed,
-                'pending' => $todayPending,
+                'date' => $endDate->toDateString(),
+                'total_checklists' => $todayStats['total'],
+                'passed' => $todayStats['passed'],
+                'failed' => $todayStats['failed'],
+                'pending' => $todayStats['pending'],
                 'equipments' => $detailedEquipments,
             ],
         ]);
+    }
+
+    /**
+     * @param  Collection<int, ChecklistSchedule>  $schedules
+     * @return array{total: int, completed: int, passed: int, failed: int, pending: int}
+     */
+    private function summarizeSchedules(Collection $schedules): array
+    {
+        $completed = 0;
+        $passed = 0;
+        $failed = 0;
+
+        foreach ($schedules as $schedule) {
+            $log = $schedule->logs
+                ->where('status', 'completed')
+                ->sortBy('checked_at')
+                ->last();
+
+            if (! $log instanceof ChecklistLog) {
+                continue;
+            }
+
+            $completed++;
+            if ($log->result === 'pass') {
+                $passed++;
+            }
+
+            if ($log->result === 'fail') {
+                $failed++;
+            }
+        }
+
+        $total = $schedules->count();
+
+        return [
+            'total' => $total,
+            'completed' => $completed,
+            'passed' => $passed,
+            'failed' => $failed,
+            'pending' => $total - $completed,
+        ];
     }
 }

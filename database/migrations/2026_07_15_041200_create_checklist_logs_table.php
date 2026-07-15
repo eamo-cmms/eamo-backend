@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('eamo_checklist_logs', function (Blueprint $table) {
             $table->string('id', 36)->primary();
             $table->string('checklist_detail_id', 36);
-            $table->enum('result', ['pass', 'fail'])->nullable();
+            $table->enum('result', ['pass', 'fail'])->default('fail')->nullable();
             $table->timestamps();
 
             $table->foreign('checklist_detail_id')

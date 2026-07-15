@@ -43,6 +43,7 @@ final class UpdateOperatingTimeAction
         $data['availability_factor'] = $availabilityFactor;
 
         $time->update($data);
+        $time->load('equipment');
 
         return response()->json([
             'status' => 'success',
