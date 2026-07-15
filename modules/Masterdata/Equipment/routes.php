@@ -8,6 +8,7 @@ use Modules\Masterdata\Equipment\Actions\Equipment\IndexEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\ShowEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\StoreEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\UpdateEquipmentAction;
+use Modules\Masterdata\Equipment\Actions\Equipment\UpdateEquipmentParentAction;
 use Modules\Masterdata\Equipment\Actions\EquipmentCategory\DeleteEquipmentCategoryAction;
 use Modules\Masterdata\Equipment\Actions\EquipmentCategory\IndexEquipmentCategoryAction;
 use Modules\Masterdata\Equipment\Actions\EquipmentCategory\ShowEquipmentCategoryAction;
@@ -46,6 +47,7 @@ Route::group([], function (): void {
         Route::post('/', StoreEquipmentAction::class)->name('store');
         Route::get('/{id}', ShowEquipmentAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentAction::class)->name('update');
+        Route::patch('/{id}/parent', UpdateEquipmentParentAction::class)->name('update-parent');
         Route::delete('/{id}', DeleteEquipmentAction::class)
             ->middleware('block.if.referenced:'.Equipment::class)
             ->name('destroy');

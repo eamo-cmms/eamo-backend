@@ -15,13 +15,23 @@ final class ShowEquipmentAction
 
     public function asController(Request $request, string $id): JsonResponse
     {
-        $equipment = Equipment::with([
+        $relations = [
             'equipmentCategory',
             'equipmentParameters.unit',
             'equipmentErrors',
             'equipmentState',
             'equipmentImages',
-        ])->findOrFail($id);
+        ];
+
+        if ($request->boolean('include_children')) {
+            $relations[] = 'children';
+        }
+
+        if ($request->boolean('include_parent')) {
+            $relations[] = 'parent';
+        }
+
+        $equipment = Equipment::with($relations)->findOrFail($id);
 
         return response()->json($equipment);
     }

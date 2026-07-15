@@ -77,6 +77,32 @@ final class EquipmentQueryBuilder extends Builder
     }
 
     /**
+     * Filter equipment by parent UUID(s).
+     *
+     * @param  string|array<int, string>  $parentId
+     */
+    public function whereParent(string|array $parentId): self
+    {
+        return $this->whereIn('parent_id', (array) $parentId);
+    }
+
+    /**
+     * Filter equipment that are root nodes (have no parent).
+     */
+    public function whereIsRoot(): self
+    {
+        return $this->whereNull('parent_id');
+    }
+
+    /**
+     * Filter equipment that act as a parent (have at least one child).
+     */
+    public function whereIsParent(): self
+    {
+        return $this->has('children');
+    }
+
+    /**
      * Filter equipment by category name.
      */
     public function whereCategoryName(string $name): self
@@ -151,6 +177,9 @@ final class EquipmentQueryBuilder extends Builder
      *     factory_id?: string|array<int, string>,
      *     device_id?: string|array<int, string>,
      *     equipment_category_id?: string|array<int, string>,
+     *     parent_id?: string|array<int, string>,
+     *     is_root?: bool|string,
+     *     is_parent?: bool|string,
      *     equipment_category_name?: string,
      *     parameter_name?: string,
      *     parameter_code?: string,
@@ -182,6 +211,23 @@ final class EquipmentQueryBuilder extends Builder
             })
             ->when($filters['equipment_category_id'] ?? null, function (self $query, string|array $categoryId) {
                 $query->whereCategory($categoryId);
+            })
+            ->when($filters['parent_id'] ?? null, function (self $query, string|array $parentId) {
+                $query->whereParent($parentId);
+            })
+            ->when(isset($filters['is_root']), function (self $query) use ($filters) {
+                if (filter_var($filters['is_root'], FILTER_VALIDATE_BOOLEAN)) {
+                    $query->whereIsRoot();
+                } else {
+                    $query->whereNotNull('parent_id');
+                }
+            })
+            ->when(isset($filters['is_parent']), function (self $query) use ($filters) {
+                if (filter_var($filters['is_parent'], FILTER_VALIDATE_BOOLEAN)) {
+                    $query->whereIsParent();
+                } else {
+                    $query->doesntHave('children');
+                }
             })
             ->when($filters['equipment_category_name'] ?? null, function (self $query, string $categoryName) {
                 $query->whereCategoryName($categoryName);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Requests\Equipment;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Modules\Masterdata\Equipment\Models\Equipment;
 
 class UpdateEquipmentRequest extends FormRequest
 {
@@ -27,11 +28,35 @@ class UpdateEquipmentRequest extends FormRequest
             'existing_image_ids.*' => ['string', 'uuid'],
             'state' => ['nullable', 'string', 'max:255'],
             'device_id' => ['nullable', 'uuid'],
+            'parent_id' => [
+                'nullable',
+                'string',
+                'uuid',
+                'exists:eamo_equipment,id',
+                function (string $attribute, mixed $value, \Closure $fail) use ($id) {
+                    if ($value === $id) {
+                        $fail('The parent equipment cannot be the equipment itself.');
+
+                        return;
+                    }
+
+                    $parent = Equipment::find($value);
+                    $ancestor = $parent;
+                    while ($ancestor !== null) {
+                        if ($ancestor->id === $id) {
+                            $fail('The parent equipment cannot be a child or descendant of this equipment.');
+
+                            return;
+                        }
+                        $ancestor = $ancestor->parent;
+                    }
+                },
+            ],
             'maintenance_interval_hours' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
             'last_maintenance' => ['nullable', 'array'],
             'equipment_error_ids' => ['nullable', 'array'],
-            'equipment_error_ids.*' => ['string', 'uuid'],
+            'equipment_error_ids.*' => ['string', 'exists:eamo_equipment_errors,id'],
             'equipment_parameters' => ['nullable', 'array'],
             'equipment_parameters.*.id' => ['nullable', 'string', 'uuid'],
             'equipment_parameters.*.code' => ['required', 'string', 'max:32'],
