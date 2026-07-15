@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Notification;
 
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,7 +22,14 @@ class GetUserNotificationsController extends Controller
             return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $notifications = $user->notifications()->paginate(15);
+        $query = $user->notifications()->latest('created_at');
+
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', CarbonImmutable::parse((string) $request->input('start_date')));
+        }
+
+        $perPage = min(max((int) $request->input('per_page', 15), 1), 100);
+        $notifications = $query->paginate($perPage);
         $unreadCount = $user->unreadNotifications()->count();
 
         return response()->json([

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Masterdata\Equipment\Actions\Equipment\DeleteEquipmentAction;
+use Modules\Masterdata\Equipment\Actions\Equipment\GetDashboardSummaryAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\IndexEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\ShowEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\StoreEquipmentAction;
@@ -43,6 +44,7 @@ use Modules\Masterdata\Equipment\Models\Unit;
 
 Route::group([], function (): void {
     Route::prefix('v1/equipment')->name('equipment.')->group(function (): void {
+        Route::get('/dashboard/summary', GetDashboardSummaryAction::class)->name('dashboard.summary');
         Route::get('/', IndexEquipmentAction::class)->name('index');
         Route::post('/', StoreEquipmentAction::class)->name('store');
         Route::get('/{id}', ShowEquipmentAction::class)->name('show');

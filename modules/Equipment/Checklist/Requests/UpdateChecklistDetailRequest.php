@@ -31,7 +31,7 @@ class UpdateChecklistDetailRequest extends FormRequest
                 'min:1',
                 'max:36',
             ],
-            'checklists.*.result' => ['required', 'in:pass,fail'],
+            'checklists.*.result' => ['nullable', 'in:pass,fail'],
             'checklists.*.description' => ['nullable', 'string'],
         ];
     }

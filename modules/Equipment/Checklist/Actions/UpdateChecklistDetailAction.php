@@ -50,27 +50,28 @@ final class UpdateChecklistDetailAction
                     $detail->update(['description' => $item['description']]);
                 }
 
-                // Find or create schedule for this date
-                $schedule = ChecklistSchedule::firstOrCreate([
-                    'equipment_id' => $equipmentId,
-                    'checklist_session_id' => $sessionId,
-                    'checklist_detail_id' => $detail->id,
-                    'date' => $dateString,
-                ], [
-                    'original_date' => $dateString,
-                    'is_rescheduled' => false,
-                ]);
+                // A description-only update must not create a new schedule or log.
+                if (array_key_exists('result', $item) && $item['result'] !== null) {
+                    $schedule = ChecklistSchedule::firstOrCreate([
+                        'equipment_id' => $equipmentId,
+                        'checklist_session_id' => $sessionId,
+                        'checklist_detail_id' => $detail->id,
+                        'date' => $dateString,
+                    ], [
+                        'original_date' => $dateString,
+                        'is_rescheduled' => false,
+                    ]);
 
-                // Create log entry
-                $log = $schedule->logs()->create([
-                    'status' => 'completed',
-                    'result' => $item['result'],
-                    'checked_at' => Carbon::now(),
-                ]);
+                    $log = $schedule->logs()->create([
+                        'status' => 'completed',
+                        'result' => $item['result'],
+                        'checked_at' => Carbon::now(),
+                    ]);
 
-                if ($currentUser) {
-                    $log->users()->sync([$currentUser->id]);
-                    $schedule->users()->sync([$currentUser->id]);
+                    if ($currentUser) {
+                        $log->users()->sync([$currentUser->id]);
+                        $schedule->users()->sync([$currentUser->id]);
+                    }
                 }
 
                 $details[] = $detail;
