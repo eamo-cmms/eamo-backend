@@ -25,6 +25,7 @@ use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
  * Class Equipment
  *
  * @property string $id
+ * @property string|null $parent_id
  * @property string|null $name
  * @property string $code
  * @property string|null $equipment_category_id
@@ -44,6 +45,7 @@ final class Equipment extends Model
     protected $fillable = [
         'name',
         'code',
+        'parent_id',
         'work_center_id',
         'equipment_category_id',
         'device_id',
@@ -62,6 +64,22 @@ final class Equipment extends Model
     public function equipmentCategory(): BelongsTo
     {
         return $this->belongsTo(EquipmentCategory::class);
+    }
+
+    /**
+     * @return BelongsTo<Equipment, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * @return HasMany<Equipment, $this>
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     /**

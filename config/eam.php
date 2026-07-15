@@ -25,6 +25,7 @@ return [
     */
 
     'extensions' => [
+        App\Extensions\EquipmentExtension::class,
         // App\Extensions\MaintenancePlanExtension::class,
         // App\Extensions\ChecklistDetailExtension::class,
     ],
