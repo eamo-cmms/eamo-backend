@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property string $id
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 final class ChecklistLog extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     protected $table = 'eamo_checklist_logs';
 
@@ -69,6 +70,6 @@ final class ChecklistLog extends Model
             'eamo_checklist_log_users',
             'checklist_log_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
     }
 }

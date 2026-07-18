@@ -15,13 +15,14 @@ return new class extends Migration
             $table->string('maintenance_plan_id', 36);
             $table->uuid('user_id');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->primary(['maintenance_plan_id', 'user_id']);
 
             $table->foreign('maintenance_plan_id')
                 ->references('id')
                 ->on('eamo_maintenance_plans')
-                ->cascadeOnDelete()
+                ->restrictOnDelete()
                 ->cascadeOnUpdate();
 
             $table->foreign('user_id')

@@ -7,6 +7,7 @@ namespace Modules\Equipment\Maintenance\Services;
 use App\Concerns\SyncsUsersWithNotification;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Throwable;
 
 final class MaintenancePlanUpdateService
@@ -14,7 +15,8 @@ final class MaintenancePlanUpdateService
     use SyncsUsersWithNotification;
 
     public function __construct(
-        private readonly MaintenanceScheduleGeneratorService $generatorService
+        private readonly MaintenanceScheduleGeneratorService $generatorService,
+        private readonly EquipmentCascadeSoftDeleteService $cascadeService,
     ) {}
 
     /**
@@ -106,7 +108,9 @@ final class MaintenancePlanUpdateService
             $keepIds = collect($schedulesInput)->pluck('id')->filter()->values()->toArray();
 
             // Delete schedules no longer in the list
-            $plan->maintenanceSchedule()->whereNotIn('id', $keepIds)->delete();
+            $this->cascadeService->deleteMaintenanceSchedules(
+                $plan->maintenanceSchedule()->whereNotIn('id', $keepIds)->get()
+            );
 
             foreach ($schedulesInput as $scheduleData) {
                 if (! empty($scheduleData['id'])) {

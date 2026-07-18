@@ -17,12 +17,18 @@ return new class extends Migration {
     {
         Schema::table('eamo_equipment', function (Blueprint $table) {
             $table->string('parent_id', 36)->nullable()->after('id');
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete()
+                ->cascadeOnUpdate();
         });
     }
 
     public function down(): void
     {
         Schema::table('eamo_equipment', function (Blueprint $table) {
+            $table->dropForeign(['parent_id']);
             $table->dropColumn('parent_id');
         });
     }

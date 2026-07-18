@@ -135,6 +135,13 @@ final class MaintenanceItemQuery
         return $this;
     }
 
+    public function includeTrashed(bool $only = false): self
+    {
+        $only ? $this->query->onlyTrashed() : $this->query->withTrashed();
+
+        return $this;
+    }
+
     // ─── Ordering ────────────────────────────────────────────────────────────
 
     public function orderByName(string $direction = 'asc'): self

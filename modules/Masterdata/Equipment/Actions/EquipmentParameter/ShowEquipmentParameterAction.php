@@ -15,11 +15,18 @@ final class ShowEquipmentParameterAction
 
     public function asController(Request $request, string $id): JsonResponse
     {
-        $parameter = EquipmentParameter::with([
+        $query = EquipmentParameter::with([
             'equipment',
             'equipmentCategory',
             'unit',
-        ])->findOrFail($id);
+        ]);
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $parameter = $query->findOrFail($id);
 
         return response()->json($parameter);
     }

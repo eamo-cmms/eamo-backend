@@ -9,6 +9,7 @@ use Carbon\CarbonImmutable;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Throwable;
 
 final class ChecklistSessionUpdateService
@@ -16,7 +17,8 @@ final class ChecklistSessionUpdateService
     use SyncsUsersWithNotification;
 
     public function __construct(
-        private readonly ChecklistScheduleGeneratorService $generatorService
+        private readonly ChecklistScheduleGeneratorService $generatorService,
+        private readonly EquipmentCascadeSoftDeleteService $cascadeService,
     ) {}
 
     /**
@@ -114,10 +116,12 @@ final class ChecklistSessionUpdateService
         $keepIds = collect($schedules)->pluck('id')->filter()->values()->all();
         $protectedIds = $this->getProtectedScheduleIds($session);
 
-        $session->schedules()
+        $schedules = $session->schedules()
             ->whereNotIn('id', $keepIds)
             ->whereNotIn('id', $protectedIds)
-            ->delete();
+            ->get();
+
+        $this->cascadeService->deleteChecklistSchedules($schedules);
 
         foreach ($schedules as $scheduleData) {
             if (! empty($scheduleData['id'])) {

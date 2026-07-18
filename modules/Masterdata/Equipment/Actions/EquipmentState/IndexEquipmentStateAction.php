@@ -15,7 +15,14 @@ final class IndexEquipmentStateAction
 
     public function asController(Request $request): JsonResponse
     {
-        $states = EquipmentState::paginate($request->integer('per_page', 15));
+        $query = EquipmentState::query();
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $states = $query->paginate($request->integer('per_page', 15));
 
         return response()->json($states);
     }

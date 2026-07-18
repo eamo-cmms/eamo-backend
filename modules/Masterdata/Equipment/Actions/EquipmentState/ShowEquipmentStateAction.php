@@ -15,7 +15,14 @@ final class ShowEquipmentStateAction
 
     public function asController(Request $request, string $id): JsonResponse
     {
-        $state = EquipmentState::findOrFail($id);
+        $query = EquipmentState::query();
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $state = $query->findOrFail($id);
 
         return response()->json($state);
     }

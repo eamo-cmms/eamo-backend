@@ -17,35 +17,54 @@ return new class extends Migration
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::table('eamo_maintenance_plans', function (Blueprint $table) {
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::table('eamo_operating_times', function (Blueprint $table) {
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::table('eamo_equipment_parameter_logs', function (Blueprint $table) {
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::table('eamo_equipment_error_logs', function (Blueprint $table) {
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
+
+            $table->foreign('equipment_error_id')
+                ->references('id')
+                ->on('eamo_equipment_errors')
+                ->restrictOnDelete();
+        });
+
+        Schema::table('eamo_equipment_parameter_logs', function (Blueprint $table) {
+            $table->foreign('equipment_parameter_id')
+                ->references('id')
+                ->on('eamo_equipment_parameters')
+                ->restrictOnDelete();
+        });
+
+        Schema::table('eamo_maintenance_schedules', function (Blueprint $table) {
+            $table->foreign('equipment_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete();
         });
     }
 
@@ -55,10 +74,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('eamo_equipment_error_logs', function (Blueprint $table) {
+            $table->dropForeign(['equipment_error_id']);
             $table->dropForeign(['equipment_id']);
         });
 
         Schema::table('eamo_equipment_parameter_logs', function (Blueprint $table) {
+            $table->dropForeign(['equipment_parameter_id']);
             $table->dropForeign(['equipment_id']);
         });
 
@@ -67,6 +88,10 @@ return new class extends Migration
         });
 
         Schema::table('eamo_maintenance_plans', function (Blueprint $table) {
+            $table->dropForeign(['equipment_id']);
+        });
+
+        Schema::table('eamo_maintenance_schedules', function (Blueprint $table) {
             $table->dropForeign(['equipment_id']);
         });
 

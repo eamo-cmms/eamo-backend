@@ -46,6 +46,12 @@ final class IndexMaintenancePlanAction
             $query->withSchedulesAndItems();
         }
 
+        if ($request->boolean('only_trashed')) {
+            $query->includeTrashed(only: true);
+        } elseif ($request->boolean('with_trashed')) {
+            $query->includeTrashed();
+        }
+
         $plans = $query
             ->latest()
             ->paginate($request->integer('per_page', 15));

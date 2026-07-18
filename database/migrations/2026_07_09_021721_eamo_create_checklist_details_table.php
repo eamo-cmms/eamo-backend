@@ -20,11 +20,12 @@ return new class extends Migration
             $table->enum('result', ['pass', 'fail'])->nullable();
             // $table->json('image_ids')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('session_id')
                 ->references('id')
                 ->on('eamo_checklist_sessions')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 

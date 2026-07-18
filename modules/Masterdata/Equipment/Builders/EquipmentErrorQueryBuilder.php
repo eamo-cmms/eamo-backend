@@ -65,11 +65,19 @@ final class EquipmentErrorQueryBuilder extends Builder
      *     fix?: string,
      *     protection_measures?: string,
      *     equipment_id?: string|array<int, string>,
+     *     with_trashed?: bool|string,
+     *     only_trashed?: bool|string,
      *     q?: string
      * } $filters
      */
     public function filter(array $filters): self
     {
+        if (filter_var($filters['only_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->onlyTrashed();
+        } elseif (filter_var($filters['with_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->withTrashed();
+        }
+
         return $this->when($filters['name'] ?? null, function (self $query, string $name) {
             $query->whereName($name);
         })

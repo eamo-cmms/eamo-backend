@@ -31,7 +31,14 @@ final class ShowEquipmentAction
             $relations[] = 'parent';
         }
 
-        $equipment = Equipment::with($relations)->findOrFail($id);
+        $query = Equipment::with($relations);
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $equipment = $query->findOrFail($id);
 
         return response()->json($equipment);
     }

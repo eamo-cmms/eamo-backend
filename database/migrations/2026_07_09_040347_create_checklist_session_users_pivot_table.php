@@ -16,11 +16,12 @@ return new class extends Migration
         Schema::create('eamo_checklist_session_users', function (Blueprint $table) {
             $table->string('checklist_session_id', 36);
             $table->uuid('user_id');
+            $table->softDeletes();
 
             $table->foreign('checklist_session_id', 'fk_session_user_session')
                 ->references('id')
                 ->on('eamo_checklist_sessions')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('user_id', 'fk_session_user_user')
                 ->references('id')

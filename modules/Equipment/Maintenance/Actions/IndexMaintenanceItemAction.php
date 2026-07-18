@@ -32,6 +32,12 @@ final class IndexMaintenanceItemAction
             $query->hasSchedules();
         }
 
+        if ($request->boolean('only_trashed')) {
+            $query->includeTrashed(only: true);
+        } elseif ($request->boolean('with_trashed')) {
+            $query->includeTrashed();
+        }
+
         $items = $query
             ->orderByName()
             ->paginate($request->integer('per_page', 50));

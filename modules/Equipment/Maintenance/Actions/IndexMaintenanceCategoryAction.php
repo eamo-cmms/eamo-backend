@@ -27,6 +27,12 @@ final class IndexMaintenanceCategoryAction
             $query->hasItems();
         }
 
+        if ($request->boolean('only_trashed')) {
+            $query->includeTrashed(only: true);
+        } elseif ($request->boolean('with_trashed')) {
+            $query->includeTrashed();
+        }
+
         $categories = $query
             ->orderByName()
             ->paginate($request->integer('per_page', 15));

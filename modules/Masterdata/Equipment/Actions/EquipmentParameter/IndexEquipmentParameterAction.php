@@ -17,6 +17,12 @@ final class IndexEquipmentParameterAction
     {
         $query = EquipmentParameter::with(['equipment', 'equipmentCategory', 'unit']);
 
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
         if ($request->has('equipment_id')) {
             $query->where('equipment_id', $request->input('equipment_id'));
         }

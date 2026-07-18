@@ -35,12 +35,6 @@ use Modules\Masterdata\Equipment\Actions\Unit\IndexUnitAction;
 use Modules\Masterdata\Equipment\Actions\Unit\ShowUnitAction;
 use Modules\Masterdata\Equipment\Actions\Unit\StoreUnitAction;
 use Modules\Masterdata\Equipment\Actions\Unit\UpdateUnitAction;
-use Modules\Masterdata\Equipment\Models\Equipment;
-use Modules\Masterdata\Equipment\Models\EquipmentCategory;
-use Modules\Masterdata\Equipment\Models\EquipmentError;
-use Modules\Masterdata\Equipment\Models\EquipmentParameter;
-use Modules\Masterdata\Equipment\Models\EquipmentState;
-use Modules\Masterdata\Equipment\Models\Unit;
 
 Route::group([], function (): void {
     Route::prefix('v1/equipment')->name('equipment.')->group(function (): void {
@@ -51,7 +45,6 @@ Route::group([], function (): void {
         Route::put('/{id}', UpdateEquipmentAction::class)->name('update');
         Route::patch('/{id}/parent', UpdateEquipmentParentAction::class)->name('update-parent');
         Route::delete('/{id}', DeleteEquipmentAction::class)
-            ->middleware('block.if.referenced:'.Equipment::class)
             ->name('destroy');
     });
 
@@ -61,7 +54,6 @@ Route::group([], function (): void {
         Route::get('/{id}', ShowEquipmentParameterAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentParameterAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentParameterAction::class)
-            ->middleware('block.if.referenced:'.EquipmentParameter::class)
             ->name('destroy');
     });
 
@@ -71,7 +63,6 @@ Route::group([], function (): void {
         Route::get('/{id}', ShowEquipmentErrorAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentErrorAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentErrorAction::class)
-            ->middleware('block.if.referenced:'.EquipmentError::class)
             ->name('destroy');
     });
 
@@ -81,7 +72,6 @@ Route::group([], function (): void {
         Route::get('/{id}', ShowEquipmentCategoryAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentCategoryAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentCategoryAction::class)
-            ->middleware('block.if.referenced:'.EquipmentCategory::class)
             ->name('destroy');
     });
 
@@ -91,7 +81,6 @@ Route::group([], function (): void {
         Route::get('/{id}', ShowUnitAction::class)->name('show');
         Route::put('/{id}', UpdateUnitAction::class)->name('update');
         Route::delete('/{id}', DeleteUnitAction::class)
-            ->middleware('block.if.referenced:'.Unit::class)
             ->name('destroy');
     });
 
@@ -101,7 +90,6 @@ Route::group([], function (): void {
         Route::get('/{id}', ShowEquipmentStateAction::class)->name('show');
         Route::put('/{id}', UpdateEquipmentStateAction::class)->name('update');
         Route::delete('/{id}', DeleteEquipmentStateAction::class)
-            ->middleware('block.if.referenced:'.EquipmentState::class)
             ->name('destroy');
     });
 

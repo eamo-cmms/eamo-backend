@@ -10,12 +10,20 @@ use Illuminate\Validation\ValidationException;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class ChecklistScheduleGeneratorService
 {
     use SyncsUsersWithNotification;
 
     public const MAX_SCHEDULES = 100;
+
+    private readonly EquipmentCascadeSoftDeleteService $cascadeService;
+
+    public function __construct(?EquipmentCascadeSoftDeleteService $cascadeService = null)
+    {
+        $this->cascadeService = $cascadeService ?? app(EquipmentCascadeSoftDeleteService::class);
+    }
 
     /**
      * Generate dates based on start date, end date, cycle type, and cycle interval.
@@ -121,11 +129,13 @@ final class ChecklistScheduleGeneratorService
         $protectedIds = $this->getProtectedScheduleIds($session, $equipmentId, $startDate, $endDate);
 
         // 2. Delete unprotected schedules in range
-        $session->schedules()
+        $schedules = $session->schedules()
             ->where('equipment_id', $equipmentId)
             ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
             ->whereNotIn('id', $protectedIds)
-            ->delete();
+            ->get();
+
+        $this->cascadeService->deleteChecklistSchedules($schedules);
 
         // 3. Determine items/details in this template session
         $details = $session->details;

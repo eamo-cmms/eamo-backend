@@ -11,12 +11,20 @@ use Modules\Equipment\Maintenance\Models\MaintenanceItem;
 use Modules\Equipment\Maintenance\Models\MaintenanceLog;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class MaintenanceScheduleGeneratorService
 {
     use SyncsUsersWithNotification;
 
     public const MAX_SCHEDULES = 100;
+
+    private readonly EquipmentCascadeSoftDeleteService $cascadeService;
+
+    public function __construct(?EquipmentCascadeSoftDeleteService $cascadeService = null)
+    {
+        $this->cascadeService = $cascadeService ?? app(EquipmentCascadeSoftDeleteService::class);
+    }
 
     /**
      * Generate dates based on start date, cycle type, cycle interval, and occurrences.
@@ -120,7 +128,9 @@ final class MaintenanceScheduleGeneratorService
 
         // 2. If no cycle info, delete only unprotected schedules and stop
         if (empty($plan->cycle_type) || empty($plan->cycle_interval) || empty($plan->occurrences)) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
+            $this->cascadeService->deleteMaintenanceSchedules(
+                $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->get()
+            );
 
             return;
         }
@@ -128,7 +138,9 @@ final class MaintenanceScheduleGeneratorService
         // 3. Determine items from the category
         $items = MaintenanceItem::with('users')->where('maintenance_category_id', $plan->maintenance_category_id)->get();
         if ($items->isEmpty()) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
+            $this->cascadeService->deleteMaintenanceSchedules(
+                $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->get()
+            );
 
             return;
         }
@@ -136,13 +148,15 @@ final class MaintenanceScheduleGeneratorService
         $currentItemIds = $items->pluck('id')->toArray();
 
         // 4. Delete schedules for items no longer in the category (skip protected)
-        $plan->maintenanceSchedule()
+        $schedules = $plan->maintenanceSchedule()
             ->where(function ($query) use ($currentItemIds) {
                 $query->whereNotIn('maintenance_item_id', $currentItemIds)
                     ->orWhereNull('maintenance_item_id');
             })
             ->whereNotIn('id', $protectedIds)
-            ->delete();
+            ->get();
+
+        $this->cascadeService->deleteMaintenanceSchedules($schedules);
 
         // 5. If cycle fields changed, delete unprotected schedules so they get regenerated
         $cycleFields = ['cycle_type', 'cycle_interval', 'occurrences', 'date'];
@@ -156,7 +170,9 @@ final class MaintenanceScheduleGeneratorService
         }
 
         if ($cycleChanged) {
-            $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->delete();
+            $this->cascadeService->deleteMaintenanceSchedules(
+                $plan->maintenanceSchedule()->whereNotIn('id', $protectedIds)->get()
+            );
         }
 
         // 6. Validate total schedule count

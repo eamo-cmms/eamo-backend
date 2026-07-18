@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Modules\Masterdata\Equipment\Builders\EquipmentErrorQueryBuilder;
 
@@ -24,7 +25,7 @@ use Modules\Masterdata\Equipment\Builders\EquipmentErrorQueryBuilder;
  */
 final class EquipmentError extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     public $incrementing = false;
 
@@ -52,7 +53,7 @@ final class EquipmentError extends Model
             'eamo_equipment_equipment_errors',
             'equipment_error_id',
             'equipment_id'
-        )->withTimestamps();
+        )->wherePivotNull('deleted_at')->withTimestamps();
     }
 
     public function setPendingEquipmentIds(array $equipmentIds): void

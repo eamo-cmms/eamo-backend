@@ -7,6 +7,7 @@ namespace Modules\Equipment\Maintenance\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -19,7 +20,7 @@ class MaintenanceCategory extends Model
 {
     protected $table = 'eamo_maintenance_categories';
 
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'name',

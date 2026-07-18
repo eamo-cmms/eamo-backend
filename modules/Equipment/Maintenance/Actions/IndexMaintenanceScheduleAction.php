@@ -52,6 +52,12 @@ final class IndexMaintenanceScheduleAction
             $query->withLogs();
         }
 
+        if ($request->boolean('only_trashed')) {
+            $query->includeTrashed(only: true);
+        } elseif ($request->boolean('with_trashed')) {
+            $query->includeTrashed();
+        }
+
         $schedules = $query
             ->orderByDate()
             ->paginate($request->integer('per_page', 50));

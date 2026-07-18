@@ -171,6 +171,13 @@ final class MaintenanceScheduleQuery
         return $this;
     }
 
+    public function includeTrashed(bool $only = false): self
+    {
+        $only ? $this->query->onlyTrashed() : $this->query->withTrashed();
+
+        return $this;
+    }
+
     /**
      * Filter schedules in a date range.
      * Recommended: add BRIN or BTREE index on date for time-series queries.

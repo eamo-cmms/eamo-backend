@@ -186,11 +186,19 @@ final class EquipmentQueryBuilder extends Builder
      *     error_id?: string|array<int, string>,
      *     error_name?: string,
      *     standard_parameter_id?: string|array<int, string>,
+     *     with_trashed?: bool|string,
+     *     only_trashed?: bool|string,
      *     q?: string
      * } $filters
      */
     public function filter(array $filters): self
     {
+        if (filter_var($filters['only_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->onlyTrashed();
+        } elseif (filter_var($filters['with_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->withTrashed();
+        }
+
         return $this->when(isset($filters['is_active']), function (self $query) use ($filters) {
             $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN));
         })

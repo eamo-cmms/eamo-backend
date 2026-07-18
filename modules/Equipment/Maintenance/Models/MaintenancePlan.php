@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
@@ -65,7 +66,7 @@ final class MaintenancePlan extends Model
         });
     }
 
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'equipment_id',
@@ -121,7 +122,7 @@ final class MaintenancePlan extends Model
             'eamo_maintenance_plan_user',
             'maintenance_plan_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
     }
 
     public function maintenanceSchedule()

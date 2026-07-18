@@ -18,21 +18,23 @@ return new class extends Migration
             $table->string('checklist_detail_id', 36);
             $table->enum('result', ['pass', 'fail'])->default('fail')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('checklist_detail_id')
                 ->references('id')
                 ->on('eamo_checklist_details')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::create('eamo_checklist_log_users', function (Blueprint $table) {
             $table->string('checklist_log_id', 36);
             $table->uuid('user_id');
+            $table->softDeletes();
 
             $table->foreign('checklist_log_id', 'fk_log_user_log')
                 ->references('id')
                 ->on('eamo_checklist_logs')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('user_id', 'fk_log_user_user')
                 ->references('id')

@@ -17,11 +17,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('maintenance_category_id')
                 ->references('id')
                 ->on('eamo_maintenance_categories')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 

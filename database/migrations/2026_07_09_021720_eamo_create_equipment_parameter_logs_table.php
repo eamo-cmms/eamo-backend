@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('value', 36)->nullable();
             $table->string('component_id', 36)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

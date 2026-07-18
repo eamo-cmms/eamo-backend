@@ -19,11 +19,12 @@ return new class extends Migration
             $table->string('result');
             $table->string('type', 36)->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('maintenance_schedule_id')
                 ->references('id')
                 ->on('eamo_maintenance_schedules')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 

@@ -17,6 +17,12 @@ final class IndexMaintenanceLogAction
     {
         $query = MaintenanceLog::query();
 
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
         if ($request->filled('maintenance_schedule_id')) {
             $query->where('maintenance_schedule_id', $request->input('maintenance_schedule_id'));
         }

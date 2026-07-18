@@ -112,6 +112,13 @@ final class MaintenanceCategoryQuery
         return $this;
     }
 
+    public function includeTrashed(bool $only = false): self
+    {
+        $only ? $this->query->onlyTrashed() : $this->query->withTrashed();
+
+        return $this;
+    }
+
     /**
      * Filter categories that have at least one maintenance plan.
      */

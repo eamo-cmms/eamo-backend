@@ -175,6 +175,13 @@ final class MaintenancePlanQuery
         return $this;
     }
 
+    public function includeTrashed(bool $only = false): self
+    {
+        $only ? $this->query->onlyTrashed() : $this->query->withTrashed();
+
+        return $this;
+    }
+
     /**
      * Filter plans whose date falls within a range.
      * Uses sequential scan unless a date index is added — still efficient for

@@ -8,6 +8,7 @@ use App\Concerns\HasDefaultRouteBinding;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 // use Modules\Masterdata\Checklist\Infrastructure\Models\Checklist;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Modules\Equipment\Checklist\Builders\ChecklistDetailQueryBuilder;
@@ -23,7 +24,7 @@ use Modules\Equipment\Checklist\Builders\ChecklistDetailQueryBuilder;
  */
 final class ChecklistDetail extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     /**
      * @param  QueryBuilder  $query

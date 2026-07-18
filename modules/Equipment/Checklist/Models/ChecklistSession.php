@@ -19,13 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $updated_at
  */
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Modules\Equipment\Checklist\Builders\ChecklistSessionQueryBuilder;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class ChecklistSession extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     /**
      * @param  QueryBuilder  $query
@@ -78,6 +79,6 @@ final class ChecklistSession extends Model
             'eamo_checklist_session_users',
             'checklist_session_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
     }
 }

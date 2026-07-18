@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentParameter;
 use Modules\Masterdata\Equipment\Models\Unit;
@@ -35,7 +36,7 @@ use Modules\Masterdata\Equipment\Models\Unit;
  */
 final class EquipmentParameterLog extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'equipment_id',

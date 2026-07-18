@@ -27,10 +27,16 @@ final class ShowDailySessionAction
         $date = Carbon::parse($dateString);
 
         // Find existing schedules for the equipment on this date
-        $schedules = ChecklistSchedule::with(['checklistDetail', 'logs.users', 'users'])
+        $query = ChecklistSchedule::with(['checklistDetail', 'logs.users', 'users'])
             ->where('equipment_id', $equipmentId)
-            ->whereDate('date', $date)
-            ->get();
+            ->whereDate('date', $date);
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $schedules = $query->get();
 
         if ($schedules->isEmpty()) {
             return response()->json([
@@ -38,7 +44,14 @@ final class ShowDailySessionAction
             ], 404);
         }
 
-        $session = ChecklistSession::where('equipment_id', $equipmentId)->first();
+        $sessionQuery = ChecklistSession::where('equipment_id', $equipmentId);
+        if ($request->boolean('only_trashed')) {
+            $sessionQuery->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $sessionQuery->withTrashed();
+        }
+
+        $session = $sessionQuery->first();
 
         $detailsData = $schedules->map(function ($schedule) {
             return [
@@ -46,6 +59,8 @@ final class ShowDailySessionAction
                 'schedule_id' => $schedule->id,
                 'checklist_id' => $schedule->checklistDetail?->checklist_id,
                 'description' => $schedule->checklistDetail?->description,
+                'deleted_at' => $schedule->deleted_at,
+                'checklist_detail_deleted_at' => $schedule->checklistDetail?->deleted_at,
                 'logs' => $schedule->logs,
                 'users' => $schedule->users,
             ];
@@ -56,6 +71,7 @@ final class ShowDailySessionAction
             'name' => $session?->name ?? "Checklist - {$equipmentId}",
             'equipment_id' => $equipmentId,
             'session_date' => $date->toDateString(),
+            'deleted_at' => $session?->deleted_at,
             'details' => $detailsData,
         ]);
     }

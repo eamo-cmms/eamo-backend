@@ -15,11 +15,12 @@ return new class extends Migration
             $table->uuid('user_id');
 
             $table->primary(['error_log_id', 'user_id']);
+            $table->softDeletes();
 
             $table->foreign('error_log_id')
                 ->references('id')
                 ->on('eamo_equipment_error_logs')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('user_id')
                 ->references('id')

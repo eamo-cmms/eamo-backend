@@ -15,7 +15,14 @@ final class ShowEquipmentCategoryAction
 
     public function asController(Request $request, string $id): JsonResponse
     {
-        $category = EquipmentCategory::findOrFail($id);
+        $query = EquipmentCategory::query();
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $category = $query->findOrFail($id);
 
         return response()->json($category);
     }

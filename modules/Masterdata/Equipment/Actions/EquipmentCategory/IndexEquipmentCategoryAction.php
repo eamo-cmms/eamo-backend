@@ -15,7 +15,14 @@ final class IndexEquipmentCategoryAction
 
     public function asController(Request $request): JsonResponse
     {
-        $categories = EquipmentCategory::paginate($request->integer('per_page', 15));
+        $query = EquipmentCategory::query();
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $categories = $query->paginate($request->integer('per_page', 15));
 
         return response()->json($categories);
     }

@@ -22,8 +22,10 @@ return new class extends Migration
             $table->decimal('standard_max', 19, 4)->nullable();
             $table->decimal('standard_min', 19, 4)->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('equipment_id')->references('id')->on('eamo_equipment')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('equipment_id')->references('id')->on('eamo_equipment')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('equipment_category_id')->references('id')->on('eamo_equipment_categories')->restrictOnDelete()->cascadeOnUpdate();
         });
     }
 

@@ -7,6 +7,7 @@ namespace Modules\Masterdata\Equipment\Models;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,7 @@ use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
 
 /**
@@ -38,7 +40,7 @@ use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
  */
 final class Equipment extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     public $incrementing = false;
 
@@ -100,7 +102,7 @@ final class Equipment extends Model
             'eamo_equipment_equipment_errors',
             'equipment_id',
             'equipment_error_id'
-        )->withTimestamps();
+        )->wherePivotNull('deleted_at')->withTimestamps();
     }
 
     /**
@@ -156,14 +158,21 @@ final class Equipment extends Model
         return $this->hasMany(EquipmentErrorLog::class, 'equipment_id');
     }
 
-    protected static function boot(): void
+    protected static function booted(): void
     {
-        parent::boot();
+        static::deleting(function (self $equipment): bool|null {
+            if ($equipment->isForceDeleting()) {
+                return null;
+            }
 
-        self::deleting(function (self $model) {
-            $model->equipmentParameters()->delete();
-            $model->equipmentState()->delete();
-            $model->equipmentImages()->delete();
+            $cascadeService = app(EquipmentCascadeSoftDeleteService::class);
+            if ($cascadeService->isDeletingEquipment($equipment)) {
+                return null;
+            }
+
+            $cascadeService->deleteEquipment($equipment);
+
+            return false;
         });
     }
 

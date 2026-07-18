@@ -18,6 +18,12 @@ final class IndexChecklistSessionAction
         $query = ChecklistSession::query()
             ->with(['equipment', 'details.schedules.logs', 'users']);
 
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
         // Filter by date (via associated schedules)
         if ($request->has('session_date')) {
             $query->whereHas('schedules', function ($q) use ($request) {
@@ -59,6 +65,7 @@ final class IndexChecklistSessionAction
                     'id' => $detail->id,
                     'checklist_id' => $detail->checklist_id,
                     'description' => $detail->description,
+                    'deleted_at' => $detail->deleted_at,
                     'logs' => $logs,
                 ];
             })->toArray();
@@ -71,6 +78,7 @@ final class IndexChecklistSessionAction
                         'checklist_detail_id' => $detail->id,
                         'checklist_id' => $detail->checklist_id,
                         'description' => $detail->description,
+                        'deleted_at' => $schedule->deleted_at,
                         'logs' => $schedule->logs->values()->toArray(),
                     ];
                 });
@@ -86,6 +94,7 @@ final class IndexChecklistSessionAction
                     'code' => $session->equipment->code,
                 ] : null,
                 'session_date' => $session->session_date ? $session->session_date->toDateString() : null,
+                'deleted_at' => $session->deleted_at,
                 'details' => $details,
                 'schedules' => $schedules,
                 'users' => $session->users ?? [],

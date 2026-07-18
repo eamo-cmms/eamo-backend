@@ -18,16 +18,17 @@ return new class extends Migration
             $table->string('maintenance_plan_id', 36);
             $table->date('date');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('maintenance_plan_id')
                 ->references('id')
                 ->on('eamo_maintenance_plans')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('maintenance_item_id')
                 ->references('id')
                 ->on('eamo_maintenance_items')
-                ->nullOnDelete();
+                ->restrictOnDelete();
         });
     }
 

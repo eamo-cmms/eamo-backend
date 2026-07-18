@@ -18,6 +18,13 @@ return new class extends Migration
             $table->string('device_id', 36)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('equipment_category_id')
+                ->references('id')
+                ->on('eamo_equipment_categories')
+                ->restrictOnDelete()
+                ->cascadeOnUpdate();
         });
     }
 

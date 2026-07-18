@@ -91,6 +91,12 @@ final class ChecklistDetailQueryBuilder extends Builder
      */
     public function filter(array $filters): self
     {
+        if (filter_var($filters['only_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->onlyTrashed();
+        } elseif (filter_var($filters['with_trashed'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->withTrashed();
+        }
+
         return $this->when($filters['session_name'] ?? null, function (self $query, string $name) {
             $query->whereSessionName($name);
         })

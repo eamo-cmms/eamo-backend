@@ -7,16 +7,17 @@ namespace Modules\Masterdata\Equipment\Actions\Equipment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class DeleteEquipmentAction
 {
     use AsAction;
 
-    public function asController(Request $request, string $id): JsonResponse
+    public function asController(Request $request, string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
     {
         $equipment = Equipment::findOrFail($id);
-        $equipment->delete();
+        $cascadeService->deleteEquipment($equipment);
 
         return response()->json(['message' => 'Equipment deleted successfully.']);
     }

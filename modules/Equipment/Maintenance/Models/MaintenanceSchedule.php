@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 /**
@@ -31,7 +33,7 @@ final class MaintenanceSchedule extends Model
 {
     protected $table = 'eamo_maintenance_schedules';
 
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'equipment_id',
@@ -78,6 +80,18 @@ final class MaintenanceSchedule extends Model
             'eamo_maintenance_schedule_user',
             'maintenance_schedule_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (self $schedule): void {
+            $schedule->maintenanceLogs()->get()->each->delete();
+
+            DB::table('eamo_maintenance_schedule_user')
+                ->where('maintenance_schedule_id', $schedule->id)
+                ->whereNull('deleted_at')
+                ->update(['deleted_at' => now()]);
+        });
     }
 }

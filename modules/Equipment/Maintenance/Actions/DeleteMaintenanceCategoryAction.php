@@ -6,16 +6,17 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 
 final class DeleteMaintenanceCategoryAction
 {
     use AsAction;
 
-    public function asController(string $id): JsonResponse
+    public function asController(string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
     {
         $category = MaintenanceCategory::findOrFail($id);
-        $category->delete();
+        $cascadeService->deleteMaintenanceCategory($category);
 
         return response()->json(['message' => 'Maintenance category deleted successfully.']);
     }

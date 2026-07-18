@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 /**
@@ -29,7 +30,7 @@ use Modules\Masterdata\Equipment\Models\Equipment;
  */
 final class ChecklistSchedule extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     protected $table = 'eamo_checklist_schedules';
 
@@ -77,6 +78,6 @@ final class ChecklistSchedule extends Model
             'eamo_checklist_schedule_user',
             'checklist_schedule_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
     }
 }

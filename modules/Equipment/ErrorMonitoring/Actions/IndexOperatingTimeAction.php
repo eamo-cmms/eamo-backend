@@ -15,7 +15,14 @@ final class IndexOperatingTimeAction
 
     public function asController(Request $request): JsonResponse
     {
-        $times = OperatingTime::with('equipment')->latest()->get();
+        $query = OperatingTime::with('equipment');
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $times = $query->latest()->get();
 
         return response()->json([
             'status' => 'success',

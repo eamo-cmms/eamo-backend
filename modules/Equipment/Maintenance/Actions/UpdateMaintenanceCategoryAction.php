@@ -7,6 +7,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 use App\Concerns\SyncsUsersWithNotification;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 use Modules\Equipment\Maintenance\Requests\UpdateMaintenanceCategoryRequest;
 use Throwable;
@@ -18,7 +19,11 @@ final class UpdateMaintenanceCategoryAction
     /**
      * @throws Throwable
      */
-    public function asController(string $id, UpdateMaintenanceCategoryRequest $request): JsonResponse
+    public function asController(
+        string $id,
+        UpdateMaintenanceCategoryRequest $request,
+        EquipmentCascadeSoftDeleteService $cascadeService
+    ): JsonResponse
     {
         $category = MaintenanceCategory::findOrFail($id);
         $validated = $request->validated();
@@ -33,7 +38,10 @@ final class UpdateMaintenanceCategoryAction
             $keepIds = collect($itemsInput)->pluck('id')->filter()->values()->toArray();
 
             // Delete items no longer present
-            $category->maintenanceItems()->whereNotIn('id', $keepIds)->delete();
+            $category->maintenanceItems()
+                ->whereNotIn('id', $keepIds)
+                ->get()
+                ->each(fn ($item) => $cascadeService->deleteMaintenanceItem($item));
 
             foreach ($itemsInput as $itemData) {
                 if (! empty($itemData['id'])) {

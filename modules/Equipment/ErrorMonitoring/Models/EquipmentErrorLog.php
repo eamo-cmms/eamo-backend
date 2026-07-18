@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
@@ -36,7 +37,7 @@ use Modules\Masterdata\Equipment\Models\EquipmentError;
  */
 final class EquipmentErrorLog extends Model
 {
-    use HasDefaultRouteBinding, HasUuids;
+    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
 
     public const MAX_LOG_RECORDS = 2000000;
 
@@ -70,7 +71,7 @@ final class EquipmentErrorLog extends Model
             fn () => $this->handled_at && $this->occurred_at
                 ? $this->occurred_at->diffInSeconds($this->handled_at)
                 : null
-        );
+        )->wherePivotNull('deleted_at');
     }
 
     /**

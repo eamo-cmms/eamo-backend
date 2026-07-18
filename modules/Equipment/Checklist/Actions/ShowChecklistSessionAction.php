@@ -19,7 +19,14 @@ final class ShowChecklistSessionAction
         if (filter_var($request->input('with_details', $request->input('include_details', false)), FILTER_VALIDATE_BOOLEAN)) {
             $relations[] = 'details';
         }
-        $session = ChecklistSession::query()->with($relations)->findOrFail($id);
+        $query = ChecklistSession::query()->with($relations);
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $session = $query->findOrFail($id);
 
         return response()->json($session);
     }

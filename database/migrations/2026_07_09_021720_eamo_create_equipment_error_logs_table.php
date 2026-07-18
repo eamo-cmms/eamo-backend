@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('handled_at')->nullable();      // Thời điểm xử lý xong lỗi
             $table->string('handler_id')->nullable();
             $table->nullableTimestamps();
+            $table->softDeletes();
 
             $table->index(['equipment_id', 'occurred_at'], 'eamo_error_logs_equipment_id_occurred_at_idx');
             $table->index(

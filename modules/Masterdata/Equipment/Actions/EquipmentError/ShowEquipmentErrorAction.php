@@ -15,7 +15,14 @@ final class ShowEquipmentErrorAction
 
     public function asController(Request $request, string $id): JsonResponse
     {
-        $error = EquipmentError::findOrFail($id);
+        $query = EquipmentError::query();
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        $error = $query->findOrFail($id);
 
         return response()->json($error);
     }

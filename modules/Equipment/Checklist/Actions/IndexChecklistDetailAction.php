@@ -15,8 +15,9 @@ final class IndexChecklistDetailAction
 
     public function asController(Request $request): JsonResponse
     {
+        $filters = $request->all();
         $details = ChecklistDetail::query()
-            ->filter($request->all())
+            ->filter($filters)
             ->paginate($request->integer('per_page', 15));
 
         return response()->json($details);

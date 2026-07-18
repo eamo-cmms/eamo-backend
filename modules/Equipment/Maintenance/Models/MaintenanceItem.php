@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $name
  * @property string|null $description
  * @property string $maintenance_category_id
@@ -24,7 +26,7 @@ class MaintenanceItem extends Model
 {
     protected $table = 'eamo_maintenance_items';
 
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -44,6 +46,18 @@ class MaintenanceItem extends Model
             'eamo_maintenance_item_user',
             'maintenance_item_id',
             'user_id'
-        );
+        )->wherePivotNull('deleted_at');
+    }
+
+    public function maintenanceSchedules(): HasMany
+    {
+        return $this->hasMany(MaintenanceSchedule::class, 'maintenance_item_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (self $item): void {
+            $item->maintenanceSchedules()->get()->each->delete();
+        });
     }
 }

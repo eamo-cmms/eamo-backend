@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('fix')->nullable();
             $table->text('protection_measures')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

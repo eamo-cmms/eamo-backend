@@ -18,6 +18,7 @@ return new class extends Migration
             $table->datetime('session_date')->nullable();
             $table->string('created_by', 36);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

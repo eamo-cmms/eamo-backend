@@ -7,6 +7,7 @@ namespace Modules\Masterdata\Equipment\Actions\Equipment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Requests\Equipment\UpdateEquipmentRequest;
 
@@ -14,7 +15,7 @@ final class UpdateEquipmentAction
 {
     use AsAction;
 
-    public function asController(UpdateEquipmentRequest $request, string $id): JsonResponse
+    public function asController(UpdateEquipmentRequest $request, string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
     {
         $equipment = Equipment::findOrFail($id);
 
@@ -66,7 +67,10 @@ final class UpdateEquipmentAction
                     $keepIds[] = $record->id;
                 }
             }
-            $equipment->equipmentParameters()->whereNotIn('id', $keepIds)->delete();
+            $equipment->equipmentParameters()
+                ->whereNotIn('id', $keepIds)
+                ->get()
+                ->each(fn ($parameter) => $cascadeService->deleteParameter($parameter));
         }
 
         return response()->json($equipment->load(['equipmentCategory', 'equipmentErrors', 'equipmentParameters.unit', 'equipmentState', 'equipmentImages']));

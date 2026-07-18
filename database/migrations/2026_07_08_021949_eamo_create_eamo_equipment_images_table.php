@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('image_id', 36);
             $table->string('path')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('equipment_id')->references('id')->on('eamo_equipment')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('equipment_id')->references('id')->on('eamo_equipment')->restrictOnDelete()->cascadeOnUpdate();
         });
     }
 

@@ -26,37 +26,39 @@ return new class extends Migration
             $table->boolean('is_rescheduled')->default(false);
             $table->date('original_date')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('equipment_id')
                 ->references('id')
                 ->on('eamo_equipment')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('checklist_session_id')
                 ->references('id')
                 ->on('eamo_checklist_sessions')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('checklist_detail_id')
                 ->references('id')
                 ->on('eamo_checklist_details')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         // 3. Create eamo_checklist_schedule_user pivot table
         Schema::create('eamo_checklist_schedule_user', function (Blueprint $table) {
             $table->string('checklist_schedule_id', 36);
             $table->uuid('user_id');
+            $table->softDeletes();
 
             $table->foreign('checklist_schedule_id', 'fk_chk_sched_user_sched')
                 ->references('id')
                 ->on('eamo_checklist_schedules')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('user_id', 'fk_chk_sched_user_user')
                 ->references('id')
                 ->on('users')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->primary(['checklist_schedule_id', 'user_id']);
         });
@@ -72,7 +74,7 @@ return new class extends Migration
             $table->foreign('checklist_schedule_id')
                 ->references('id')
                 ->on('eamo_checklist_schedules')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 

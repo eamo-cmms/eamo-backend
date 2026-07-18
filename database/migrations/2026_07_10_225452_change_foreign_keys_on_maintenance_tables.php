@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreign('maintenance_item_id')
                 ->references('id')
                 ->on('eamo_maintenance_items')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
 
         Schema::table('eamo_maintenance_logs', function (Blueprint $table) {
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('maintenance_schedule_id')
                 ->references('id')
                 ->on('eamo_maintenance_schedules')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->foreign('maintenance_schedule_id')
                 ->references('id')
                 ->on('eamo_maintenance_schedules')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 };
