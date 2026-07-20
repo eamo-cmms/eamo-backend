@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Builders\User\UserQueryBuilder;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -45,7 +46,32 @@ class User extends Authenticatable implements OAuthenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Check if the user has an exact role.
+     */
+    public function hasRole(UserRole|string $role): bool
+    {
+        $roleEnum = is_string($role) ? UserRole::tryFrom($role) : $role;
+
+        return $this->role === $roleEnum;
+    }
+
+    /**
+     * Check if the user's role meets or exceeds a minimum required role.
+     */
+    public function atLeastRole(UserRole|string $role): bool
+    {
+        $roleEnum = is_string($role) ? UserRole::tryFrom($role) : $role;
+
+        if (! $roleEnum || ! $this->role instanceof UserRole) {
+            return false;
+        }
+
+        return $this->role->atLeast($roleEnum);
     }
 
     /**

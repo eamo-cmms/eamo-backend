@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureUserIsAdmin
+class EnsureUserIsAtLeastManager
 {
     /**
      * Handle an incoming request.
@@ -16,8 +16,8 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->atLeastRole(UserRole::Admin)) {
-            abort(Response::HTTP_FORBIDDEN, 'Access denied. Administrator privileges required.');
+        if (! $request->user() || ! $request->user()->atLeastRole(UserRole::Manager)) {
+            abort(Response::HTTP_FORBIDDEN, 'Access denied. Manager privileges or higher required.');
         }
 
         return $next($request);

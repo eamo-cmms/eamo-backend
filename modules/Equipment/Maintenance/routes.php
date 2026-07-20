@@ -23,27 +23,33 @@ use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceScheduleAction;
 
-Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function () {
-    Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
-    Route::post('maintenance-plans', StoreMaintenancePlanAction::class);
-    Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
-    Route::put('maintenance-plans/{id}', UpdateMaintenancePlanAction::class);
-    Route::delete('maintenance-plans/{id}', DeleteMaintenancePlanAction::class);
+Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
+    Route::middleware('engineer')->group(function (): void {
+        Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
+        Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
+        Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
+        Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
+        Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
+        Route::get('maintenance-items', IndexMaintenanceItemAction::class);
+    });
 
-    Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
-    Route::put('maintenance-schedules/{id}', UpdateMaintenanceScheduleAction::class);
-    Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
-    Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
-    Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
-    Route::delete('maintenance-logs/{id}', DeleteMaintenanceLogAction::class);
+    Route::middleware('manager')->group(function (): void {
+        Route::post('maintenance-plans', StoreMaintenancePlanAction::class);
+        Route::put('maintenance-plans/{id}', UpdateMaintenancePlanAction::class);
+        Route::delete('maintenance-plans/{id}', DeleteMaintenancePlanAction::class);
 
-    Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
-    Route::post('maintenance-categories', StoreMaintenanceCategoryAction::class);
-    Route::put('maintenance-categories/{id}', UpdateMaintenanceCategoryAction::class);
-    Route::delete('maintenance-categories/{id}', DeleteMaintenanceCategoryAction::class);
+        Route::put('maintenance-schedules/{id}', UpdateMaintenanceScheduleAction::class);
 
-    Route::get('maintenance-items', IndexMaintenanceItemAction::class);
-    Route::post('maintenance-items', StoreMaintenanceItemAction::class);
-    Route::put('maintenance-items/{id}', UpdateMaintenanceItemAction::class);
-    Route::delete('maintenance-items/{id}', DeleteMaintenanceItemAction::class);
+        Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
+        Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
+        Route::delete('maintenance-logs/{id}', DeleteMaintenanceLogAction::class);
+
+        Route::post('maintenance-categories', StoreMaintenanceCategoryAction::class);
+        Route::put('maintenance-categories/{id}', UpdateMaintenanceCategoryAction::class);
+        Route::delete('maintenance-categories/{id}', DeleteMaintenanceCategoryAction::class);
+
+        Route::post('maintenance-items', StoreMaintenanceItemAction::class);
+        Route::put('maintenance-items/{id}', UpdateMaintenanceItemAction::class);
+        Route::delete('maintenance-items/{id}', DeleteMaintenanceItemAction::class);
+    });
 });

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\OAuth\Client;
@@ -49,7 +50,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@gmail.com',
             'password' => $password,
-            'role' => 'admin',
+            'role' => UserRole::Admin,
             'department_id' => $techDepartment->id,
         ]);
 

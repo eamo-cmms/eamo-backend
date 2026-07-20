@@ -25,7 +25,7 @@ use App\Http\Controllers\User\UpdateAuthenticatedUserController;
 use App\Http\Controllers\User\UpdateUserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'own.user'])->group(function () {
     Route::get('/user', GetAuthenticatedUserController::class);
     Route::put('/user', UpdateAuthenticatedUserController::class);
     Route::post('/logout', LogoutController::class);
@@ -35,8 +35,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications/unread-count', GetUnreadCountNotificationController::class);
     Route::patch('/notifications/read-all', ReadAllNotificationsController::class);
     Route::patch('/notifications/{id}/read', ReadNotificationController::class);
-    Route::get('/users/{user}/notifications', GetUserNotificationsController::class)->middleware('own.notifications');
+    Route::get('/users/{user}/notifications', GetUserNotificationsController::class);
+});
 
+Route::middleware(['auth:api', 'admin'])->group(function () {
     // Companies CRUD
     Route::get('/companies', IndexCompanyController::class);
     Route::post('/companies', StoreCompanyController::class);
@@ -60,7 +62,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/users/{user}', UpdateUserController::class);
     Route::patch('/users/{user}', UpdateUserController::class);
     Route::delete('/users/{user}', DestroyUserController::class);
+});
 
+Route::middleware('auth:api')->group(function () {
     // Equipment Module Routes
     if (file_exists(base_path('modules/Masterdata/Equipment/routes.php'))) {
         require base_path('modules/Masterdata/Equipment/routes.php');

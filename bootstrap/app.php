@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Middleware\EnsureOwnNotifications;
+use App\Http\Middleware\EnsureOwnUser;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsAtLeastEngineer;
+use App\Http\Middleware\EnsureUserIsAtLeastManager;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,7 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'manager' => EnsureUserIsAtLeastManager::class,
+            'engineer' => EnsureUserIsAtLeastEngineer::class,
             'own.notifications' => EnsureOwnNotifications::class,
+            'own.user' => EnsureOwnUser::class,
+            'self' => EnsureOwnUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

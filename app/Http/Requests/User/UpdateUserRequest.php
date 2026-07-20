@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\User;
 
+use App\Enums\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', 'unique:users,email,'.$userId],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'department_id' => ['nullable', 'uuid', 'exists:departments,id'],
-            'role' => ['nullable', 'string', 'max:255'],
+            'role' => ['nullable', Rule::enum(UserRole::class)],
         ];
     }
 }
