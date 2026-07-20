@@ -13,8 +13,8 @@ class UpdateUserService
      */
     public function execute(User $user, array $data): User
     {
-        $user->update(array_filter($data, fn (mixed $value): bool => $value !== null));
+        $user->update($data);
 
-        return $user;
+        return $user->load('department.company');
     }
 }

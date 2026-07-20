@@ -11,6 +11,6 @@ class ShowUserService
      */
     public function execute(User $user): User
     {
-        return $user->load('department');
+        return $user->load('department.company');
     }
 }

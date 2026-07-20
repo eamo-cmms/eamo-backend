@@ -16,6 +16,8 @@ class StoreUserService
     {
         $data['role'] = $data['role'] ?? UserRole::User;
 
-        return User::create($data);
+        $user = User::create($data);
+
+        return $user->load('department.company');
     }
 }

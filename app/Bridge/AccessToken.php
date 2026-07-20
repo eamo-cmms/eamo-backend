@@ -2,9 +2,9 @@
 
 namespace App\Bridge;
 
-use Laravel\Passport\Bridge\AccessToken as PassportAccessToken;
 use App\Models\User;
 use DateTimeImmutable;
+use Laravel\Passport\Bridge\AccessToken as PassportAccessToken;
 use Lcobucci\JWT\Token;
 
 class AccessToken extends PassportAccessToken
@@ -24,22 +24,24 @@ class AccessToken extends PassportAccessToken
         if ($userId) {
             $user = User::find($userId);
             if ($user && $user->role) {
-                $roles = [$user->role];
+                $roleValue = $user->role instanceof \BackedEnum ? $user->role->value : (string) $user->role;
+                $roles = [$roleValue];
             }
         }
 
         $builder = $this->builder
             ->permittedFor($this->getClient()->getIdentifier())
             ->identifiedBy($this->getIdentifier())
-            ->issuedAt(new DateTimeImmutable())
-            ->canOnlyBeUsedAfter(new DateTimeImmutable())
+            ->issuedAt(new DateTimeImmutable)
+            ->canOnlyBeUsedAfter(new DateTimeImmutable)
             ->expiresAt($this->getExpiryDateTime())
             ->relatedTo((string) $userId)
             ->withClaim('scopes', $this->getScopes());
 
         // Add user roles to JWT claims
-        if (!empty($roles)) {
-            $builder = $builder->withClaim('roles', $roles);
+        if (! empty($roles)) {
+            $builder = $builder->withClaim('roles', $roles)
+                ->withClaim('role', $roles[0]);
         }
 
         return $builder->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());

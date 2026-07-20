@@ -18,16 +18,18 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $roleValue = $this->role instanceof \BackedEnum ? $this->role->value : $this->role;
+        $department = $this->relationLoaded('department') ? $this->department : null;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'roles' => $this->role ? [$this->role] : [],
+            'role' => $roleValue,
+            'roles' => $roleValue ? [$roleValue] : [],
             'department_id' => $this->department_id,
-            'department_name' => $this->relationLoaded('department') ? $this->department?->name : null,
-            'company_name' => ($this->relationLoaded('department') && $this->department?->relationLoaded('company'))
-                ? $this->department?->company?->name
-                : null,
+            'department_name' => $department?->name,
+            'company_name' => $department?->company?->name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
