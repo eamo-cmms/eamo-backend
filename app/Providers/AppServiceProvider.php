@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
             return response('Authorization view not configured. Please use first-party trusted clients.', 403);
         });
 
-        Passport::tokensExpireIn(now()->addDays(1));
+        Passport::tokensExpireIn(now()->addMinutes(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
 
