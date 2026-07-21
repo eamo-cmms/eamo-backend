@@ -27,19 +27,16 @@ final class SaveEquipmentParameterLogRequest extends FormRequest
                 new IsValidId,
                 'max:36',
             ],
-            'product_id' => [
+            'user_id' => [
                 'nullable',
                 'string',
                 'min:0',
                 new IsValidId,
                 'max:36',
             ],
-            'lot_id' => [
+            'recorded_at' => [
                 'nullable',
-                'string',
-                'min:0',
-                new IsValidId,
-                'max:36',
+                'date',
             ],
             'parameters' => ['nullable', 'array', 'min:1'],
             'parameters.*.equipment_parameter_id' => [
@@ -49,7 +46,14 @@ final class SaveEquipmentParameterLogRequest extends FormRequest
                 new IsValidId,
                 'max:36',
             ],
-            'parameters.*.value' => ['nullable', 'numeric'],
+            'parameters.*.unit_id' => [
+                'nullable',
+                'string',
+                new IsValidId,
+                'max:36',
+            ],
+            'parameters.*.value' => ['nullable'],
+            'parameters.*.recorded_at' => ['nullable', 'date'],
         ];
     }
 }

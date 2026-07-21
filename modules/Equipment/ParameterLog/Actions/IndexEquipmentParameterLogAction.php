@@ -15,7 +15,7 @@ final class IndexEquipmentParameterLogAction
 
     public function asController(Request $request): JsonResponse
     {
-        $query = EquipmentParameterLog::with(['equipment', 'parameter', 'unit']);
+        $query = EquipmentParameterLog::with(['equipment', 'parameter', 'unit', 'user']);
         if ($request->boolean('only_trashed')) {
             $query->onlyTrashed();
         } elseif ($request->boolean('with_trashed')) {

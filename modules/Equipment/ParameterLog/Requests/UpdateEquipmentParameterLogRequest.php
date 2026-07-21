@@ -46,9 +46,8 @@ final class UpdateEquipmentParameterLogRequest extends FormRequest
                 'max:36',
             ],
             'value' => ['required', 'string', 'min:1', 'max:36'],
-            'product_id' => ['sometimes', 'nullable', 'string', 'max:36'],
-            'lot_id' => ['sometimes', 'nullable', 'string', 'max:36'],
-            'component_id' => ['sometimes', 'nullable', 'string', 'max:36'],
+            'user_id' => ['sometimes', 'nullable', 'string', new IsValidId, 'max:36'],
+            'recorded_at' => ['sometimes', 'nullable', 'date'],
         ];
     }
 }

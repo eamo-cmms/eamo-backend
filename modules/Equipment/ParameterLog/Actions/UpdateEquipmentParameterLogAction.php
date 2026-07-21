@@ -24,7 +24,7 @@ final class UpdateEquipmentParameterLogAction
 
         return response()->json([
             'status' => 'success',
-            'data' => $log->load(['equipment', 'parameter', 'unit']),
+            'data' => $log->load(['equipment', 'parameter', 'unit', 'user']),
         ]);
     }
 }

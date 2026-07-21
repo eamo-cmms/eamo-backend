@@ -1,142 +1,346 @@
-# Tài liệu Luồng Xác thực OAuth 2.0 PKCE
+# Tài liệu Luồng Xác thực OAuth 2.0 PKCE + Auto Refresh Token
 
-Dự án này sử dụng Laravel Passport phiên bản 13.x để triển khai luồng xác thực mã cấp phép OAuth 2.0 an toàn kết hợp khóa bảo mật PKCE (Proof Key for Code Exchange) dành cho các ứng dụng trang đơn (SPA) và ứng dụng di động.
-
-Cơ chế PKCE loại bỏ việc sử dụng mật khóa máy khách (client secret) trên các ứng dụng public, ngăn chặn hiệu quả các cuộc tấn công đánh chặn token.
+Dự án sử dụng Laravel Passport v13 để triển khai luồng **OAuth 2.0 Authorization Code + PKCE** cho SPA frontend. Cơ chế PKCE loại bỏ `client_secret` trên các ứng dụng public, đồng thời hệ thống hỗ trợ **tự động làm mới access token** (silent refresh) để người dùng không cần đăng nhập lại trong suốt phiên làm việc.
 
 ---
 
-## 1. Biểu đồ Luồng Xác thực
+## 1. Chiến lược Token
+
+| Loại Token     | Thời hạn | Nơi lưu trữ                          | Mục đích                              |
+|----------------|----------|---------------------------------------|---------------------------------------|
+| Access Token   | 15 phút  | RAM (Pinia store, không persist)      | Gửi kèm `Authorization: Bearer` mỗi request |
+| Refresh Token  | 30 ngày  | `localStorage` (encrypted)           | Lấy Access Token mới khi hết hạn     |
+
+**Lý do thiết kế:**
+- Access Token lưu trong RAM → không bị đánh cắp qua XSS từ localStorage.
+- Refresh Token lưu encrypted trong localStorage → tồn tại qua F5 / đóng tab, cho phép silent refresh mà không cần đăng nhập lại.
+- Refresh Token xoay vòng (rotate) mỗi lần dùng → giảm thiểu rủi ro token bị replay.
+
+---
+
+## 2. Biểu đồ Luồng
+
+### 2.1 Đăng nhập lần đầu (Authorization Code + PKCE)
 
 ```mermaid
 sequenceDiagram
-    participant SPA as Frontend SPA (Cổng 5173)
-    participant BE as Backend Server (Cổng 8000)
-    participant DB as Cơ sở dữ liệu PostgreSQL
+    participant SPA as Frontend SPA (5173)
+    participant BE as Backend Server (8000)
+    participant DB as PostgreSQL
 
-    SPA->>BE: 1. GET /oauth/authorize?response_type=code&client_id=...&code_challenge=...&code_challenge_method=S256
-    Note over BE: Nếu chưa đăng nhập, chuyển hướng sang /login
-    BE-->>SPA: 2. HTTP 302 Chuyển hướng sang /login
-    SPA->>BE: 3. POST /login {username, password}
-    Note over BE: Kiểm tra mật khẩu khớp với cột email trong DB
-    BE-->>DB: Truy vấn thông tin User
-    DB-->>BE: Trả về chi tiết User (UUID)
-    BE-->>SPA: 4. HTTP 302 Chuyển hướng về lại /oauth/authorize
-    Note over BE: Tự động phê duyệt ủy quyền ứng dụng
-    BE-->>SPA: 5. HTTP 302 Chuyển hướng về redirect_uri?code=AUTH_CODE
-    SPA->>BE: 6. POST /oauth/token {grant_type=authorization_code, code, code_verifier, client_id}
-    Note over BE: Xác thực code_verifier với code_challenge đã lưu
-    BE-->>SPA: 7. JSON Response: {access_token, refresh_token, expires_in}
-    SPA->>BE: 8. GET /api/user (Header: Bearer token)
-    BE-->>SPA: 9. JSON Response: UserProfile
+    SPA->>SPA: Tạo code_verifier (random 80 ký tự)
+    SPA->>SPA: Tạo code_challenge = base64url(SHA-256(verifier))
+    SPA->>SPA: Lưu code_verifier vào localStorage (tạm thời)
+    SPA->>BE: GET /oauth/authorize?client_id=...&code_challenge=...&code_challenge_method=S256
+    Note over BE: Chưa đăng nhập → redirect sang /login
+    BE-->>SPA: HTTP 302 → /login
+    SPA->>BE: POST /login {username, password}
+    BE->>DB: Xác thực email + bcrypt password
+    DB-->>BE: User record (UUID)
+    BE-->>SPA: HTTP 302 → /oauth/authorize (session đã có)
+    Note over BE: Client.skipsAuthorization() = true → bỏ qua màn xác nhận
+    BE-->>SPA: HTTP 302 → redirect_uri?code=AUTH_CODE
+    SPA->>BE: POST /oauth/token {grant_type=authorization_code, code, code_verifier, client_id}
+    Note over BE: Xác thực code_verifier ↔ code_challenge lưu trong DB
+    BE-->>SPA: {access_token, refresh_token, expires_in: 900}
+    SPA->>SPA: Lưu access_token vào RAM (Pinia)
+    SPA->>SPA: Lưu refresh_token vào localStorage (encrypted)
+    SPA->>SPA: Xóa code_verifier khỏi localStorage
+    SPA->>BE: GET /api/user (Authorization: Bearer access_token)
+    BE-->>SPA: UserProfile {id, name, role, ...}
+```
+
+### 2.2 Silent Refresh sau khi F5 / mở tab mới
+
+```mermaid
+sequenceDiagram
+    participant SPA as Frontend SPA
+    participant Guard as Router Guard
+    participant Store as Pinia Access Store
+    participant BE as Backend Server
+
+    SPA->>Guard: beforeEach() — kiểm tra accessToken
+    Guard->>Store: accessStore.accessToken == null (RAM đã mất sau F5)
+    Guard->>Store: accessStore.refreshToken != null (localStorage còn)
+    Guard->>BE: POST /oauth/token {grant_type=refresh_token, refresh_token, client_id}
+    BE-->>Guard: {access_token, refresh_token mới, expires_in: 900}
+    Guard->>Store: setAccessToken(newAccessToken)
+    Guard->>Store: setRefreshToken(newRefreshToken)
+    Guard->>SPA: Tiếp tục navigation bình thường
+```
+
+### 2.3 Auto Refresh khi Access Token hết hạn giữa chừng (Axios Interceptor)
+
+```mermaid
+sequenceDiagram
+    participant SPA as Frontend SPA
+    participant Axios as Axios requestClient
+    participant BE as Backend Server
+
+    SPA->>Axios: GET /api/v1/equipment (access_token hết hạn)
+    Axios->>BE: Authorization: Bearer <expired_token>
+    BE-->>Axios: HTTP 401 Unauthorized
+    Note over Axios: authenticateResponseInterceptor bắt 401
+    Axios->>BE: POST /oauth/token {grant_type=refresh_token, refresh_token, client_id}
+    BE-->>Axios: {access_token mới, refresh_token mới}
+    Axios->>Store: setAccessToken(newToken) + setRefreshToken(newToken)
+    Note over Axios: Retry request gốc với token mới
+    Axios->>BE: GET /api/v1/equipment (Authorization: Bearer <new_token>)
+    BE-->>Axios: HTTP 200 OK + dữ liệu
+    Axios-->>SPA: Dữ liệu trả về bình thường
+```
+
+### 2.4 Refresh Token hết hạn → Buộc đăng nhập lại
+
+```mermaid
+sequenceDiagram
+    participant Axios as Axios requestClient
+    participant BE as Backend Server
+    participant Guard as Router Guard / AuthStore
+
+    Axios->>BE: POST /oauth/token {grant_type=refresh_token, ...}
+    BE-->>Axios: HTTP 401 — refresh_token đã hết hạn / bị thu hồi
+    Note over Axios: doRefreshToken() throw Error
+    Axios->>Guard: doReAuthenticate()
+    Guard->>Guard: accessStore.setAccessToken(null)
+    Guard->>Guard: accessStore.setRefreshToken(null)
+    Guard->>BE: redirectToLogin() → /oauth/authorize?...
+    Note over Guard: Người dùng đăng nhập lại từ đầu
 ```
 
 ---
 
-## 2. Cấu hình và Tích hợp Hệ thống
+## 3. Cấu hình Hệ thống
 
-### Tự động Duyệt Ủy quyền Ứng dụng (Custom OAuth Client Model)
-Mặc định, Laravel Passport sẽ hiển thị màn hình yêu cầu người dùng xác nhận cấp quyền cho client. Do ứng dụng frontend là ứng dụng nội bộ tin cậy, màn hình này được cấu hình bỏ qua bằng cách ghi đè phương thức `skipsAuthorization` trong mô hình Client tùy chỉnh:
-- **Tệp tin**: `app/Models/OAuth/Client.php`
-- **Mã nguồn**:
-  ```php
-  public function skipsAuthorization(Authenticatable $user, array $scopes): bool
+### 3.1 Thời hạn Token — Backend
+
+**Tệp tin**: [`app/Providers/AppServiceProvider.php`](../app/Providers/AppServiceProvider.php)
+
+```php
+Passport::tokensExpireIn(now()->addMinutes(15));       // Access Token: 15 phút
+Passport::refreshTokensExpireIn(now()->addDays(30));   // Refresh Token: 30 ngày
+Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+```
+
+### 3.2 Response Interceptor — Frontend
+
+**Tệp tin**: [`src/api/request.ts`](../../frontend/src/api/request.ts)
+
+Backend trả về định dạng `{ "status": "success", "data": {...} }`, không có field `code`. Interceptor được viết custom để khớp đúng format này:
+
+```typescript
+client.addResponseInterceptor({
+  fulfilled: (response) => {
+    const { config, data, status } = response;
+    if (config.responseReturn === 'raw') return response;
+    if (status >= 200 && status < 400) {
+      if (config.responseReturn === 'body') return data;
+      // Unwrap { status, data } → trả về data.data
+      if (data && typeof data === 'object' && 'data' in data) {
+        return data.data;
+      }
+      return data;
+    }
+    throw Object.assign({}, response, { response });
+  },
+});
+```
+
+Sau đó, `authenticateResponseInterceptor` được cấu hình với `enableRefreshToken: true` để tự động gọi `doRefreshToken()` khi nhận 401:
+
+```typescript
+client.addResponseInterceptor(
+  authenticateResponseInterceptor({
+    client,
+    doReAuthenticate,
+    doRefreshToken,   // POST /oauth/token grant_type=refresh_token
+    enableRefreshToken: true,
+    formatToken,
+  }),
+);
+```
+
+### 3.3 Silent Refresh tại Router Guard — Frontend
+
+**Tệp tin**: [`src/router/guard.ts`](../../frontend/src/router/guard.ts)
+
+Khi người dùng F5 hoặc mở tab mới, access token (RAM) bị mất nhưng refresh token (localStorage) vẫn còn. Guard sẽ tự động thực hiện silent refresh trước khi điều hướng:
+
+```typescript
+if (!accessStore.accessToken && accessStore.refreshToken) {
+  try {
+    const result = await refreshAccessToken(accessStore.refreshToken);
+    accessStore.setAccessToken(result.accessToken);
+    if (result.refreshToken) accessStore.setRefreshToken(result.refreshToken);
+  } catch {
+    accessStore.setRefreshToken(null); // Hết hạn → xóa
+  }
+}
+```
+
+### 3.4 Tự động Duyệt Ủy quyền (Custom Client Model)
+
+**Tệp tin**: [`app/Models/OAuth/Client.php`](../app/Models/OAuth/Client.php)
+
+Frontend là ứng dụng nội bộ tin cậy, màn hình xác nhận cấp quyền được bỏ qua:
+
+```php
+public function skipsAuthorization(Authenticatable $user, array $scopes): bool
+{
+    return true;
+}
+```
+
+### 3.5 Role Claims trong JWT
+
+**Tệp tin**: [`app/Bridge/AccessToken.php`](../app/Bridge/AccessToken.php)
+
+Thông tin role được chèn vào JWT payload để frontend phân quyền mà không cần gọi thêm API:
+
+```php
+// JWT payload sẽ chứa thêm:
+// "roles": ["admin"] | ["manager"] | ["engineer"] | ["operator"]
+```
+
+Cấu hình tại [`app/Providers/AppServiceProvider.php`](../app/Providers/AppServiceProvider.php):
+
+```php
+$this->app->singleton(
+    AccessTokenRepositoryInterface::class,
+    fn ($app) => new AccessTokenRepository(
+        $app->make(TokenRepository::class),
+        $app->make(Dispatcher::class)
+    )
+);
+```
+
+### 3.6 Cấu hình CORS
+
+**Tệp tin**: `config/cors.php`
+
+```php
+'paths'               => ['api/*', 'oauth/*'],
+'allowed_origins'     => ['http://localhost:5173', 'http://127.0.0.1:5173'],
+'supports_credentials' => true,
+```
+
+### 3.7 Cấu hình UUID
+
+Bảng `users` dùng UUID làm khóa chính. Tất cả bảng Passport đã được điều chỉnh:
+
+| Bảng                    | Cột         | Kiểu dữ liệu |
+|-------------------------|-------------|--------------|
+| `oauth_auth_codes`      | `user_id`   | `UUID`       |
+| `oauth_access_tokens`   | `user_id`   | `UUID`       |
+| `oauth_device_codes`    | `user_id`   | `UUID`       |
+| `oauth_clients`         | `owner_id`  | `UUID`       |
+| `sessions`              | `user_id`   | `UUID`       |
+
+---
+
+## 4. Các Tệp tin Chính
+
+### Backend
+
+| Tệp tin | Vai trò |
+|---------|---------|
+| [`app/Providers/AppServiceProvider.php`](../app/Providers/AppServiceProvider.php) | Cấu hình thời hạn token Passport, đăng ký custom AccessTokenRepository |
+| [`app/Models/OAuth/Client.php`](../app/Models/OAuth/Client.php) | Bỏ qua màn xác nhận cấp quyền (`skipsAuthorization`) |
+| [`app/Bridge/AccessToken.php`](../app/Bridge/AccessToken.php) | Chèn `roles` claim vào JWT payload |
+| [`app/Bridge/AccessTokenRepository.php`](../app/Bridge/AccessTokenRepository.php) | Khởi tạo custom AccessToken |
+| [`app/Http/Requests/Auth/LoginRequest.php`](../app/Http/Requests/Auth/LoginRequest.php) | Validate form đăng nhập, map `username` → `email` |
+| [`app/Models/User.php`](../app/Models/User.php) | HasApiTokens, HasUuids |
+| [`routes/auth.php`](../routes/auth.php) | Endpoint `GET/POST /login` |
+| [`routes/api.php`](../routes/api.php) | Route `GET /api/user` |
+
+### Frontend
+
+| Tệp tin | Vai trò |
+|---------|---------|
+| [`src/api/core/pkce.ts`](../../frontend/src/api/core/pkce.ts) | `redirectToLogin()`, `handleCallback()`, `refreshAccessToken()`, `revokeTokenBackend()` |
+| [`src/api/request.ts`](../../frontend/src/api/request.ts) | Cấu hình Axios: request interceptor (đính Bearer), response interceptor (unwrap data, auto-refresh 401) |
+| [`src/router/guard.ts`](../../frontend/src/router/guard.ts) | Silent refresh khi F5, kiểm tra accessToken trước mỗi navigation |
+
+---
+
+## 5. Tài liệu Tham khảo API
+
+### 5.1 Yêu cầu cấp Authorization Code
+
+- **Method / URL**: `GET /oauth/authorize`
+- **Query params**:
+  - `client_id` — UUID của OAuth client
+  - `redirect_uri` — URL callback
+  - `response_type` — `code`
+  - `code_challenge` — `base64url(SHA-256(verifier))`
+  - `code_challenge_method` — `S256`
+  - `state` _(tùy chọn)_ — encode redirect path sau login
+- **Kết quả**: Redirect về `redirect_uri?code=AUTH_CODE`
+
+### 5.2 Đổi Authorization Code → Token
+
+- **Method / URL**: `POST /oauth/token`
+- **Headers**: `Content-Type: application/json`, `Accept: application/json`
+- **Body**:
+  ```json
   {
-      return true; // Bỏ qua màn hình xác nhận cấp quyền
+    "grant_type": "authorization_code",
+    "client_id": "<uuid>",
+    "redirect_uri": "http://localhost:5173/auth/callback",
+    "code_verifier": "<raw_verifier>",
+    "code": "<auth_code>"
   }
   ```
-Được đăng ký trong `AppServiceProvider.php` thông qua:
-```php
-Passport::useClientModel(\App\Models\OAuth\Client::class);
-```
-
-### Đưa thông tin Role vào JWT (Custom JWT Claims)
-Để truyền thông tin quyền (roles) của người dùng trực tiếp trong access token định dạng JWT (giúp frontend phân quyền nhanh mà không cần gọi thêm API), hệ thống ghi đè thực thể Token và Repository mặc định của Passport:
-- **Lớp AccessToken tùy chỉnh**: `app/Bridge/AccessToken.php` kế thừa từ `AccessToken` của Passport và ghi đè `convertToJWT()` để đưa vai trò của người dùng vào claim `roles`.
-- **Lớp AccessTokenRepository tùy chỉnh**: `app/Bridge/AccessTokenRepository.php` dùng để khởi tạo thực thể `AccessToken` tùy chỉnh ở trên.
-- **Đăng ký Service Provider**: Được liên kết trong `AppServiceProvider.php` vào singleton `AccessTokenRepositoryInterface` của League:
-  ```php
-  $this->app->singleton(
-      \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface::class,
-      function ($app) {
-          return new \App\Bridge\AccessTokenRepository(
-              $app->make(\Laravel\Passport\TokenRepository::class),
-              $app->make(\Illuminate\Contracts\Events\Dispatcher::class)
-          );
-      }
-  );
+- **Response**:
+  ```json
+  {
+    "token_type": "Bearer",
+    "expires_in": 900,
+    "access_token": "<jwt>",
+    "refresh_token": "<opaque>"
+  }
   ```
 
-### Cấu hình Khóa UUID
-Bảng `users` sử dụng UUID làm khóa chính. Do đó, tất cả các bảng dữ liệu của Passport và session đã được chuyển đổi để hỗ trợ định dạng UUID:
-- `oauth_auth_codes.user_id` -> `UUID`
-- `oauth_access_tokens.user_id` -> `UUID`
-- `oauth_device_codes.user_id` -> `UUID`
-- `oauth_clients.owner_id` -> `UUID`
-- `sessions.user_id` -> `UUID`
+### 5.3 Làm mới Access Token (Silent Refresh)
 
-### Cấu hình CORS (Cross-Origin Resource Sharing)
-Vì frontend SPA gửi request trực tiếp lấy token từ endpoint `/oauth/token` (khác cổng chạy), cấu hình CORS bắt buộc phải cho phép các cổng này:
-- **Tệp tin**: `config/cors.php`
-- **Mã nguồn**:
-  ```php
-  'paths' => ['api/*', 'oauth/*', 'sanctum/csrf-cookie'],
-  'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  'supports_credentials' => true,
+- **Method / URL**: `POST /oauth/token`
+- **Headers**: `Content-Type: application/json`, `Accept: application/json`
+- **Body**:
+  ```json
+  {
+    "grant_type": "refresh_token",
+    "client_id": "<uuid>",
+    "refresh_token": "<current_refresh_token>"
+  }
   ```
+- **Response**: Tương tự 5.2. Refresh token mới được cấp (token rotation).
+- **Khi thất bại** (refresh_token hết hạn/bị thu hồi): `401` → frontend chuyển hướng đăng nhập lại.
+
+### 5.4 Lấy thông tin người dùng hiện tại
+
+- **Method / URL**: `GET /api/user`
+- **Headers**: `Authorization: Bearer <ACCESS_TOKEN>`
+- **Response**: UserProfile object
+
+### 5.5 Thu hồi Token (Đăng xuất)
+
+- **Method / URL**: `POST /api/logout`
+- **Headers**: `Authorization: Bearer <ACCESS_TOKEN>`
+- **Response**: `HTTP 204 No Content`
+- **Lưu ý**: Frontend cũng xóa access token khỏi RAM và refresh token khỏi localStorage.
 
 ---
 
-## 3. Các Tệp tin Chính và Vai trò
+## 6. Câu hỏi Thường gặp
 
-| Tệp tin / Thành phần | Vai trò và Nhiệm vụ chính |
-|---|---|
-| [`config/auth.php`](../config/auth.php) | Định nghĩa các guard xác thực. Guard `web` sử dụng driver `session`, guard `api` sử dụng driver `passport`. |
-| [`app/Providers/AppServiceProvider.php`](../app/Providers/AppServiceProvider.php) | Cấu hình thời gian hết hạn token của Passport và liên kết các Repository tùy chỉnh. |
-| [`app/Http/Requests/Auth/LoginRequest.php`](../app/Http/Requests/Auth/LoginRequest.php) | Xác thực thông tin đầu vào khi POST `/login`, khớp trường nhập `username` với cột `email` trong database. |
-| [`app/Models/User.php`](../app/Models/User.php) | Sử dụng các trait `HasApiTokens` và `HasUuids` để tự sinh khóa UUID và liên kết xác thực Passport. |
-| [`app/Bridge/AccessToken.php`](../app/Bridge/AccessToken.php) | Ghi đè lớp AccessToken để chèn claim `roles` tùy chỉnh vào payload của JWT. |
-| [`app/Bridge/AccessTokenRepository.php`](../app/Bridge/AccessTokenRepository.php) | Ghi đè lớp AccessTokenRepository mặc định để trả về lớp `AccessToken` tùy chỉnh. |
-| [`routes/auth.php`](../routes/auth.php) | Khai báo các endpoint xác thực phiên web tối giản (`login` GET/POST). |
-| [`routes/api.php`](../routes/api.php) | Khai báo route profile `/api/user` sử dụng middleware `auth:api`. |
+**Q: Tại sao access token lưu trong RAM thay vì localStorage?**
+> localStorage dễ bị đọc qua XSS. RAM (Pinia store) an toàn hơn vì script bên thứ ba không thể truy cập trực tiếp.
 
----
+**Q: F5 có bị đăng xuất không?**
+> Không. Router guard kiểm tra refresh token trong localStorage và tự động lấy access token mới trước khi điều hướng.
 
-## 4. Tài liệu Tham khảo API
+**Q: Nếu đang làm giữa chừng mà access token hết hạn thì sao?**
+> Axios interceptor (`authenticateResponseInterceptor`) bắt lỗi 401, tự động gọi `POST /oauth/token` với refresh token, lấy access token mới và retry request gốc — người dùng không nhận thấy sự gián đoạn.
 
-### 1. Yêu cầu cấp mã Ủy quyền (Authorization Code)
-- **Phương thức / URL**: `GET /oauth/authorize`
-- **Tham số truy vấn (Query)**:
-  - `client_id`: UUID của client.
-  - `redirect_uri`: URL callback đích.
-  - `response_type`: `code`
-  - `code_challenge`: Chuỗi mã hóa SHA-256 base64url.
-  - `code_challenge_method`: `S256`
-- **Kết quả**: Chuyển hướng về `redirect_uri` kèm tham số `code` sau khi đăng nhập thành công.
-
-### 2. Yêu cầu cấp Access Token
-- **Phương thức / URL**: `POST /oauth/token`
-- **Headers**:
-  - `Content-Type: application/json`
-  - `Accept: application/json`
-- **Tham số Body**:
-  - `grant_type`: `authorization_code`
-  - `client_id`: UUID của client.
-  - `redirect_uri`: URL callback đích.
-  - `code_verifier`: Chuỗi xác thực thô khớp với challenge đã gửi.
-  - `code`: Mã authorization code nhận được từ redirect.
-- **Kết quả**: Trả về dữ liệu JSON chứa access/refresh token.
-
-### 3. Lấy thông tin người dùng hiện tại
-- **Phương thức / URL**: `GET /api/user`
-- **Headers**:
-  - `Authorization: Bearer <ACCESS_TOKEN>`
-  - `Accept: application/json`
-- **Kết quả**: Trả về dữ liệu thông tin chi tiết của người dùng.
-
-### 4. Thu hồi Access Token (Đăng xuất API)
-- **Phương thức / URL**: `POST /api/logout`
-- **Headers**:
-  - `Authorization: Bearer <ACCESS_TOKEN>`
-  - `Accept: application/json`
-- **Kết quả**: Trả về mã HTTP 204 No Content sau khi thu hồi token thành công.
+**Q: Refresh token có xoay vòng không?**
+> Có. Mỗi lần dùng refresh token, backend Passport cấp một refresh token mới. Token cũ bị thu hồi.

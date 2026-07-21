@@ -12,6 +12,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Modules\Equipment\ErrorMonitoring\Seeders\EquipmentErrorLogSeeder;
 use Modules\Equipment\ErrorMonitoring\Seeders\OperatingTimeSeeder;
+use Modules\Equipment\ParameterLog\Seeders\EquipmentParameterLogSeeder;
 use Modules\Masterdata\Equipment\Seeders\EquipmentSeeder;
 
 class DatabaseSeeder extends Seeder
@@ -64,6 +65,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EquipmentSeeder::class);
         $this->call(EquipmentErrorLogSeeder::class);
         $this->call(OperatingTimeSeeder::class);
+        $this->call(EquipmentParameterLogSeeder::class);
 
         // Create the default public OAuth client for Eamo Frontend if it does not exist
         Client::updateOrCreate(

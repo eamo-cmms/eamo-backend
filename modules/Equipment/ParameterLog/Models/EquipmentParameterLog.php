@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Modules\Equipment\ParameterLog\Models;
 
 use App\Concerns\HasDefaultRouteBinding;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentParameter;
@@ -21,14 +21,14 @@ use Modules\Masterdata\Equipment\Models\Unit;
  * @property string $id
  * @property string $equipment_id
  * @property string $equipment_parameter_id
- * @property string|null $product_id
- * @property string|null $lot_id
  * @property string|null $unit_id
- * @property string|null $component_id
  * @property string $value
+ * @property string|null $user_id
+ * @property CarbonImmutable|null $recorded_at
  * @property-read Equipment $equipment
  * @property-read EquipmentParameter $parameter
  * @property-read Unit|null $unit
+ * @property-read User|null $user
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  *
@@ -41,12 +41,21 @@ final class EquipmentParameterLog extends Model
     protected $fillable = [
         'equipment_id',
         'equipment_parameter_id',
-        'product_id',
-        'lot_id',
         'unit_id',
-        'component_id',
         'value',
+        'user_id',
+        'recorded_at',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'recorded_at' => 'datetime',
+        ];
+    }
 
     /**
      * @return BelongsTo<Equipment, $this>
@@ -61,9 +70,16 @@ final class EquipmentParameterLog extends Model
      */
     public function parameter(): BelongsTo
     {
-        return $this->belongsTo(EquipmentParameter::class);
+        return $this->belongsTo(EquipmentParameter::class, 'equipment_parameter_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public $incrementing = false;
 
@@ -72,18 +88,18 @@ final class EquipmentParameterLog extends Model
     protected $table = 'eamo_equipment_parameter_logs';
 
     /**
-     * @return HasOne<Unit, $this>
+     * @return BelongsTo<Unit, $this>
      */
-    public function unit(): HasOne
+    public function unit(): BelongsTo
     {
-        return $this->hasOne(Unit::class, 'id', 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 
     /**
-     * @return HasOne<Unit, $this>
+     * @return BelongsTo<EquipmentParameter, $this>
      */
-    public function equipmentParameter(): HasOne
+    public function equipmentParameter(): BelongsTo
     {
-        return $this->hasOne(EquipmentParameter::class, 'id', 'equipment_parameter_id');
+        return $this->belongsTo(EquipmentParameter::class, 'equipment_parameter_id');
     }
 }

@@ -71,7 +71,7 @@ final class EquipmentErrorLog extends Model
             fn () => $this->handled_at && $this->occurred_at
                 ? $this->occurred_at->diffInSeconds($this->handled_at)
                 : null
-        )->wherePivotNull('deleted_at');
+        );
     }
 
     /**

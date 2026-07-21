@@ -11,12 +11,12 @@ final class Register extends ServiceProvider implements IModuleProvider
 {
     public function seed(): void
     {
-        // $seeders = [
-        //     Infrastructure\Seeders\EquipmentParameterLogSeeder::class,
-        // ];
-        // foreach ($seeders as $seeder) {
-        //     app($seeder)->run();
-        // }
+        $seeders = [
+            Seeders\EquipmentParameterLogSeeder::class,
+        ];
+        foreach ($seeders as $seeder) {
+            app($seeder)->run();
+        }
     }
 
     public function getRoutePath(): string

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Bridge\AccessTokenRepository;
+use App\Models\OAuth\Client;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -27,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        Passport::useClientModel(\App\Models\OAuth\Client::class);
+        Passport::useClientModel(Client::class);
 
         Passport::authorizationView(function () {
             return response('Authorization view not configured. Please use first-party trusted clients.', 403);

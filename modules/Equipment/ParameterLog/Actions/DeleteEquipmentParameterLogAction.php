@@ -14,8 +14,16 @@ final class DeleteEquipmentParameterLogAction
 
     public function asController(string $id): JsonResponse
     {
-        $log = EquipmentParameterLog::findOrFail($id);
-        $log->delete();
+        $log = EquipmentParameterLog::withTrashed()->find($id);
+
+        if (! $log) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Equipment parameter log not found',
+            ], 404);
+        }
+
+        $log->forceDelete();
 
         return response()->json([
             'status' => 'success',

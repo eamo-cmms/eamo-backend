@@ -10,16 +10,16 @@ use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 
-final class OverviewEquipmentParameterLogAction
+final class GetWeeklyEquipmentParameterLogsAction
 {
     use AsAction;
 
-    public function asController(Request $request, string $id): JsonResponse
+    public function asController(Request $request, string $equipmentId): JsonResponse
     {
         $oneWeekAgo = CarbonImmutable::now()->subDays(7)->startOfDay();
 
         $logs = EquipmentParameterLog::with(['equipment', 'parameter', 'unit', 'user'])
-            ->where('equipment_id', $id)
+            ->where('equipment_id', $equipmentId)
             ->where(function ($query) use ($oneWeekAgo): void {
                 $query->where('recorded_at', '>=', $oneWeekAgo)
                     ->orWhere(function ($q) use ($oneWeekAgo): void {
