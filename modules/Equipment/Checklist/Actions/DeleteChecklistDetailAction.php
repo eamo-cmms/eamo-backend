@@ -6,20 +6,20 @@ namespace Modules\Equipment\Checklist\Actions;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
-use Modules\Equipment\Checklist\Models\ChecklistDetail;
+use Modules\Equipment\Checklist\Services\DeleteChecklistDetailService;
 
 final class DeleteChecklistDetailAction
 {
     use AsAction;
 
-    public function asController(string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
-    {
-        $detail = ChecklistDetail::findOrFail($id);
-        $cascadeService->deleteChecklistDetail($detail);
+    public function __construct(
+        private readonly DeleteChecklistDetailService $service
+    ) {}
 
-        return response()->json([
-            'message' => 'Checklist detail deleted successfully.',
-        ]);
+    public function asController(string $id): JsonResponse
+    {
+        $result = $this->service->execute($id);
+
+        return response()->json($result);
     }
 }

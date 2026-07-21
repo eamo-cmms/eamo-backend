@@ -6,6 +6,7 @@ namespace Modules\Equipment\Checklist\Services;
 
 use App\Concerns\SyncsUsersWithNotification;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
@@ -20,6 +21,35 @@ final class ChecklistSessionUpdateService
         private readonly ChecklistScheduleGeneratorService $generatorService,
         private readonly EquipmentCascadeSoftDeleteService $cascadeService,
     ) {}
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     *
+     * @throws Throwable
+     */
+    public function execute(string $id, array $data): array
+    {
+        $session = DB::transaction(function () use ($id, $data) {
+            $session = ChecklistSession::findOrFail($id);
+
+            return $this->update($session, $data);
+        });
+
+        $sessionResponse = $session->toArray();
+        if (isset($data['session_date'])) {
+            $sessionResponse['session_date'] = $data['session_date'];
+        } else {
+            $latestSchedule = ChecklistSchedule::where('checklist_session_id', $session->id)->latest('date')->first();
+            $latestDate = $latestSchedule?->date;
+            $sessionResponse['session_date'] = $latestDate
+                ? CarbonImmutable::parse($latestDate)->toDateString()
+                : null;
+        }
+        $sessionResponse['users'] = $session->users;
+
+        return $sessionResponse;
+    }
 
     /**
      * Update a checklist template and its generated schedules.
