@@ -4,79 +4,23 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Actions;
 
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Checklist\Models\ChecklistSession;
-use Modules\Equipment\Checklist\Queries\ChecklistScheduleQuery;
+use Modules\Equipment\Checklist\Requests\ShowDailySessionRequest;
+use Modules\Equipment\Checklist\Services\ShowDailySessionService;
 
 final class ShowDailySessionAction
 {
     use AsAction;
 
-    public function asController(Request $request): JsonResponse
+    public function __construct(
+        private readonly ShowDailySessionService $service
+    ) {}
+
+    public function asController(ShowDailySessionRequest $request): JsonResponse
     {
-        $request->validate([
-            'equipment_id' => ['required', 'string', 'exists:eamo_equipment,id'],
-            'date' => ['nullable', 'date_format:Y-m-d'],
-        ]);
+        $result = $this->service->execute($request->validated());
 
-        $equipmentId = $request->input('equipment_id');
-        $dateString = $request->input('date') ?? Carbon::today()->toDateString();
-        $date = Carbon::parse($dateString);
-
-        // Find existing schedules for the equipment on this date
-        $query = ChecklistScheduleQuery::make()
-            ->withDetail()
-            ->withLogs()
-            ->withUsers()
-            ->forEquipment($equipmentId)
-            ->forDate($date->toDateString());
-
-        if ($request->boolean('only_trashed')) {
-            $query->includeTrashed(only: true);
-        } elseif ($request->boolean('with_trashed')) {
-            $query->includeTrashed();
-        }
-
-        $schedules = $query->get();
-
-        if ($schedules->isEmpty()) {
-            return response()->json([
-                'message' => 'Checklist session not found for this date.',
-            ], 404);
-        }
-
-        $sessionQuery = ChecklistSession::where('equipment_id', $equipmentId);
-        if ($request->boolean('only_trashed')) {
-            $sessionQuery->onlyTrashed();
-        } elseif ($request->boolean('with_trashed')) {
-            $sessionQuery->withTrashed();
-        }
-
-        $session = $sessionQuery->first();
-
-        $detailsData = $schedules->map(function ($schedule) {
-            return [
-                'id' => $schedule->checklist_detail_id,
-                'schedule_id' => $schedule->id,
-                'checklist_id' => $schedule->checklistDetail?->checklist_id,
-                'description' => $schedule->checklistDetail?->description,
-                'deleted_at' => $schedule->deleted_at,
-                'checklist_detail_deleted_at' => $schedule->checklistDetail?->deleted_at,
-                'logs' => $schedule->logs,
-                'users' => $schedule->users,
-            ];
-        });
-
-        return response()->json([
-            'id' => $session?->id,
-            'name' => $session?->name ?? "Checklist - {$equipmentId}",
-            'equipment_id' => $equipmentId,
-            'session_date' => $date->toDateString(),
-            'deleted_at' => $session?->deleted_at,
-            'details' => $detailsData,
-        ]);
+        return response()->json($result['data'], $result['status']);
     }
 }
