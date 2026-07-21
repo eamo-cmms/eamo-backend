@@ -9,7 +9,15 @@ use Illuminate\Support\ServiceProvider;
 
 final class Register extends ServiceProvider implements IModuleProvider
 {
-    public function seed(): void {}
+    public function seed(): void
+    {
+        $seeders = [
+            Seeders\ChecklistSeeder::class,
+        ];
+        foreach ($seeders as $seeder) {
+            app($seeder)->run();
+        }
+    }
 
     public function getRoutePath(): string
     {

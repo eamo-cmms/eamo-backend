@@ -17,6 +17,7 @@ use App\Http\Controllers\Notification\ReadAllNotificationsController;
 use App\Http\Controllers\Notification\ReadNotificationController;
 use App\Http\Controllers\User\DestroyUserController;
 use App\Http\Controllers\User\GetAuthenticatedUserController;
+use App\Http\Controllers\User\GetUserTodaySchedulesAction;
 use App\Http\Controllers\User\IndexUserController;
 use App\Http\Controllers\User\LogoutController;
 use App\Http\Controllers\User\ShowUserController;
@@ -85,4 +86,6 @@ Route::middleware('auth:api')->group(function () {
     if (file_exists(base_path('modules/Equipment/ParameterLog/routes.php'))) {
         require base_path('modules/Equipment/ParameterLog/routes.php');
     }
+
+    Route::get('/user/schedules/today', GetUserTodaySchedulesAction::class);
 });

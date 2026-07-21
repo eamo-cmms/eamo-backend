@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Modules\Equipment\Checklist\Seeders\ChecklistSeeder;
 use Modules\Equipment\ErrorMonitoring\Seeders\EquipmentErrorLogSeeder;
 use Modules\Equipment\ErrorMonitoring\Seeders\OperatingTimeSeeder;
 use Modules\Equipment\ParameterLog\Seeders\EquipmentParameterLogSeeder;
@@ -66,6 +67,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EquipmentErrorLogSeeder::class);
         $this->call(OperatingTimeSeeder::class);
         $this->call(EquipmentParameterLogSeeder::class);
+        $this->call(ChecklistSeeder::class);
 
         // Create the default public OAuth client for Eamo Frontend if it does not exist
         Client::updateOrCreate(

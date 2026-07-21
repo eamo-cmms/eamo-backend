@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Equipment\Checklist\Actions\CompleteChecklistScheduleAction;
 use Modules\Equipment\Checklist\Actions\CreateDailySessionAction;
 use Modules\Equipment\Checklist\Actions\DeleteChecklistDetailAction;
 use Modules\Equipment\Checklist\Actions\DeleteChecklistSessionAction;
@@ -29,6 +30,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
         // Checklist Details
         Route::get('checklist-details', IndexChecklistDetailAction::class);
+
+        // Complete Checklist Schedule
+        Route::post('checklist-schedules/{id}/complete', CompleteChecklistScheduleAction::class);
     });
 
     Route::middleware('manager')->group(function (): void {

@@ -8,8 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
+use Modules\Equipment\Checklist\Queries\ChecklistScheduleQuery;
 
 final class ShowDailySessionAction
 {
@@ -27,13 +27,17 @@ final class ShowDailySessionAction
         $date = Carbon::parse($dateString);
 
         // Find existing schedules for the equipment on this date
-        $query = ChecklistSchedule::with(['checklistDetail', 'logs.users', 'users'])
-            ->where('equipment_id', $equipmentId)
-            ->whereDate('date', $date);
+        $query = ChecklistScheduleQuery::make()
+            ->withDetail()
+            ->withLogs()
+            ->withUsers()
+            ->forEquipment($equipmentId)
+            ->forDate($date->toDateString());
+
         if ($request->boolean('only_trashed')) {
-            $query->onlyTrashed();
+            $query->includeTrashed(only: true);
         } elseif ($request->boolean('with_trashed')) {
-            $query->withTrashed();
+            $query->includeTrashed();
         }
 
         $schedules = $query->get();

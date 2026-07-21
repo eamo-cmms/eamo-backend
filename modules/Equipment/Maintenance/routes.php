@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Equipment\Maintenance\Actions\CompleteMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceItemAction;
 use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceLogAction;
@@ -31,6 +32,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
         Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
         Route::get('maintenance-items', IndexMaintenanceItemAction::class);
+
+        // Complete Maintenance Schedule
+        Route::post('maintenance-schedules/{id}/complete', CompleteMaintenanceScheduleAction::class);
     });
 
     Route::middleware('manager')->group(function (): void {

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Checklist\Models\ChecklistSchedule;
+use Modules\Equipment\Checklist\Queries\ChecklistScheduleQuery;
 use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class DeleteDailyChecklistSchedulesAction
@@ -23,10 +23,10 @@ final class DeleteDailyChecklistSchedulesAction
             'date' => ['required', 'date'],
         ]);
 
-        $schedules = ChecklistSchedule::query()
-            ->where('checklist_session_id', $data['session_id'])
-            ->where('equipment_id', $data['equipment_id'])
-            ->whereDate('date', Carbon::parse($data['date'])->toDateString())
+        $schedules = ChecklistScheduleQuery::make()
+            ->forSession($data['session_id'])
+            ->forEquipment($data['equipment_id'])
+            ->forDate(Carbon::parse($data['date'])->toDateString())
             ->get();
 
         $cascadeService->deleteChecklistSchedules($schedules);

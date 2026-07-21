@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
+use Modules\Equipment\Checklist\Queries\ChecklistScheduleQuery;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class GetEquipmentChecklistStatusAction
@@ -30,9 +31,9 @@ final class GetEquipmentChecklistStatusAction
         $startDate = Carbon::parse($startDateString);
         $endDate = Carbon::parse($endDateString);
 
-        $schedulesByDate = ChecklistSchedule::query()
-            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->with('logs')
+        $schedulesByDate = ChecklistScheduleQuery::make()
+            ->dateRange($startDate->toDateString(), $endDate->toDateString())
+            ->withLogs()
             ->get()
             ->groupBy(fn (ChecklistSchedule $schedule): string => Carbon::parse($schedule->date)->toDateString());
 

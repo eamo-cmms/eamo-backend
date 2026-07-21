@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Services;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Equipment\Checklist\Models\ChecklistDetail;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
 use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
-use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
-use Modules\Equipment\Maintenance\Models\MaintenanceLog;
 use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 use Modules\Equipment\Maintenance\Models\MaintenanceItem;
+use Modules\Equipment\Maintenance\Models\MaintenanceLog;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
 use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentCategory;
-use Modules\Masterdata\Equipment\Models\EquipmentParameter;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
+use Modules\Masterdata\Equipment\Models\EquipmentParameter;
 
 /**
  * Soft-deletes the complete equipment graph in dependency order.
