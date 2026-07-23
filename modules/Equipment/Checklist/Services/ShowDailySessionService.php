@@ -37,7 +37,7 @@ final class ShowDailySessionService
 
         if ($schedules->isEmpty()) {
             return [
-                'status' => 404,
+                'status' => 200,
                 'data' => [
                     'message' => 'Checklist session not found for this date.',
                 ],

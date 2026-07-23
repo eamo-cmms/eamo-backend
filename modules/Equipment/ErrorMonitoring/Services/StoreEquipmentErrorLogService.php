@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\ErrorMonitoring\Services;
 
+use App\Concerns\SyncsUsersWithNotification;
 use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 
 final class StoreEquipmentErrorLogService
 {
+    use SyncsUsersWithNotification;
+
     /**
      * Store a new equipment error log and sync handlers.
      *
@@ -19,7 +22,17 @@ final class StoreEquipmentErrorLogService
         unset($data['handler_ids']);
 
         $log = EquipmentErrorLog::create($data);
-        $log->handlers()->sync($handlerIds);
+
+        $log->loadMissing(['equipment', 'equipmentError']);
+        $label = ($log->equipment?->name ?? 'Equipment').' - '.($log->equipmentError?->name ?? 'Error');
+
+        $this->syncUsersAndNotify(
+            $log->handlers(),
+            $handlerIds,
+            'error_log',
+            $log->id,
+            $label
+        );
 
         return $log->load(['equipment', 'equipmentError', 'handlers']);
     }
