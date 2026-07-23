@@ -30,9 +30,6 @@ final class SyncResolvedErrorsService
                 throw new InvalidArgumentException('Error log is not resolved or has no associated error.');
             }
 
-            $equipment = Equipment::findOrFail($log->equipment_id);
-            $equipment->equipmentErrors()->detach($log->equipment_error_id);
-
             $log->update(['is_synced' => true]);
 
             return 1;
@@ -46,12 +43,8 @@ final class SyncResolvedErrorsService
 
         $synced = 0;
         foreach ($resolvedLogs as $log) {
-            $equipment = Equipment::find($log->equipment_id);
-            if ($equipment) {
-                $equipment->equipmentErrors()->detach($log->equipment_error_id);
-                $log->update(['is_synced' => true]);
-                $synced++;
-            }
+            $log->update(['is_synced' => true]);
+            $synced++;
         }
 
         return $synced;

@@ -43,7 +43,7 @@ final class StoreEquipmentErrorLogRequest extends FormRequest
                 new IsValidId,
                 Rule::exists(EquipmentError::class, 'id'),
             ],
-            'occurred_at' => ['required', 'date'],
+            'occurred_at' => ['nullable', 'date'],
             'restarted_at' => ['nullable', 'date'],
             'handled_at' => ['nullable', 'date'],
             'handler_ids' => ['nullable', 'array'],

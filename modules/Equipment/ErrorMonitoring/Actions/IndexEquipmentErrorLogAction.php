@@ -22,7 +22,7 @@ final class IndexEquipmentErrorLogAction
             $query->withTrashed();
         }
 
-        $logs = $query->latest('occurred_at')->get();
+        $logs = $query->latest('created_at')->get();
 
         return response()->json([
             'status' => 'success',

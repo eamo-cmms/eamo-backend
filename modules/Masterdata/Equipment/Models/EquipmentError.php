@@ -50,10 +50,14 @@ final class EquipmentError extends Model
     {
         return $this->belongsToMany(
             Equipment::class,
-            'eamo_equipment_equipment_errors',
+            'eamo_equipment_error_logs',
             'equipment_error_id',
             'equipment_id'
-        )->wherePivotNull('deleted_at')->withTimestamps();
+        )
+        ->using(EquipmentErrorDefinitionPivot::class)
+        ->wherePivotNull('occurred_at')
+        ->wherePivotNull('deleted_at')
+        ->withTimestamps();
     }
 
     public function setPendingEquipmentIds(array $equipmentIds): void

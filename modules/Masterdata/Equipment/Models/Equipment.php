@@ -99,10 +99,14 @@ final class Equipment extends Model
     {
         return $this->belongsToMany(
             EquipmentError::class,
-            'eamo_equipment_equipment_errors',
+            'eamo_equipment_error_logs',
             'equipment_id',
             'equipment_error_id'
-        )->wherePivotNull('deleted_at')->withTimestamps();
+        )
+        ->using(EquipmentErrorDefinitionPivot::class)
+        ->wherePivotNull('occurred_at')
+        ->wherePivotNull('deleted_at')
+        ->withTimestamps();
     }
 
     /**

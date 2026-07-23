@@ -92,7 +92,11 @@ final class EquipmentCascadeSoftDeleteService
                 $equipment->equipmentState?->delete();
                 $equipment->equipmentImages()->get()->each->delete();
 
-                $this->softDeletePivot('eamo_equipment_equipment_errors', 'equipment_id', $equipment->id);
+                DB::table('eamo_equipment_error_logs')
+                    ->where('equipment_id', $equipment->id)
+                    ->whereNull('occurred_at')
+                    ->whereNull('deleted_at')
+                    ->update(['deleted_at' => now()]);
                 $equipment->delete();
             });
         } finally {
@@ -117,7 +121,11 @@ final class EquipmentCascadeSoftDeleteService
             ->get()
             ->each(fn (EquipmentErrorLog $log) => $this->deleteErrorLog($log));
 
-        $this->softDeletePivot('eamo_equipment_equipment_errors', 'equipment_error_id', $error->id);
+        DB::table('eamo_equipment_error_logs')
+            ->where('equipment_error_id', $error->id)
+            ->whereNull('occurred_at')
+            ->whereNull('deleted_at')
+            ->update(['deleted_at' => now()]);
         $error->delete();
     }
 

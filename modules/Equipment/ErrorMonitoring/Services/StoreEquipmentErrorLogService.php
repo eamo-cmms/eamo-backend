@@ -21,6 +21,10 @@ final class StoreEquipmentErrorLogService
         $handlerIds = $data['handler_ids'] ?? [];
         unset($data['handler_ids']);
 
+        if (empty($data['occurred_at'])) {
+            $data['occurred_at'] = now();
+        }
+
         $log = EquipmentErrorLog::create($data);
 
         $log->loadMissing(['equipment', 'equipmentError']);
