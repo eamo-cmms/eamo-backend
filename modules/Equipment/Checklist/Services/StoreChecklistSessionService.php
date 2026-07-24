@@ -20,7 +20,7 @@ final class StoreChecklistSessionService
     ) {}
 
     /**
-     * Store a checklist session, its details, schedules and pending checklist logs.
+     * Store a new checklist session, its details, schedules and pending checklist logs.
      *
      * @param  array<string, mixed>  $data
      * @param  array<int, string>  $userIds
@@ -31,14 +31,9 @@ final class StoreChecklistSessionService
     public function execute(array $data, array $userIds): array
     {
         $session = DB::transaction(function () use ($data, $userIds): ChecklistSession {
-            $session = ChecklistSession::firstOrCreate([
+            $session = ChecklistSession::create([
+                'name' => $data['name'],
                 'equipment_id' => $data['equipment_id'],
-            ], [
-                'name' => $data['name'],
-            ]);
-
-            $session->update([
-                'name' => $data['name'],
                 'session_date' => $data['session_date'],
                 'cycle_type' => $data['cycle_type'] ?? null,
                 'cycle_interval' => $data['cycle_interval'] ?? null,
@@ -54,10 +49,20 @@ final class StoreChecklistSessionService
                 );
             }
 
-            $this->storeDetails($session, $data['details'] ?? []);
+            if (! empty($data['details'])) {
+                foreach ($data['details'] as $detailData) {
+                    $session->details()->create([
+                        'checklist_id' => $detailData['checklist_id'],
+                        'description' => $detailData['description'] ?? null,
+                    ]);
+                }
+            }
 
             if ($session->session_date) {
-                $startDate = $this->resolveStartDate($data);
+                $isRepeating = ! empty($data['cycle_type']) && ! empty($data['cycle_interval']);
+                $startDate = $isRepeating
+                    ? CarbonImmutable::today()
+                    : CarbonImmutable::parse($session->session_date);
                 $endDate = CarbonImmutable::parse($session->session_date);
 
                 $this->scheduleGeneratorService->regenerateForSession(
@@ -68,39 +73,12 @@ final class StoreChecklistSessionService
                     $session->cycle_type ?? 'daily',
                     (int) ($session->cycle_interval ?? 1)
                 );
-
             }
 
             return $session;
         });
 
         return $this->buildResponse($session, $data['session_date']);
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $details
-     */
-    private function storeDetails(ChecklistSession $session, array $details): void
-    {
-        foreach ($details as $detailData) {
-            $session->details()->firstOrCreate([
-                'checklist_id' => $detailData['checklist_id'],
-            ], [
-                'description' => $detailData['description'] ?? null,
-            ]);
-        }
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    private function resolveStartDate(array $data): CarbonImmutable
-    {
-        $isRepeating = ! empty($data['cycle_type']) && ! empty($data['cycle_interval']);
-
-        return $isRepeating
-            ? CarbonImmutable::today()
-            : CarbonImmutable::parse($data['session_date']);
     }
 
     /**
