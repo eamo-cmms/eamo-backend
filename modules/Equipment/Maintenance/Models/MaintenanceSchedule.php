@@ -83,9 +83,17 @@ final class MaintenanceSchedule extends Model
         )->wherePivotNull('deleted_at');
     }
 
+    public function getNotificationLabel(): string
+    {
+        $this->loadMissing('maintenanceItem');
+        $dateStr = is_string($this->date) ? $this->date : $this->date->format('Y-m-d');
+
+        return "{$this->maintenanceItem->name} ({$dateStr})";
+    }
+
     protected static function booted(): void
     {
-        static::deleting(function (self $schedule): void {
+        self::deleting(function (self $schedule): void {
             $schedule->maintenanceLogs()->get()->each->delete();
 
             DB::table('eamo_maintenance_schedule_user')

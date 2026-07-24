@@ -96,15 +96,12 @@ final class MaintenanceScheduleGeneratorService
 
                 $userIds = $item->users->pluck('id')->toArray();
                 if (! empty($userIds)) {
-                    $schedule->loadMissing('maintenanceItem');
-                    $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                    $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
                     $this->syncUsersAndNotify(
                         $schedule->users(),
                         $userIds,
                         'maintenance_schedule',
                         $schedule->id,
-                        $label
+                        $schedule->getNotificationLabel()
                     );
                 }
             }
@@ -216,15 +213,12 @@ final class MaintenanceScheduleGeneratorService
 
                     $userIds = $item->users->pluck('id')->toArray();
                     if (! empty($userIds)) {
-                        $schedule->loadMissing('maintenanceItem');
-                        $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                        $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
                         $this->syncUsersAndNotify(
                             $schedule->users(),
                             $userIds,
                             'maintenance_schedule',
                             $schedule->id,
-                            $label
+                            $schedule->getNotificationLabel()
                         );
                     }
                 }

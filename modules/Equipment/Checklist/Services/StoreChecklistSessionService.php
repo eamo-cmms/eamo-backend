@@ -31,13 +31,7 @@ final class StoreChecklistSessionService
     public function execute(array $data, array $userIds): array
     {
         $session = DB::transaction(function () use ($data, $userIds): ChecklistSession {
-            $session = ChecklistSession::create([
-                'name' => $data['name'],
-                'equipment_id' => $data['equipment_id'],
-                'session_date' => $data['session_date'],
-                'cycle_type' => $data['cycle_type'] ?? null,
-                'cycle_interval' => $data['cycle_interval'] ?? null,
-            ]);
+            $session = ChecklistSession::create($data);
 
             if (! empty($userIds)) {
                 $this->syncUsersAndNotify(

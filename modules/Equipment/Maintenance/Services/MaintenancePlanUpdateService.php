@@ -73,32 +73,14 @@ final class MaintenancePlanUpdateService
                     if (! empty($scheduleData['id'])) {
                         $schedule = MaintenanceSchedule::find($scheduleData['id']);
                         if ($schedule) {
-                            $schedule->loadMissing('maintenanceItem');
-                            $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                            $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
-                            $this->syncUsersAndNotify(
-                                $schedule->users(),
-                                $scheduleData['user_ids'] ?? [],
-                                'maintenance_schedule',
-                                $schedule->id,
-                                $label
-                            );
+                            $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
                         }
                     } else {
                         $plan->maintenanceSchedule()
                             ->where('maintenance_item_id', $scheduleData['maintenance_item_id'])
                             ->get()
-                            ->each(function ($schedule) use ($scheduleData) {
-                                $schedule->loadMissing('maintenanceItem');
-                                $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                                $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
-                                $this->syncUsersAndNotify(
-                                    $schedule->users(),
-                                    $scheduleData['user_ids'] ?? [],
-                                    'maintenance_schedule',
-                                    $schedule->id,
-                                    $label
-                                );
+                            ->each(function (MaintenanceSchedule $schedule) use ($scheduleData) {
+                                $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
                             });
                     }
                 }
@@ -131,16 +113,7 @@ final class MaintenancePlanUpdateService
                         }
 
                         $schedule->update($updateData);
-                        $schedule->loadMissing('maintenanceItem');
-                        $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                        $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
-                        $this->syncUsersAndNotify(
-                            $schedule->users(),
-                            $scheduleData['user_ids'] ?? [],
-                            'maintenance_schedule',
-                            $schedule->id,
-                            $label
-                        );
+                        $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
                     }
                 } else {
                     // Create new schedule
@@ -152,16 +125,7 @@ final class MaintenancePlanUpdateService
                         'original_date' => $scheduleData['date'],
                         'is_rescheduled' => false,
                     ]);
-                    $schedule->loadMissing('maintenanceItem');
-                    $dateStr = $schedule->date ? (is_string($schedule->date) ? $schedule->date : $schedule->date->format('Y-m-d')) : '';
-                    $label = ($schedule->maintenanceItem?->name ?? 'Bảo trì').($dateStr ? " ($dateStr)" : '');
-                    $this->syncUsersAndNotify(
-                        $schedule->users(),
-                        $scheduleData['user_ids'] ?? [],
-                        'maintenance_schedule',
-                        $schedule->id,
-                        $label
-                    );
+                    $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
                 }
             }
         }
@@ -171,5 +135,21 @@ final class MaintenancePlanUpdateService
             'maintenanceSchedule.maintenanceItem',
             'maintenanceSchedule.users',
         ]);
+    }
+
+    /**
+     * Sync users to the schedule and send notifications.
+     *
+     * @param  array<int, string>  $userIds
+     */
+    private function syncScheduleUsers(MaintenanceSchedule $schedule, array $userIds): void
+    {
+        $this->syncUsersAndNotify(
+            $schedule->users(),
+            $userIds,
+            'maintenance_schedule',
+            $schedule->id,
+            $schedule->getNotificationLabel()
+        );
     }
 }
