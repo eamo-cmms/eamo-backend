@@ -27,8 +27,20 @@ const form = useForm({
     remember: false,
 });
 
+const selectedTab = ref('UI');
+const webUrl = 'http://localhost:5173/#/dashboard/workspace';
+const mobileUrl = 'http://localhost:5173/#/portal';
+
+function handleSelectTab(tab) {
+    selectedTab.value = tab;
+}
+
 const submit = () => {
-    form.post(route('login'), {
+    form.transform((data) => ({
+        ...data,
+        target_interface: selectedTab.value,
+        redirect_url: selectedTab.value === 'OI' ? mobileUrl : webUrl,
+    })).post(route('login'), {
         onFinish: () => form.reset('password'),
     });
 };
@@ -248,6 +260,48 @@ onMounted(() => {
                                 </AButton>
                             </AFormItem>
                         </AForm>
+
+                        <!-- UI & OI System Interface Switcher (Single Bottom Tab Bar in English) -->
+                        <div class="mt-6">
+                            <div class="mb-2 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                                SYSTEM INTERFACE
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
+                                <!-- UI Tab (Web Interface) -->
+                                <button
+                                    type="button"
+                                    @click="handleSelectTab('UI')"
+                                    :class="[
+                                        selectedTab === 'UI'
+                                            ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold scale-[1.02]'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                                    ]"
+                                    class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs transition-all duration-200 cursor-pointer border-0 outline-none"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>
+                                    </svg>
+                                    <span>UI</span>
+                                </button>
+
+                                <!-- OI Tab (Mobile Interface) -->
+                                <button
+                                    type="button"
+                                    @click="handleSelectTab('OI')"
+                                    :class="[
+                                        selectedTab === 'OI'
+                                            ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold scale-[1.02]'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                                    ]"
+                                    class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs transition-all duration-200 cursor-pointer border-0 outline-none"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
+                                    </svg>
+                                    <span>OI</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Footer -->

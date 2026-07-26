@@ -33,7 +33,25 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $redirectUrl = redirect()->intended('http://localhost:5173/dashboard/analytics')->getTargetUrl();
+        $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        $targetInterface = $request->input('target_interface', 'UI');
+        $targetPath = ($targetInterface === 'OI') ? '/portal' : '/dashboard/workspace';
+
+        $intended = $request->session()->get('url.intended');
+
+        if ($intended) {
+            // Update OAuth state parameter in intended URL so PKCE callback routes to target path
+            if (str_contains($intended, 'state=')) {
+                $intended = preg_replace('/state=[^&]*/', 'state=' . urlencode($targetPath), $intended);
+            } else {
+                $separator = str_contains($intended, '?') ? '&' : '?';
+                $intended .= $separator . 'state=' . urlencode($targetPath);
+            }
+            $request->session()->put('url.intended', $intended);
+            $redirectUrl = redirect()->intended()->getTargetUrl();
+        } else {
+            $redirectUrl = $frontendUrl . '/#' . $targetPath;
+        }
 
         return Inertia::location($redirectUrl);
     }
