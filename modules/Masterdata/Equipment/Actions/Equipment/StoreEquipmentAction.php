@@ -20,7 +20,7 @@ final class StoreEquipmentAction
         unset($data['work_center_id']); // Safety check: exclude non-db columns if passed
         $equipmentData = array_diff_key($data, array_flip(['equipment_parameters', 'state', 'uploaded_images']));
 
-        $equipment = Equipment::create($equipmentData);
+        $equipment = RegisterDeviceWithQrAction::run($equipmentData);
 
         if ($request->has('state')) {
             $equipment->equipmentState()->create([

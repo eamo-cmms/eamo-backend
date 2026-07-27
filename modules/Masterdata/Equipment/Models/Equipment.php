@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,7 @@ final class Equipment extends Model
         'work_center_id',
         'equipment_category_id',
         'device_id',
+        'qr_code_path',
         'maintenance_interval_hours',
         'last_maintenance',
         'is_active',
@@ -164,6 +166,12 @@ final class Equipment extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (self $equipment): void {
+            if (empty($equipment->device_id)) {
+                $equipment->device_id = (string) Str::uuid();
+            }
+        });
+
         static::deleting(function (self $equipment): bool|null {
             if ($equipment->isForceDeleting()) {
                 return null;
