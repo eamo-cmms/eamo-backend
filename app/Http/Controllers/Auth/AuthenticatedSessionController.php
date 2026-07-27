@@ -16,11 +16,33 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
+        if (Auth::check()) {
+            $targetInterface = $request->query('target_interface') ?? $request->input('target_interface');
+
+            $intended = $request->session()->get('url.intended');
+            if ($intended && (str_contains($intended, 'state=%2Fportal') || str_contains($intended, 'state=/portal'))) {
+                $targetInterface = 'OI';
+            }
+
+            if ($targetInterface === 'OI') {
+                return redirect('http://localhost:5173/portal');
+            }
+            return redirect('http://localhost:5173');
+        }
+
+        // Detect which interface the user came from based on the intended URL state
+        $defaultInterface = 'UI';
+        $intended = $request->session()->get('url.intended');
+        if ($intended && (str_contains($intended, 'state=%2Fportal') || str_contains($intended, 'state=/portal'))) {
+            $defaultInterface = 'OI';
+        }
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'defaultInterface' => $defaultInterface,
         ]);
     }
 
@@ -40,7 +62,7 @@ class AuthenticatedSessionController extends Controller
         $intended = $request->session()->get('url.intended');
 
         if ($intended) {
-            // Update OAuth state parameter in intended URL so PKCE callback routes to target path
+            // Always override state with the user's explicit OI/UI choice.
             if (str_contains($intended, 'state=')) {
                 $intended = preg_replace('/state=[^&]*/', 'state=' . urlencode($targetPath), $intended);
             } else {

@@ -14,12 +14,13 @@ import {
     Button as AButton
 } from 'ant-design-vue';
 
-defineProps({
-    status: {
+const props = defineProps({
+    status: String,
+    defaultInterface: {
         type: String,
+        default: 'UI',
     },
 });
-
 
 const form = useForm({
     email: '',
@@ -27,7 +28,8 @@ const form = useForm({
     remember: false,
 });
 
-const selectedTab = ref('UI');
+const selectedTab = ref(props.defaultInterface === 'OI' ? 'OI' : 'UI');
+
 const webUrl = 'http://localhost:5173/#/dashboard/workspace';
 const mobileUrl = 'http://localhost:5173/#/portal';
 
