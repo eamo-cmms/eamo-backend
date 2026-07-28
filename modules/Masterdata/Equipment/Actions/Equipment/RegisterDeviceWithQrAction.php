@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Modules\Masterdata\Equipment\Actions\Equipment;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Masterdata\Equipment\Models\Equipment;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 final class RegisterDeviceWithQrAction
 {
@@ -30,21 +30,19 @@ final class RegisterDeviceWithQrAction
         $uuid = $equipmentData['device_id'];
 
         try {
-            // fetch api tạo QR
-            $qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($uuid);
-            $response = Http::timeout(10)->get($qrApiUrl);
+            // Sinh QR Code cục bộ dạng SVG bằng simplesoftwareio/simple-qrcode (không cần Imagick)
+            $qrImage = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->generate($uuid);
 
-            if ($response->successful()) {
-                // Lưu trữ vào storage
-                $qrFileName = "qrcodes/qr_{$uuid}.png";
-                Storage::disk('public')->put($qrFileName, $response->body());
+            $qrFileName = "qrcodes/qr_{$uuid}.svg";
+            Storage::disk('public')->put($qrFileName, $qrImage);
 
-                // Gán đường dẫn URL công khai cho qr_code_path.
-                $equipmentData['qr_code_path'] = '/storage/' . $qrFileName;
-            }
+            // Gán đường dẫn URL công khai cho qr_code_path.
+            $equipmentData['qr_code_path'] = '/storage/' . $qrFileName;
         } catch (\Exception $e) {
-    
-            logger()->error("Failed to generate QR code for equipment with device_id {$uuid}: " . $e->getMessage());
+            logger()->error("Failed to generate QR code locally for equipment with device_id {$uuid}: " . $e->getMessage());
         }
 
 
