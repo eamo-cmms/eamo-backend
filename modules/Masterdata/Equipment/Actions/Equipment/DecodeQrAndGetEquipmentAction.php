@@ -17,30 +17,20 @@ final class DecodeQrAndGetEquipmentAction
         DecodeQrRequest $request,
         DecodeQrEquipmentService $service
     ): JsonResponse {
-        try {
-            $file = $request->file('qr_image');
+        $file = $request->file('qr_image');
 
-            // Gọi Service giải mã ảnh và tìm thiết bị
-            $equipment = $service->decodeAndFind($file->getPathname());
+        // Gọi Service giải mã ảnh và tìm thiết bị
+        $equipment = $service->decodeAndFind($file->getPathname());
 
-            return response()->json([
-                'message' => 'QR code decoded successfully!',
-                'data' => $equipment->load([
-                    'equipmentCategory',
-                    'equipmentErrors',
-                    'equipmentParameters.unit',
-                    'equipmentState',
-                    'equipmentImages'
-                ])
-            ]);
-        } catch (\Exception $e) {
-            $code = $e->getCode();
-            // Đảm bảo mã lỗi HTTP hợp lệ (trong khoảng 400 - 599)
-            $httpCode = ($code >= 400 && $code < 600) ? $code : 500;
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], $httpCode);
-        }
+        return response()->json([
+            'message' => 'QR code decoded successfully!',
+            'data' => $equipment->load([
+                'equipmentCategory',
+                'equipmentErrors',
+                'equipmentParameters.unit',
+                'equipmentState',
+                'equipmentImages'
+            ])
+        ]);
     }
 }
