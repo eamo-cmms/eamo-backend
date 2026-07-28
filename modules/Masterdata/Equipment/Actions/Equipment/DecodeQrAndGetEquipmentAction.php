@@ -24,7 +24,7 @@ final class DecodeQrAndGetEquipmentAction
             $equipment = $service->decodeAndFind($file->getPathname());
 
             return response()->json([
-                'message' => 'Giải mã thành công!',
+                'message' => 'QR code decoded successfully!',
                 'data' => $equipment->load([
                     'equipmentCategory',
                     'equipmentErrors',
