@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Masterdata\Equipment\Actions\Equipment\DecodeQrAndGetEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\DeleteEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\GetDashboardSummaryAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\IndexEquipmentAction;
@@ -42,6 +43,7 @@ Route::group([], function (): void {
         Route::middleware('engineer')->group(function (): void {
             Route::get('/dashboard/summary', GetDashboardSummaryAction::class)->name('dashboard.summary');
             Route::get('/', IndexEquipmentAction::class)->name('index');
+            Route::post('/decode-qr', DecodeQrAndGetEquipmentAction::class)->name('decode-qr');
             Route::get('/{id}', ShowEquipmentAction::class)->name('show');
         });
 
