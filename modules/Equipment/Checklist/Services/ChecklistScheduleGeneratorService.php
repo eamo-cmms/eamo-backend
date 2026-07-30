@@ -99,7 +99,7 @@ final class ChecklistScheduleGeneratorService
                 if (! empty($userIds)) {
                     $schedule->users()->sync($userIds);
                     // Optionally notify user
-                    $label = ($session->name ?? 'Kiểm tra')." ($formattedDate)";
+                    $label = ($session->name ?? 'Checklist session')." ($formattedDate)";
                     $this->syncUsersAndNotify(
                         $schedule->users(),
                         $userIds,
@@ -183,7 +183,7 @@ final class ChecklistScheduleGeneratorService
 
                     if (! empty($userIds)) {
                         $schedule->users()->sync($userIds);
-                        $label = ($session->name ?? 'Kiểm tra')." ($formattedDate)";
+                        $label = ($session->name ?? 'Checklist session')." ($formattedDate)";
                         $this->syncUsersAndNotify(
                             $schedule->users(),
                             $userIds,
