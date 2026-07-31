@@ -21,6 +21,7 @@ final class StoreMaintenancePlanRequest extends FormRequest
     {
         return [
             'plan_code' => ['nullable', 'string', 'max:255'],
+            'schedule_mode' => ['nullable', 'string', 'in:single,repeating'],
             'equipment_id' => ['required', 'string', 'exists:eamo_equipment,id'],
             'maintenance_category_id' => ['required', 'string', 'exists:eamo_maintenance_categories,id'],
             'maintenance_type' => ['required', 'string', 'max:255'],

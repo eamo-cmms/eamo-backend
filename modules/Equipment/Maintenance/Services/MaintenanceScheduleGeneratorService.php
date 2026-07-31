@@ -69,7 +69,9 @@ final class MaintenanceScheduleGeneratorService
             return;
         }
 
-        $occurrences = (int) $plan->occurrences;
+        $occurrences = max(1, (int) ($plan->occurrences ?? 1));
+        $cycleType = $plan->cycle_type ?? 'daily';
+        $cycleInterval = max(1, (int) ($plan->cycle_interval ?? 1));
         $itemsCount = $items->count();
         $totalSchedules = $occurrences * $itemsCount;
 
@@ -80,7 +82,7 @@ final class MaintenanceScheduleGeneratorService
         }
 
         $startDate = CarbonImmutable::parse($plan->date);
-        $dates = $this->generateDates($startDate, $plan->cycle_type, (int) $plan->cycle_interval, $occurrences);
+        $dates = $this->generateDates($startDate, $cycleType, $cycleInterval, $occurrences);
 
         foreach ($dates as $date) {
             $formattedDate = $date->format('Y-m-d');
