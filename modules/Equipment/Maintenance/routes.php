@@ -3,26 +3,26 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Modules\Equipment\Maintenance\Actions\CompleteMaintenanceScheduleAction;
-use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceCategoryAction;
-use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceItemAction;
-use Modules\Equipment\Maintenance\Actions\DeleteMaintenanceLogAction;
-use Modules\Equipment\Maintenance\Actions\DeleteMaintenancePlanAction;
-use Modules\Equipment\Maintenance\Actions\IndexMaintenanceCategoryAction;
-use Modules\Equipment\Maintenance\Actions\IndexMaintenanceItemAction;
-use Modules\Equipment\Maintenance\Actions\IndexMaintenanceLogAction;
-use Modules\Equipment\Maintenance\Actions\IndexMaintenancePlanAction;
-use Modules\Equipment\Maintenance\Actions\IndexMaintenanceScheduleAction;
-use Modules\Equipment\Maintenance\Actions\ShowMaintenancePlanAction;
-use Modules\Equipment\Maintenance\Actions\StoreMaintenanceCategoryAction;
-use Modules\Equipment\Maintenance\Actions\StoreMaintenanceItemAction;
-use Modules\Equipment\Maintenance\Actions\StoreMaintenanceLogAction;
-use Modules\Equipment\Maintenance\Actions\StoreMaintenancePlanAction;
-use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceCategoryAction;
-use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceItemAction;
-use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceLogAction;
-use Modules\Equipment\Maintenance\Actions\UpdateMaintenancePlanAction;
-use Modules\Equipment\Maintenance\Actions\UpdateMaintenanceScheduleAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceCategory\DeleteMaintenanceCategoryAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceCategory\IndexMaintenanceCategoryAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceCategory\StoreMaintenanceCategoryAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceCategory\UpdateMaintenanceCategoryAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceItem\DeleteMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceItem\IndexMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceItem\StoreMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceItem\UpdateMaintenanceItemAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\DeleteMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\IndexMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\StoreMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\UpdateMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\DeleteMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\IndexMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\ShowMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\StoreMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\UpdateMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\CompleteMaintenanceScheduleAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\IndexMaintenanceScheduleAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\UpdateMaintenanceScheduleAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     Route::middleware('engineer')->group(function (): void {

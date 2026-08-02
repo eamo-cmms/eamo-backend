@@ -12,8 +12,8 @@ final class DecodeQrEquipmentService
     /**
      * Decode a QR code image and find the corresponding equipment.
      *
-     * @param string $imagePath Physical path of the image file
-     * @return Equipment
+     * @param  string  $imagePath  Physical path of the image file
+     *
      * @throws \Exception
      */
     public function decodeAndFind(string $imagePath): Equipment
@@ -26,20 +26,14 @@ final class DecodeQrEquipmentService
             throw new \Exception('No QR code found or unable to decode QR from this image.', 422);
         }
 
-        // 2. Tìm kiếm thiết bị theo ID hoặc device_id (kể cả đã bị xóa tạm)
-        $equipment = Equipment::withTrashed()
-            ->where(function ($query) use ($uuid) {
-                $query->where('id', $uuid)
-                      ->orWhere('device_id', $uuid);
-            })
-            ->first();
+        // 2. Tìm kiếm thiết bị theo ID hoặc device_id
+        $equipment = Equipment::where(function ($query) use ($uuid) {
+            $query->where('id', $uuid)
+                ->orWhere('device_id', $uuid);
+        })->first();
 
         if (! $equipment) {
-            throw new \Exception('Thiết bị không tồn tại trong hệ thống.', 404);
-        }
-
-        if ($equipment->trashed()) {
-            throw new \Exception('Thiết bị đã bị xóa (soft deleted).', 410);
+            throw new \Exception('Equipment not found in system.', 404);
         }
 
         return $equipment;

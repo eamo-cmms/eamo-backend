@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Modules\Equipment\Checklist\Actions\CompleteChecklistScheduleAction;
-use Modules\Equipment\Checklist\Actions\CreateDailySessionAction;
-use Modules\Equipment\Checklist\Actions\DeleteChecklistDetailAction;
-use Modules\Equipment\Checklist\Actions\DeleteChecklistSessionAction;
-use Modules\Equipment\Checklist\Actions\DeleteDailyChecklistSchedulesAction;
-use Modules\Equipment\Checklist\Actions\GetEquipmentChecklistStatusAction;
-use Modules\Equipment\Checklist\Actions\IndexChecklistDetailAction;
-use Modules\Equipment\Checklist\Actions\IndexChecklistSessionAction;
-use Modules\Equipment\Checklist\Actions\JudgeSessionAction;
-use Modules\Equipment\Checklist\Actions\ShowChecklistSessionAction;
-use Modules\Equipment\Checklist\Actions\ShowDailySessionAction;
-use Modules\Equipment\Checklist\Actions\StoreChecklistDetailAction;
-use Modules\Equipment\Checklist\Actions\StoreChecklistSessionAction;
-use Modules\Equipment\Checklist\Actions\UpdateChecklistDetailAction;
-use Modules\Equipment\Checklist\Actions\UpdateChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistDetail\DeleteChecklistDetailAction;
+use Modules\Equipment\Checklist\Actions\ChecklistDetail\IndexChecklistDetailAction;
+use Modules\Equipment\Checklist\Actions\ChecklistDetail\StoreChecklistDetailAction;
+use Modules\Equipment\Checklist\Actions\ChecklistDetail\UpdateChecklistDetailAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSchedule\CompleteChecklistScheduleAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSchedule\DeleteDailyChecklistSchedulesAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\CreateDailySessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\DeleteChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\GetEquipmentChecklistStatusAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\IndexChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\JudgeSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\ShowChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\ShowDailySessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\StoreChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\ChecklistSession\UpdateChecklistSessionAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     Route::middleware('engineer')->group(function (): void {
