@@ -17,6 +17,7 @@ final class UpdateChecklistSessionRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
+            'schedule_mode' => ['nullable', 'string', 'in:single,repeating'],
             'equipment_id' => ['sometimes', 'string', 'max:36', 'exists:eamo_equipment,id'],
             'session_date' => ['sometimes', 'date'],
             'cycle_type' => ['sometimes', 'string', 'in:daily,weekly,monthly,yearly'],

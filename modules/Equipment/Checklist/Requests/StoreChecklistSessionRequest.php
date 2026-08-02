@@ -17,6 +17,7 @@ final class StoreChecklistSessionRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'schedule_mode' => ['nullable', 'string', 'in:single,repeating'],
             'equipment_id' => ['required', 'string', 'max:36', 'exists:eamo_equipment,id'],
             'session_date' => ['required', 'date'],
             'cycle_type' => ['nullable', 'string', 'in:daily,weekly,monthly,yearly'],
