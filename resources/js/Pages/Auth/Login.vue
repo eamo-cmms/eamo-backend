@@ -2,7 +2,11 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { theme } from 'ant-design-vue';
+import viVN from 'ant-design-vue/es/locale/vi_VN';
+import enUS from 'ant-design-vue/es/locale/en_US';
+import { useI18n } from 'vue-i18n';
 import SloganIcon from '@/Components/SloganIcon.vue';
+import LanguageSwitcher from '@/Components/LanguageSwitcher.vue';
 import 'ant-design-vue/dist/reset.css';
 
 import {
@@ -13,6 +17,10 @@ import {
     InputPassword as AInputPassword,
     Button as AButton
 } from 'ant-design-vue';
+
+const { locale, t } = useI18n();
+
+const antLocale = computed(() => (locale.value === 'vi' ? viVN : enUS));
 
 const props = defineProps({
     status: String,
@@ -118,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <AConfigProvider :theme="tokenTheme">
+    <AConfigProvider :theme="tokenTheme" :locale="antLocale">
         <Head title="Login">
             <link rel="icon" type="image/png" href="/favicon.png" />
         </Head>
@@ -137,8 +145,8 @@ onMounted(() => {
                     <!-- Center: SVG illustration + text -->
                     <div class="relative z-10 flex flex-col items-center px-10 text-center">
                         <SloganIcon class="h-72 w-auto max-w-xs animate-float" />
-                        <p class="mt-10 text-2xl font-bold tracking-wide text-slate-800 dark:text-white">WELCOME TO EAMO</p>
-                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Equipment Asset Management Solution</p>
+                        <p class="mt-10 text-2xl font-bold tracking-wide text-slate-800 dark:text-white" style="font-family: 'bahnschrift' !important;">{{ $t('auth.welcome_to_eamo') }}</p>
+                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ $t('auth.slogan_description') }}</p>
                     </div>
                 </div>
 
@@ -149,41 +157,45 @@ onMounted(() => {
                             border-l border-slate-100 dark:border-slate-800
                             transition-colors duration-300">
 
-                    <!-- ── Theme toggle button (top-right) ── -->
-                    <button
-                        type="button"
-                        :class="isDark ? 'is-light' : 'is-dark'"
-                        class="theme-toggle absolute top-5 right-5 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-                        @click="toggleTheme"
-                    >
-                        <svg aria-hidden="true" height="24" width="24" viewBox="0 0 24 24">
-                            <mask id="theme-moon-mask" class="theme-toggle__moon">
-                                <rect fill="white" height="100%" width="100%" x="0" y="0" />
-                                <circle cx="40" cy="8" fill="black" r="11" />
-                            </mask>
-                            <circle
-                                class="theme-toggle__sun"
-                                cx="12" cy="12" r="11"
-                                mask="url(#theme-moon-mask)"
-                                :fill="iconColor"
-                            />
-                            <g class="theme-toggle__sun-beams" :stroke="iconColor" stroke-width="2">
-                                <line x1="12" x2="12" y1="1"    y2="3"    />
-                                <line x1="12" x2="12" y1="21"   y2="23"   />
-                                <line x1="4.22"  x2="5.64"  y1="4.22"  y2="5.64"  />
-                                <line x1="18.36" x2="19.78" y1="18.36" y2="19.78" />
-                                <line x1="1"  x2="3"  y1="12" y2="12" />
-                                <line x1="21" x2="23" y1="12" y2="12" />
-                                <line x1="4.22"  x2="5.64"  y1="19.78" y2="18.36" />
-                                <line x1="18.36" x2="19.78" y1="5.64"  y2="4.22"  />
-                            </g>
-                        </svg>
-                    </button>
+                    <!-- ── Top-right action controls (Language & Theme Toggles) ── -->
+                    <div class="absolute top-5 right-5 z-10 flex items-center gap-2">
+                        <LanguageSwitcher />
+
+                        <button
+                            type="button"
+                            :class="isDark ? 'is-light' : 'is-dark'"
+                            class="theme-toggle flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            @click="toggleTheme"
+                        >
+                            <svg aria-hidden="true" height="24" width="24" viewBox="0 0 24 24">
+                                <mask id="theme-moon-mask" class="theme-toggle__moon">
+                                    <rect fill="white" height="100%" width="100%" x="0" y="0" />
+                                    <circle cx="40" cy="8" fill="black" r="11" />
+                                </mask>
+                                <circle
+                                    class="theme-toggle__sun"
+                                    cx="12" cy="12" r="11"
+                                    mask="url(#theme-moon-mask)"
+                                    :fill="iconColor"
+                                />
+                                <g class="theme-toggle__sun-beams" :stroke="iconColor" stroke-width="2">
+                                    <line x1="12" x2="12" y1="1"    y2="3"    />
+                                    <line x1="12" x2="12" y1="21"   y2="23"   />
+                                    <line x1="4.22"  x2="5.64"  y1="4.22"  y2="5.64"  />
+                                    <line x1="18.36" x2="19.78" y1="18.36" y2="19.78" />
+                                    <line x1="1"  x2="3"  y1="12" y2="12" />
+                                    <line x1="21" x2="23" y1="12" y2="12" />
+                                    <line x1="4.22"  x2="5.64"  y1="19.78" y2="18.36" />
+                                    <line x1="18.36" x2="19.78" y1="5.64"  y2="4.22"  />
+                                </g>
+                            </svg>
+                        </button>
+                    </div>
 
                     <!-- ── Form section (vertically centred) ── -->
                     <div class="my-auto w-full max-w-[360px] mx-auto">
                         <!-- Heading -->
-                        <h2 class="text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl">Welcome Back</h2>
+                        <h2 class="text-2xl font-semibold text-slate-900 dark:text-white sm:text-3xl">{{ $t('auth.welcome_back') }}</h2>
                         <!-- Flash status -->
                         <div v-if="status" class="mt-4 text-sm font-medium text-green-600">
                             {{ status }}
@@ -208,11 +220,11 @@ onMounted(() => {
                         <!-- Ant Design Form -->
                         <AForm layout="vertical" :model="form" class="mt-8" @finish="submit">
                             <AFormItem
-                                label="Email"
+                                :label="$t('auth.email')"
                                 name="email"
                                 :rules="[
-                                    { required: true, message: 'Please enter email' },
-                                    { type: 'email', message: 'Please enter a valid email address' }
+                                    { required: true, message: $t('auth.please_enter_email') },
+                                    { type: 'email', message: $t('auth.please_enter_valid_email') }
                                 ]"
                                 :validate-status="form.errors.email ? 'error' : undefined"
                                 :help="form.errors.email"
@@ -220,21 +232,21 @@ onMounted(() => {
                                 <AInput
                                     v-model:value="form.email"
                                     size="large"
-                                    placeholder="Please enter email"
+                                    :placeholder="$t('auth.please_enter_email')"
                                 />
                             </AFormItem>
 
                             <AFormItem
-                                label="Password"
+                                :label="$t('auth.password')"
                                 name="password"
-                                :rules="[{ required: true, message: 'Please enter password' }]"
+                                :rules="[{ required: true, message: $t('auth.please_enter_password') }]"
                                 :validate-status="form.errors.password ? 'error' : undefined"
                                 :help="form.errors.password"
                             >
                                 <AInputPassword
                                     v-model:value="form.password"
                                     size="large"
-                                    placeholder="Please enter password"
+                                    :placeholder="$t('auth.please_enter_password')"
                                 />
                             </AFormItem>
 
@@ -246,7 +258,7 @@ onMounted(() => {
                                         type="checkbox"
                                         class="h-4 w-4 rounded border-slate-300 text-blue-600 accent-blue-600 dark:border-slate-600 cursor-pointer"
                                     />
-                                    Remember me
+                                    {{ $t('auth.remember_me') }}
                                 </label>
                             </div>
 
@@ -258,15 +270,15 @@ onMounted(() => {
                                     block
                                     :loading="form.processing"
                                 >
-                                    Login
+                                    {{ $t('auth.login') }}
                                 </AButton>
                             </AFormItem>
                         </AForm>
 
-                        <!-- UI & OI System Interface Switcher (Single Bottom Tab Bar in English) -->
+                        <!-- UI & OI System Interface Switcher -->
                         <div class="mt-6">
                             <div class="mb-2 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                                SYSTEM INTERFACE
+                                {{ $t('auth.system_interface') }}
                             </div>
                             <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
                                 <!-- UI Tab (Web Interface) -->

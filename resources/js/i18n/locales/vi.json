@@ -1,0 +1,22 @@
+{
+    "auth": {
+        "welcome_to_eamo": "CHÀO MỪNG ĐẾN VỚI EAMO",
+        "slogan_description": "Giải pháp Quản lý Tài sản & Thiết bị",
+        "welcome_back": "Chào mừng trở lại",
+        "email": "Email",
+        "password": "Mật khẩu",
+        "please_enter_email": "Vui lòng nhập email",
+        "please_enter_valid_email": "Vui lòng nhập địa chỉ email hợp lệ",
+        "please_enter_password": "Vui lòng nhập mật khẩu",
+        "remember_me": "Ghi nhớ đăng nhập",
+        "login": "Đăng nhập",
+        "system_interface": "GIAO DIỆN HỆ THỐNG",
+        "web_interface": "Giao diện Web",
+        "mobile_interface": "Giao diện Mobile"
+    },
+    "common": {
+        "language": "Ngôn ngữ",
+        "vietnamese": "Tiếng Việt",
+        "english": "Tiếng Anh"
+    }
+}

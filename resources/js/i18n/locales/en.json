@@ -1,0 +1,22 @@
+{
+    "auth": {
+        "welcome_to_eamo": "WELCOME TO EAMO",
+        "slogan_description": "Equipment Asset Management Solution",
+        "welcome_back": "Welcome Back",
+        "email": "Email",
+        "password": "Password",
+        "please_enter_email": "Please enter email",
+        "please_enter_valid_email": "Please enter a valid email address",
+        "please_enter_password": "Please enter password",
+        "remember_me": "Remember me",
+        "login": "Login",
+        "system_interface": "SYSTEM INTERFACE",
+        "web_interface": "Web Interface",
+        "mobile_interface": "Mobile Interface"
+    },
+    "common": {
+        "language": "Language",
+        "vietnamese": "Vietnamese",
+        "english": "English"
+    }
+}
