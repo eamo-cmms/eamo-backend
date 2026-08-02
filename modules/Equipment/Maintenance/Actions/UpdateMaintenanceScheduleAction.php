@@ -25,7 +25,7 @@ final class UpdateMaintenanceScheduleAction
         $validated = $request->validated();
 
         $scheduleFields = array_intersect_key($validated, array_flip([
-            'actual_start_time', 'actual_end_time', 'result', 'note',
+            'actual_start_time', 'actual_end_time', 'result', 'note', 'date', 'is_rescheduled',
         ]));
 
         if (! empty($scheduleFields)) {

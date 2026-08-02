@@ -16,6 +16,7 @@ class UpdateEquipmentCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'max:100'],
             'name' => ['required', 'string', 'max:255'],
         ];
     }

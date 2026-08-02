@@ -6,6 +6,7 @@ namespace Modules\Equipment\Maintenance\Actions;
 
 use App\Concerns\SyncsUsersWithNotification;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
@@ -27,7 +28,7 @@ final class StoreMaintenancePlanAction
         $validated = $request->validated();
 
         $plan = MaintenancePlan::create([
-            'plan_code' => $validated['plan_code'] ?? null,
+            'plan_code' => ! empty($validated['plan_code']) ? $validated['plan_code'] : 'PM-'.date('Ymd').'-'.strtoupper(Str::random(6)),
             'equipment_id' => $validated['equipment_id'],
             'maintenance_category_id' => $validated['maintenance_category_id'],
             'maintenance_type' => $validated['maintenance_type'],

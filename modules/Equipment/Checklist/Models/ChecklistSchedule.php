@@ -45,10 +45,15 @@ final class ChecklistSchedule extends Model
         'date',
         'is_rescheduled',
         'original_date',
+        'is_auto_generated',
+        'is_adhoc',
+        'notes',
     ];
 
     protected $casts = [
         'is_rescheduled' => 'boolean',
+        'is_auto_generated' => 'boolean',
+        'is_adhoc' => 'boolean',
     ];
 
     public function checklistSession(): BelongsTo

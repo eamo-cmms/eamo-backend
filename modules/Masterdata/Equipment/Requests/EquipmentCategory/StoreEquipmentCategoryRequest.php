@@ -17,6 +17,7 @@ class StoreEquipmentCategoryRequest extends FormRequest
     {
         return [
             'id' => ['nullable', 'string', 'uuid'],
+            'code' => ['required', 'string', 'max:100'],
             'name' => ['required', 'string', 'max:255'],
         ];
     }

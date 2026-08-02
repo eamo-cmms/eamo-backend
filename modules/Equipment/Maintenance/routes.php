@@ -13,6 +13,7 @@ use Modules\Equipment\Maintenance\Actions\IndexMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\IndexMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\ShowMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\StoreIndividualMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenanceCategoryAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenanceItemAction;
 use Modules\Equipment\Maintenance\Actions\StoreMaintenanceLogAction;
@@ -35,6 +36,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
     Route::middleware('manager')->group(function (): void {
         Route::post('maintenance-plans', StoreMaintenancePlanAction::class);
+        Route::post('maintenance-plans/{planId}/individual-schedules', StoreIndividualMaintenanceScheduleAction::class);
         Route::put('maintenance-plans/{id}', UpdateMaintenancePlanAction::class);
         Route::delete('maintenance-plans/{id}', DeleteMaintenancePlanAction::class);
 

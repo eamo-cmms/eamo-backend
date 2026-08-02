@@ -253,6 +253,12 @@ final class MaintenanceScheduleGeneratorService
             ->pluck('id')
             ->toArray();
 
-        return array_values(array_unique(array_merge($loggedIds, $rescheduledIds)));
+        // Schedules manually created (individual / ad-hoc)
+        $manualIds = $plan->maintenanceSchedule()
+            ->where('is_auto_generated', false)
+            ->pluck('id')
+            ->toArray();
+
+        return array_values(array_unique(array_merge($loggedIds, $rescheduledIds, $manualIds)));
     }
 }

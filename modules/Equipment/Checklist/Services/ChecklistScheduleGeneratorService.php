@@ -227,7 +227,15 @@ final class ChecklistScheduleGeneratorService
             ->pluck('id')
             ->toArray();
 
-        return array_values(array_unique(array_merge($loggedIds, $rescheduledIds)));
+        // Schedules manually created (individual / ad-hoc)
+        $manualIds = $session->schedules()
+            ->where('equipment_id', $equipmentId)
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->where('is_auto_generated', false)
+            ->pluck('id')
+            ->toArray();
+
+        return array_values(array_unique(array_merge($loggedIds, $rescheduledIds, $manualIds)));
     }
 
     private function createPendingLog(ChecklistSchedule $schedule): void

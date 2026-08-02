@@ -25,14 +25,17 @@ final class UpdateMaintenanceScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
+            
             'id' => [
-                'required',
+                'nullable',
                 'string',
                 'min:1',
                 'max:36',
                 new IsValidId,
                 Rule::exists(MaintenanceSchedule::class, 'id'),
             ],
+            'date' => ['nullable', 'string'],
+            'is_rescheduled' => ['nullable', 'boolean'],
 
             // New datetime fields
             'actual_start_time' => ['nullable', 'string', 'min:0', 'max:255'],

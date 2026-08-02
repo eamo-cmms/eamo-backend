@@ -42,10 +42,15 @@ final class MaintenanceSchedule extends Model
         'date',
         'is_rescheduled',
         'original_date',
+        'is_auto_generated',
+        'is_adhoc',
+        'notes',
     ];
 
     protected $casts = [
         'is_rescheduled' => 'boolean',
+        'is_auto_generated' => 'boolean',
+        'is_adhoc' => 'boolean',
     ];
 
     public function maintenancePlan(): BelongsTo
@@ -85,7 +90,7 @@ final class MaintenanceSchedule extends Model
 
     protected static function booted(): void
     {
-        static::deleting(function (self $schedule): void {
+        self::deleting(function (self $schedule): void {
             $schedule->maintenanceLogs()->get()->each->delete();
 
             DB::table('eamo_maintenance_schedule_user')

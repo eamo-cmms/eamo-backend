@@ -15,6 +15,7 @@ use Modules\Equipment\Checklist\Actions\ShowChecklistSessionAction;
 use Modules\Equipment\Checklist\Actions\ShowDailySessionAction;
 use Modules\Equipment\Checklist\Actions\StoreChecklistDetailAction;
 use Modules\Equipment\Checklist\Actions\StoreChecklistSessionAction;
+use Modules\Equipment\Checklist\Actions\StoreIndividualChecklistScheduleAction;
 use Modules\Equipment\Checklist\Actions\UpdateChecklistDetailAction;
 use Modules\Equipment\Checklist\Actions\UpdateChecklistSessionAction;
 
@@ -37,6 +38,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
         // Checklist Sessions
         Route::post('checklist-sessions', StoreChecklistSessionAction::class);
+        Route::post('checklist-sessions/{sessionId}/individual-schedules', StoreIndividualChecklistScheduleAction::class);
         Route::put('checklist-sessions/{id}', UpdateChecklistSessionAction::class);
         Route::delete('checklist-sessions/{id}', DeleteChecklistSessionAction::class);
         Route::post('checklist-sessions/judge', JudgeSessionAction::class);
