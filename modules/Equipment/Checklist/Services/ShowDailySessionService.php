@@ -44,14 +44,27 @@ final class ShowDailySessionService
             ];
         }
 
-        $sessionQuery = ChecklistSession::where('equipment_id', $equipmentId);
-        if (! empty($data['only_trashed'])) {
-            $sessionQuery->onlyTrashed();
-        } elseif (! empty($data['with_trashed'])) {
-            $sessionQuery->withTrashed();
+        $firstSessionId = $schedules->first()?->checklist_session_id;
+        $session = null;
+        if ($firstSessionId) {
+            $sessionQuery = ChecklistSession::where('id', $firstSessionId);
+            if (! empty($data['only_trashed'])) {
+                $sessionQuery->onlyTrashed();
+            } elseif (! empty($data['with_trashed'])) {
+                $sessionQuery->withTrashed();
+            }
+            $session = $sessionQuery->first();
         }
 
-        $session = $sessionQuery->first();
+        if (! $session) {
+            $sessionQuery = ChecklistSession::where('equipment_id', $equipmentId);
+            if (! empty($data['only_trashed'])) {
+                $sessionQuery->onlyTrashed();
+            } elseif (! empty($data['with_trashed'])) {
+                $sessionQuery->withTrashed();
+            }
+            $session = $sessionQuery->first();
+        }
 
         $detailsData = $schedules->map(function ($schedule) {
             return [
@@ -72,6 +85,9 @@ final class ShowDailySessionService
                 'id' => $session?->id,
                 'name' => $session?->name ?? "Checklist - {$equipmentId}",
                 'equipment_id' => $equipmentId,
+                'schedule_mode' => $session?->schedule_mode ?? 'repeating',
+                'cycle_type' => $session?->cycle_type,
+                'cycle_interval' => $session?->cycle_interval,
                 'session_date' => $date->toDateString(),
                 'deleted_at' => $session?->deleted_at,
                 'details' => $detailsData,

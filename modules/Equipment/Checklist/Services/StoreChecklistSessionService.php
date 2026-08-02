@@ -53,20 +53,28 @@ final class StoreChecklistSessionService
             }
 
             if ($session->session_date) {
-                $isRepeating = ! empty($data['cycle_type']) && ! empty($data['cycle_interval']);
-                $startDate = $isRepeating
-                    ? CarbonImmutable::today()
-                    : CarbonImmutable::parse($session->session_date);
-                $endDate = CarbonImmutable::parse($session->session_date);
+                $isRepeating = ($session->schedule_mode ?? $data['schedule_mode'] ?? 'repeating') === 'repeating';
+                if ($isRepeating) {
+                    $sessionDate = CarbonImmutable::parse($session->session_date);
+                    $startDate = $sessionDate;
+                    $endDate = $sessionDate->addDays(30);
 
-                $this->scheduleGeneratorService->regenerateForSession(
-                    $session,
-                    $session->equipment_id,
-                    $startDate,
-                    $endDate,
-                    $session->cycle_type ?? 'daily',
-                    (int) ($session->cycle_interval ?? 1)
-                );
+                    $this->scheduleGeneratorService->regenerateForSession(
+                        $session,
+                        $session->equipment_id,
+                        $startDate,
+                        $endDate,
+                        $session->cycle_type ?? 'daily',
+                        (int) ($session->cycle_interval ?? 1)
+                    );
+                } else {
+                    $targetDate = CarbonImmutable::parse($session->session_date);
+                    $this->scheduleGeneratorService->regenerateSingleForSession(
+                        $session,
+                        $session->equipment_id,
+                        $targetDate
+                    );
+                }
             }
 
             return $session;
@@ -89,6 +97,9 @@ final class StoreChecklistSessionService
             'id' => $session->id,
             'name' => $session->name,
             'equipment_id' => $session->equipment_id,
+            'schedule_mode' => $session->schedule_mode ?? 'repeating',
+            'cycle_type' => $session->cycle_type,
+            'cycle_interval' => $session->cycle_interval,
             'session_date' => $sessionDate,
             'details' => $schedules->map(static function (ChecklistSchedule $schedule): array {
                 return [

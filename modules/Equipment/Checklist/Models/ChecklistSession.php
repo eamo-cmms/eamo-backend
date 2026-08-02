@@ -50,6 +50,7 @@ final class ChecklistSession extends Model
         'session_date',
         'cycle_type',
         'cycle_interval',
+        'schedule_mode',
     ];
 
     protected $casts = [

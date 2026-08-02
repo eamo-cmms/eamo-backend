@@ -79,6 +79,7 @@ class ChecklistSeeder extends Seeder
                 'session_date' => $endDate,
                 'cycle_type' => $template['cycle_type'],
                 'cycle_interval' => $template['cycle_interval'],
+                'schedule_mode' => 'repeating',
             ]);
 
             // Sync random users to the session (assign 1-3 users)

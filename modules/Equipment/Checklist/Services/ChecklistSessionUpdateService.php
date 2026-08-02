@@ -66,6 +66,7 @@ final class ChecklistSessionUpdateService
             'session_date',
             'cycle_type',
             'cycle_interval',
+            'schedule_mode',
         ]));
 
         $session->fill($sessionFields);
@@ -85,22 +86,71 @@ final class ChecklistSessionUpdateService
             );
         }
 
-        $isRepeating = ! empty($session->cycle_type) && ! empty($session->cycle_interval);
-        if ($isRepeating && $session->session_date) {
-            $this->applyScheduleUpdates($session, $data['schedules'] ?? []);
+        if (array_key_exists('details', $data) && is_array($data['details'])) {
+            $inputDetails = $data['details'];
+            $existingDetails = $session->details;
+            $keepDetailIds = [];
 
-            $this->generatorService->regenerateForSession(
-                $session,
-                $session->equipment_id,
-                CarbonImmutable::today(),
-                CarbonImmutable::parse($session->session_date),
-                $session->cycle_type,
-                (int) $session->cycle_interval
-            );
-        } elseif (array_key_exists('schedules', $data)) {
-            $this->syncManualSchedules($session, $data['schedules'] ?? []);
-        } elseif ($sessionDateChanged && $session->session_date) {
-            $this->moveUnprotectedOneTimeSchedules($session, CarbonImmutable::parse($session->session_date));
+            foreach ($inputDetails as $detailData) {
+                if (empty($detailData['checklist_id'])) {
+                    continue;
+                }
+
+                $detail = null;
+                if (! empty($detailData['id'])) {
+                    $detail = $existingDetails->firstWhere('id', $detailData['id']);
+                }
+                if (! $detail) {
+                    $detail = $existingDetails->firstWhere('checklist_id', $detailData['checklist_id']);
+                }
+
+                if ($detail) {
+                    $detail->update([
+                        'description' => $detailData['description'] ?? $detail->description,
+                    ]);
+                } else {
+                    $detail = $session->details()->create([
+                        'checklist_id' => $detailData['checklist_id'],
+                        'description' => $detailData['description'] ?? null,
+                    ]);
+                }
+                $keepDetailIds[] = $detail->id;
+            }
+
+            $toRemove = $existingDetails->reject(fn ($d) => in_array($d->id, $keepDetailIds, true));
+            foreach ($toRemove as $removedDetail) {
+                $schedulesToDelete = $removedDetail->schedules;
+                $this->cascadeService->deleteChecklistSchedules($schedulesToDelete);
+                $removedDetail->delete();
+            }
+            $session->load('details');
+        }
+
+        $isRepeating = ($session->schedule_mode ?? 'repeating') === 'repeating';
+        if ($session->session_date) {
+            if ($isRepeating) {
+                $this->applyScheduleUpdates($session, $data['schedules'] ?? []);
+
+                $sessionDate = CarbonImmutable::parse($session->session_date);
+                $startDate = $sessionDate;
+                $endDate = $sessionDate->addDays(30);
+
+                $this->generatorService->regenerateForSession(
+                    $session,
+                    $session->equipment_id,
+                    $startDate,
+                    $endDate,
+                    $session->cycle_type ?? 'daily',
+                    (int) ($session->cycle_interval ?? 1)
+                );
+            } else {
+                $targetDate = CarbonImmutable::parse($session->session_date);
+                $this->generatorService->regenerateSingleForSession(
+                    $session,
+                    $session->equipment_id,
+                    $targetDate
+                );
+            }
         }
 
         return $session->fresh()->load([

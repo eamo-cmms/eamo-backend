@@ -84,6 +84,9 @@ final class IndexChecklistSessionService
                 'id' => $session->id,
                 'name' => $session->name,
                 'equipment_id' => $session->equipment_id,
+                'schedule_mode' => $session->schedule_mode ?? 'repeating',
+                'cycle_type' => $session->cycle_type,
+                'cycle_interval' => $session->cycle_interval,
                 'equipment' => $session->equipment ? [
                     'id' => $session->equipment->id,
                     'name' => $session->equipment->name,

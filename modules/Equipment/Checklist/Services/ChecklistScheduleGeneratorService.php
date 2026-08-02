@@ -72,12 +72,12 @@ final class ChecklistScheduleGeneratorService
         }
 
         $dates = $this->generateDates($startDate, $endDate, $cycleType, $cycleInterval);
-        $totalSchedules = count($dates) * $details->count();
+        $detailsCount = max(1, $details->count());
+        $totalSchedules = count($dates) * $detailsCount;
 
         if ($totalSchedules > self::MAX_SCHEDULES) {
-            throw ValidationException::withMessages([
-                'end_date' => ["The total number of expected checklist schedules ({$totalSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
-            ]);
+            $maxDates = (int) floor(self::MAX_SCHEDULES / $detailsCount);
+            $dates = array_slice($dates, 0, max(1, $maxDates));
         }
 
         $userIds = $session->users->pluck('id')->toArray();
@@ -145,13 +145,12 @@ final class ChecklistScheduleGeneratorService
 
         // 4. Generate target dates
         $dates = $this->generateDates($startDate, $endDate, $cycleType, $cycleInterval);
+        $detailsCount = max(1, $details->count());
+        $totalNewSchedules = count($dates) * $detailsCount;
 
-        // 5. Validate total count
-        $totalNewSchedules = count($dates) * $details->count();
         if ($totalNewSchedules > self::MAX_SCHEDULES) {
-            throw ValidationException::withMessages([
-                'end_date' => ["The total number of expected checklist schedules ({$totalNewSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
-            ]);
+            $maxDates = (int) floor(self::MAX_SCHEDULES / $detailsCount);
+            $dates = array_slice($dates, 0, max(1, $maxDates));
         }
 
         $userIds = $session->users->pluck('id')->toArray();
@@ -228,6 +227,83 @@ final class ChecklistScheduleGeneratorService
             ->toArray();
 
         return array_values(array_unique(array_merge($loggedIds, $rescheduledIds)));
+    }
+
+    /**
+     * Regenerate schedules for a single-mode checklist session.
+     * Keeps schedules ONLY on $targetDate, and deletes all unprotected schedules on any other dates.
+     */
+    public function regenerateSingleForSession(
+        ChecklistSession $session,
+        string $equipmentId,
+        CarbonImmutable $targetDate
+    ): void {
+        $targetDateStr = $targetDate->format('Y-m-d');
+
+        // Collect protected schedule IDs across all dates
+        $scheduleIds = $session->schedules()->pluck('id');
+        $loggedIds = ChecklistLog::whereIn('checklist_schedule_id', $scheduleIds)
+            ->where('status', 'completed')
+            ->pluck('checklist_schedule_id')
+            ->toArray();
+        $rescheduledIds = $session->schedules()
+            ->where('is_rescheduled', true)
+            ->pluck('id')
+            ->toArray();
+        $protectedIds = array_values(array_unique(array_merge($loggedIds, $rescheduledIds)));
+
+        // Delete all unprotected schedules for this session on dates != targetDateStr
+        $unprotectedSchedulesOnOtherDates = $session->schedules()
+            ->where('equipment_id', $equipmentId)
+            ->where('date', '!=', $targetDateStr)
+            ->whereNotIn('id', $protectedIds)
+            ->get();
+
+        $this->cascadeService->deleteChecklistSchedules($unprotectedSchedulesOnOtherDates);
+
+        // Ensure schedules exist on targetDateStr for each detail
+        $details = $session->details;
+        if ($details->isEmpty()) {
+            return;
+        }
+
+        $userIds = $session->users->pluck('id')->toArray();
+
+        foreach ($details as $detail) {
+            $exists = $session->schedules()
+                ->where('equipment_id', $equipmentId)
+                ->where('checklist_detail_id', $detail->id)
+                ->where(function ($query) use ($targetDateStr) {
+                    $query->where('date', $targetDateStr)
+                        ->orWhere('original_date', $targetDateStr);
+                })
+                ->exists();
+
+            if (! $exists) {
+                $schedule = ChecklistSchedule::create([
+                    'equipment_id' => $equipmentId,
+                    'checklist_session_id' => $session->id,
+                    'checklist_detail_id' => $detail->id,
+                    'date' => $targetDateStr,
+                    'original_date' => $targetDateStr,
+                    'is_rescheduled' => false,
+                ]);
+
+                $this->createPendingLog($schedule);
+
+                if (! empty($userIds)) {
+                    $schedule->users()->sync($userIds);
+                    $label = ($session->name ?? 'Checklist session')." ($targetDateStr)";
+                    $this->syncUsersAndNotify(
+                        $schedule->users(),
+                        $userIds,
+                        'checklist_session',
+                        $schedule->id,
+                        $label
+                    );
+                }
+            }
+        }
     }
 
     private function createPendingLog(ChecklistSchedule $schedule): void
