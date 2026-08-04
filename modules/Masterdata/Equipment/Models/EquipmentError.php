@@ -55,7 +55,6 @@ final class EquipmentError extends Model
             'equipment_id'
         )
         ->using(EquipmentErrorDefinitionPivot::class)
-        ->wherePivotNull('occurred_at')
         ->wherePivotNull('deleted_at')
         ->withTimestamps();
     }

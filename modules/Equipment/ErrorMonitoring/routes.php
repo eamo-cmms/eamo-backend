@@ -16,7 +16,6 @@ use Modules\Equipment\ErrorMonitoring\Actions\SaveEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\ShowEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\StoreEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\StoreOperatingTimeAction;
-use Modules\Equipment\ErrorMonitoring\Actions\SyncResolvedErrorsAction;
 use Modules\Equipment\ErrorMonitoring\Actions\UpdateEquipmentErrorLogAction;
 use Modules\Equipment\ErrorMonitoring\Actions\UpdateOperatingTimeAction;
 
@@ -32,10 +31,8 @@ Route::group([], function (): void {
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentErrorLogAction::class)->name('store');
-            Route::post('/sync-resolved', SyncResolvedErrorsAction::class)->name('sync-resolved');
             Route::put('/{id}', UpdateEquipmentErrorLogAction::class)->name('update');
             Route::delete('/{id}', DeleteEquipmentErrorLogAction::class)->name('destroy');
-            Route::post('/{id}/sync-resolved', SyncResolvedErrorsAction::class)->name('sync-resolved-one');
             Route::post('/save', SaveEquipmentErrorLogAction::class)->name('save');
         });
     });

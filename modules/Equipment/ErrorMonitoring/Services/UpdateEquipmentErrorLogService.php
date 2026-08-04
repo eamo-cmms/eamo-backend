@@ -32,7 +32,20 @@ final class UpdateEquipmentErrorLogService
             unset($data['handler_ids']);
         }
 
+        if (! empty($data['is_handled'])) {
+            if (empty($data['handled_at'])) {
+                $data['handled_at'] = now();
+            }
+            if (empty($data['restarted_at'])) {
+                $data['restarted_at'] = now();
+            }
+        }
+
         $log->update($data);
+
+        if (! empty($data['is_handled'])) {
+            $log->delete();
+        }
 
         return $log->load(['equipment', 'equipmentError', 'handlers']);
     }

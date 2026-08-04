@@ -58,7 +58,7 @@ final class EquipmentErrorLog extends Model
         'restarted_at', // Thời điểm thiết bị chạy lại
         'handled_at', // Thời điểm xử lý xong lỗi
         'handler_id', // ID của người xử lý lỗi
-        'is_synced',
+        'is_handled',
     ];
 
     protected $keyType = 'string';
@@ -120,7 +120,7 @@ final class EquipmentErrorLog extends Model
             'occurred_at' => 'immutable_datetime',
             'restarted_at' => 'immutable_datetime',
             'handled_at' => 'immutable_datetime',
-            'is_synced' => 'boolean',
+            'is_handled' => 'boolean',
         ];
     }
 }

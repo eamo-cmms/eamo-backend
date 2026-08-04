@@ -21,11 +21,20 @@ final class StoreEquipmentErrorLogService
         $handlerIds = $data['handler_ids'] ?? [];
         unset($data['handler_ids']);
 
-        if (empty($data['occurred_at'])) {
-            $data['occurred_at'] = now();
+        if (! empty($data['is_handled'])) {
+            if (empty($data['handled_at'])) {
+                $data['handled_at'] = now();
+            }
+            if (empty($data['restarted_at'])) {
+                $data['restarted_at'] = now();
+            }
         }
 
         $log = EquipmentErrorLog::create($data);
+
+        if (! empty($data['is_handled'])) {
+            $log->delete();
+        }
 
         $log->loadMissing(['equipment', 'equipmentError']);
         $label = ($log->equipment?->name ?? 'Equipment').' - '.($log->equipmentError?->name ?? 'Error');
