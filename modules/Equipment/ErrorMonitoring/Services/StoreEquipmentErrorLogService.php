@@ -24,8 +24,13 @@ final class StoreEquipmentErrorLogService
 
         $currentUserId = auth('api')->id() ?? auth()->id();
 
-        if (empty($data['occurred_at'])) {
-            $data['occurred_at'] = now();
+        if (! empty($data['is_handled'])) {
+            if (empty($data['handled_at'])) {
+                $data['handled_at'] = now();
+            }
+            if (empty($data['restarted_at'])) {
+                $data['restarted_at'] = now();
+            }
         }
 
         if (empty($handlerIds) && $currentUserId) {
@@ -33,6 +38,10 @@ final class StoreEquipmentErrorLogService
         }
 
         $log = EquipmentErrorLog::create($data);
+
+        if (! empty($data['is_handled'])) {
+            $log->delete();
+        }
 
         $log->loadMissing(['equipment', 'equipmentError']);
         $label = ($log->equipment?->name ?? 'Equipment').' - '.($log->equipmentError?->name ?? 'Error');

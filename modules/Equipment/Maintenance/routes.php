@@ -21,6 +21,7 @@ use Modules\Equipment\Maintenance\Actions\MaintenancePlan\ShowMaintenancePlanAct
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\StoreMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\UpdateMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\CompleteMaintenanceScheduleAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\DeleteMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\IndexMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\UpdateMaintenanceScheduleAction;
 
@@ -43,6 +44,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::delete('maintenance-plans/{id}', DeleteMaintenancePlanAction::class);
 
         Route::put('maintenance-schedules/{id}', UpdateMaintenanceScheduleAction::class);
+        Route::delete('maintenance-schedules/{id}', DeleteMaintenanceScheduleAction::class);
 
         Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
         Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);

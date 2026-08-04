@@ -85,6 +85,15 @@ final class MaintenancePlan extends Model
         'maintenance_category_id',
     ];
 
+    protected $appends = [
+        'schedule_mode',
+    ];
+
+    public function getScheduleModeAttribute(): string
+    {
+        return empty($this->attributes['cycle_type'] ?? null) ? 'single' : 'repeating';
+    }
+
     protected $casts = [
         // 'occurred_at' => 'immutable_datetime',
         // 'restarted_at' => 'immutable_datetime',

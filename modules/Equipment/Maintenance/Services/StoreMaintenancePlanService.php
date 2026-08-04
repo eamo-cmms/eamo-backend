@@ -27,10 +27,19 @@ final class StoreMaintenancePlanService
      */
     public function execute(array $data): MaintenancePlan
     {
+        $scheduleMode = $data['schedule_mode'] ?? null;
+        $isSingleMode = $scheduleMode === 'single' || empty($data['cycle_type']);
+
+        if ($isSingleMode) {
+            $data['cycle_type'] = null;
+            $data['cycle_interval'] = null;
+            $data['occurrences'] = null;
+        }
+
         $plan = MaintenancePlan::create($data);
         $schedules = $data['schedules'] ?? [];
 
-        if ($plan->cycle_type) {
+        if (! $isSingleMode && ! empty($plan->cycle_type)) {
             $this->generatorService->generateForPlan($plan);
 
             foreach ($schedules as $scheduleData) {
@@ -47,6 +56,8 @@ final class StoreMaintenancePlanService
                     'equipment_id' => $plan->equipment_id,
                     'maintenance_item_id' => $scheduleData['maintenance_item_id'],
                     'date' => $scheduleData['date'],
+                    'original_date' => $scheduleData['date'],
+                    'is_rescheduled' => false,
                 ]);
 
                 $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);

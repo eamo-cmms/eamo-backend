@@ -28,12 +28,21 @@ final class MaintenancePlanUpdateService
      */
     public function update(MaintenancePlan $plan, array $data): MaintenancePlan
     {
+        $scheduleMode = $data['schedule_mode'] ?? null;
+        $isSingleMode = $scheduleMode === 'single' || (empty($plan->cycle_type) && empty($data['cycle_type']));
+
         // 1. Filter and fill plan attributes
         $planFields = array_intersect_key($data, array_flip([
             'plan_code', 'equipment_id', 'maintenance_type', 'maintenance_category_id',
             'date', 'start_time', 'end_time',
             'cycle_type', 'cycle_interval', 'occurrences', 'notes',
         ]));
+
+        if ($isSingleMode) {
+            $planFields['cycle_type'] = null;
+            $planFields['cycle_interval'] = null;
+            $planFields['occurrences'] = null;
+        }
 
         if (! empty($planFields)) {
             $plan->fill($planFields);
@@ -44,7 +53,7 @@ final class MaintenancePlanUpdateService
         }
 
         // 2. Handle schedules update
-        if (! empty($plan->cycle_type)) {
+        if (! $isSingleMode && ! empty($plan->cycle_type)) {
             // First, process any date changes to existing schedules before regenerating, so they are marked is_rescheduled
             if (! empty($data['schedules'])) {
                 foreach ($data['schedules'] as $scheduleData) {
