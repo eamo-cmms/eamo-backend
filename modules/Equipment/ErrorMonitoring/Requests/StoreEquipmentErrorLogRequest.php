@@ -46,6 +46,13 @@ final class StoreEquipmentErrorLogRequest extends FormRequest
             'occurred_at' => ['nullable', 'date'],
             'restarted_at' => ['nullable', 'date'],
             'handled_at' => ['nullable', 'date'],
+            'handler_id' => [
+                'nullable',
+                'string',
+                'max:36',
+                new IsValidId,
+                Rule::exists(User::class, 'id'),
+            ],
             'handler_ids' => ['nullable', 'array'],
             'handler_ids.*' => [
                 'required',

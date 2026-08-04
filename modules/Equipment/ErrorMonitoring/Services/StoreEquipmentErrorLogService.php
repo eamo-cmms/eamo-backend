@@ -21,8 +21,26 @@ final class StoreEquipmentErrorLogService
         $handlerIds = $data['handler_ids'] ?? [];
         unset($data['handler_ids']);
 
+        $currentUserId = auth('api')->id() ?? auth()->id();
+
         if (empty($data['occurred_at'])) {
             $data['occurred_at'] = now();
+        }
+
+        if (empty($data['handled_at'])) {
+            $data['handled_at'] = now();
+        }
+
+        if (empty($data['restarted_at'])) {
+            $data['restarted_at'] = now();
+        }
+
+        if (empty($data['handler_id']) && $currentUserId) {
+            $data['handler_id'] = $currentUserId;
+        }
+
+        if (empty($handlerIds) && $currentUserId) {
+            $handlerIds = [$currentUserId];
         }
 
         $log = EquipmentErrorLog::create($data);
