@@ -15,7 +15,7 @@ final class IndexEquipmentErrorLogAction
 
     public function asController(Request $request): JsonResponse
     {
-        $query = EquipmentErrorLog::with(['equipment', 'equipmentError', 'handlers', 'handler']);
+        $query = EquipmentErrorLog::with(['equipment', 'equipmentError', 'handlers']);
         if ($request->boolean('only_trashed')) {
             $query->onlyTrashed();
         } elseif ($request->boolean('with_trashed')) {
