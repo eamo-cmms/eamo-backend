@@ -30,8 +30,8 @@ use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
  */
 final class MaintenanceScheduleQuery
 {
-    /** @var Builder<MaintenanceSchedule> */
-    private Builder $query;
+    /** @var Builder<MaintenanceSchedule>|mixed */
+    private mixed $query;
 
     /** @var array<string> */
     private array $relations = [];
@@ -187,6 +187,16 @@ final class MaintenanceScheduleQuery
         $this->query
             ->when(filled($from), fn (Builder $q) => $q->where('date', '>=', $from))
             ->when(filled($to), fn (Builder $q) => $q->where('date', '<=', $to));
+
+        return $this;
+    }
+
+    /**
+     * Filter schedules for a specific date.
+     */
+    public function forDate(string $date): self
+    {
+        $this->query->where('date', $date);
 
         return $this;
     }
