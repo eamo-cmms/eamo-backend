@@ -20,15 +20,12 @@ final class StoreEquipmentErrorLogService
     {
         $handlerIds = $data['handler_ids'] ?? [];
         unset($data['handler_ids']);
+        unset($data['handler_id']); // handler_id không tồn tại trong bảng, dùng pivot table
 
         $currentUserId = auth('api')->id() ?? auth()->id();
 
         if (empty($data['occurred_at'])) {
             $data['occurred_at'] = now();
-        }
-
-        if (empty($data['handler_id']) && $currentUserId) {
-            $data['handler_id'] = $currentUserId;
         }
 
         if (empty($handlerIds) && $currentUserId) {
