@@ -29,9 +29,6 @@ final class UpdateEquipmentErrorLogService
                 $log->id,
                 $label
             );
-            if (!empty($handlerIds[0])) {
-                $data['handler_id'] = $handlerIds[0];
-            }
             unset($data['handler_ids']);
         }
 

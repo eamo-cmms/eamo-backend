@@ -27,20 +27,20 @@ final class StoreEquipmentErrorLogService
             $data['occurred_at'] = now();
         }
 
-        if (empty($data['handler_id'])) {
-            if (!empty($handlerIds[0])) {
-                $data['handler_id'] = $handlerIds[0];
-            } elseif ($currentUserId) {
-                $data['handler_id'] = $currentUserId;
-            }
+        if (empty($data['handled_at'])) {
+            $data['handled_at'] = now();
         }
 
-        if (empty($handlerIds)) {
-            if (!empty($data['handler_id'])) {
-                $handlerIds = [$data['handler_id']];
-            } elseif ($currentUserId) {
-                $handlerIds = [$currentUserId];
-            }
+        if (empty($data['restarted_at'])) {
+            $data['restarted_at'] = now();
+        }
+
+        if (empty($data['handler_id']) && $currentUserId) {
+            $data['handler_id'] = $currentUserId;
+        }
+
+        if (empty($handlerIds) && $currentUserId) {
+            $handlerIds = [$currentUserId];
         }
 
         $log = EquipmentErrorLog::create($data);
