@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Equipment\ParameterLog\Actions\DeleteEquipmentParameterLogAction;
 use Modules\Equipment\ParameterLog\Actions\GetWeeklyEquipmentParameterLogsAction;
+use Modules\Equipment\ParameterLog\Actions\ImportEquipmentParameterLogAction;
 use Modules\Equipment\ParameterLog\Actions\IndexEquipmentParameterLogAction;
 use Modules\Equipment\ParameterLog\Actions\OverviewEquipmentParameterLogAction;
 use Modules\Equipment\ParameterLog\Actions\SaveEquipmentParameterLogAction;
@@ -23,6 +24,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentParameterLogAction::class)->name('equipment-parameter-logs.store');
+            Route::post('/import', ImportEquipmentParameterLogAction::class)->name('equipment-parameter-logs.import');
             Route::put('/{id}', UpdateEquipmentParameterLogAction::class)->name('equipment-parameter-logs.update');
             Route::delete('/{id}', DeleteEquipmentParameterLogAction::class)->name('equipment-parameter-logs.delete');
             Route::post('/save', SaveEquipmentParameterLogAction::class)->name('equipment-parameter-logs.save');
