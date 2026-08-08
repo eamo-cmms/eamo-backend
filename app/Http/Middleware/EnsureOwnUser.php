@@ -30,7 +30,7 @@ class EnsureOwnUser
             $targetUserId = is_object($targetUser) ? $targetUser->id : (string) $targetUser;
 
             if ($authUser->id !== $targetUserId) {
-                abort(Response::HTTP_FORBIDDEN, 'Access denied. You can only access or modify your own account.');
+                abort(Response::HTTP_FORBIDDEN, 'ERR_FORBIDDEN_OWN_USER');
             }
         }
 

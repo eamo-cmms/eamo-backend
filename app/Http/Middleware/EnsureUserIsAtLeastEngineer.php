@@ -17,7 +17,7 @@ class EnsureUserIsAtLeastEngineer
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->atLeastRole(UserRole::Engineer)) {
-            abort(Response::HTTP_FORBIDDEN, 'Access denied. Engineer privileges or higher required.');
+            abort(Response::HTTP_FORBIDDEN, 'ERR_FORBIDDEN_ENGINEER');
         }
 
         return $next($request);

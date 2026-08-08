@@ -25,7 +25,7 @@ class AccessToken extends PassportAccessToken
             $user = User::find($userId);
             if ($user && $user->role) {
                 $roleValue = $user->role instanceof \BackedEnum ? $user->role->value : (string) $user->role;
-                $roles = [$roleValue];
+                $roles = [strtolower((string) $roleValue)];
             }
         }
 

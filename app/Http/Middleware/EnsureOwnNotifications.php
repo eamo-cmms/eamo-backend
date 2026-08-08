@@ -30,7 +30,7 @@ class EnsureOwnNotifications
             $routeUserId = is_object($routeUser) ? $routeUser->id : $routeUser;
 
             if ($user->id !== $routeUserId) {
-                abort(Response::HTTP_FORBIDDEN, 'Access denied. You can only access your own notifications.');
+                abort(Response::HTTP_FORBIDDEN, 'ERR_FORBIDDEN_OWN_NOTIFICATIONS');
             }
         }
 

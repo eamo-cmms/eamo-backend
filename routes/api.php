@@ -39,27 +39,35 @@ Route::middleware(['auth:api', 'own.user'])->group(function () {
     Route::get('/users/{user}/notifications', GetUserNotificationsController::class);
 });
 
-Route::middleware(['auth:api', 'admin'])->group(function () {
-    // Companies CRUD
+Route::middleware('auth:api')->group(function () {
+    // Companies Read
     Route::get('/companies', IndexCompanyController::class);
-    Route::post('/companies', StoreCompanyController::class);
     Route::get('/companies/{company}', ShowCompanyController::class);
+
+    // Departments Read
+    Route::get('/departments', IndexDepartmentController::class);
+    Route::get('/departments/{department}', ShowDepartmentController::class);
+
+    // Users Read
+    Route::get('/users', IndexUserController::class);
+    Route::get('/users/{user}', ShowUserController::class);
+});
+
+Route::middleware(['auth:api', 'admin'])->group(function () {
+    // Companies Mutation
+    Route::post('/companies', StoreCompanyController::class);
     Route::put('/companies/{company}', UpdateCompanyController::class);
     Route::patch('/companies/{company}', UpdateCompanyController::class);
     Route::delete('/companies/{company}', DestroyCompanyController::class);
 
-    // Departments CRUD
-    Route::get('/departments', IndexDepartmentController::class);
+    // Departments Mutation
     Route::post('/departments', StoreDepartmentController::class);
-    Route::get('/departments/{department}', ShowDepartmentController::class);
     Route::put('/departments/{department}', UpdateDepartmentController::class);
     Route::patch('/departments/{department}', UpdateDepartmentController::class);
     Route::delete('/departments/{department}', DestroyDepartmentController::class);
 
-    // Users CRUD
-    Route::get('/users', IndexUserController::class);
+    // Users Mutation
     Route::post('/users', StoreUserController::class);
-    Route::get('/users/{user}', ShowUserController::class);
     Route::put('/users/{user}', UpdateUserController::class);
     Route::patch('/users/{user}', UpdateUserController::class);
     Route::delete('/users/{user}', DestroyUserController::class);

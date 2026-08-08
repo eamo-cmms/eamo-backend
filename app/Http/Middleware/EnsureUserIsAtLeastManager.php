@@ -17,7 +17,7 @@ class EnsureUserIsAtLeastManager
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->atLeastRole(UserRole::Manager)) {
-            abort(Response::HTTP_FORBIDDEN, 'Access denied. Manager privileges or higher required.');
+            abort(Response::HTTP_FORBIDDEN, 'ERR_FORBIDDEN_MANAGER');
         }
 
         return $next($request);

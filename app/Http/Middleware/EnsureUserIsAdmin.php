@@ -17,7 +17,7 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->atLeastRole(UserRole::Admin)) {
-            abort(Response::HTTP_FORBIDDEN, 'Access denied. Administrator privileges required.');
+            abort(Response::HTTP_FORBIDDEN, 'ERR_FORBIDDEN_ADMIN');
         }
 
         return $next($request);
