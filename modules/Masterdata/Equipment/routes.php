@@ -49,7 +49,7 @@ Route::group([], function (): void {
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentAction::class)->name('update');
+            Route::patch('/{id}', UpdateEquipmentAction::class)->name('update');
             Route::patch('/{id}/parent', UpdateEquipmentParentAction::class)->name('update-parent');
             Route::post('/{id}/errors', UpdateEquipmentErrorsAction::class)->name('update-errors');
             Route::delete('/{id}', DeleteEquipmentAction::class)->name('destroy');
