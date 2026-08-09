@@ -33,6 +33,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
         // Complete Checklist Schedule
         Route::post('checklist-schedules/{id}/complete', CompleteChecklistScheduleAction::class);
+
+        // Judge Session
+        Route::post('checklist-sessions/judge', JudgeSessionAction::class);
     });
 
     Route::middleware('manager')->group(function (): void {
@@ -43,7 +46,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::post('checklist-sessions', StoreChecklistSessionAction::class);
         Route::put('checklist-sessions/{id}', UpdateChecklistSessionAction::class);
         Route::delete('checklist-sessions/{id}', DeleteChecklistSessionAction::class);
-        Route::post('checklist-sessions/judge', JudgeSessionAction::class);
 
         // Checklist Details
         Route::post('checklist-details', StoreChecklistDetailAction::class);

@@ -20,6 +20,9 @@ final class StoreEquipmentErrorLogService
     {
         $handlerIds = $data['handler_ids'] ?? [];
         unset($data['handler_ids']);
+        unset($data['handler_id']); // handler_id không tồn tại trong bảng, dùng pivot table
+
+        $currentUserId = auth('api')->id() ?? auth()->id();
 
         if (! empty($data['is_handled'])) {
             if (empty($data['handled_at'])) {
@@ -28,6 +31,10 @@ final class StoreEquipmentErrorLogService
             if (empty($data['restarted_at'])) {
                 $data['restarted_at'] = now();
             }
+        }
+
+        if (empty($handlerIds) && $currentUserId) {
+            $handlerIds = [$currentUserId];
         }
 
         $log = EquipmentErrorLog::create($data);
