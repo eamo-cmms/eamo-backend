@@ -19,7 +19,6 @@ final class StoreEquipmentErrorLogService
     public function execute(array $data): EquipmentErrorLog
     {
         $handlerIds = $data['handler_ids'] ?? [];
-        unset($data['handler_ids']);
 
         if (! empty($data['is_handled'])) {
             if (empty($data['handled_at'])) {
