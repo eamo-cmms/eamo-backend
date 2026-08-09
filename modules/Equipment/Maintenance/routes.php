@@ -31,6 +31,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
         Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
         Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
+        Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
+        Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
         Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
         Route::get('maintenance-items', IndexMaintenanceItemAction::class);
 
@@ -46,8 +48,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::put('maintenance-schedules/{id}', UpdateMaintenanceScheduleAction::class);
         Route::delete('maintenance-schedules/{id}', DeleteMaintenanceScheduleAction::class);
 
-        Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
-        Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
         Route::delete('maintenance-logs/{id}', DeleteMaintenanceLogAction::class);
 
         Route::post('maintenance-categories', StoreMaintenanceCategoryAction::class);
