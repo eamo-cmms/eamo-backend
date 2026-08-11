@@ -9,7 +9,6 @@ use Modules\Equipment\Checklist\Actions\ChecklistDetail\StoreChecklistDetailActi
 use Modules\Equipment\Checklist\Actions\ChecklistDetail\UpdateChecklistDetailAction;
 use Modules\Equipment\Checklist\Actions\ChecklistSchedule\CompleteChecklistScheduleAction;
 use Modules\Equipment\Checklist\Actions\ChecklistSchedule\DeleteDailyChecklistSchedulesAction;
-use Modules\Equipment\Checklist\Actions\ChecklistSession\CreateDailySessionAction;
 use Modules\Equipment\Checklist\Actions\ChecklistSession\DeleteChecklistSessionAction;
 use Modules\Equipment\Checklist\Actions\ChecklistSession\GetEquipmentChecklistStatusAction;
 use Modules\Equipment\Checklist\Actions\ChecklistSession\IndexChecklistSessionAction;
@@ -39,7 +38,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     });
 
     Route::middleware('manager')->group(function (): void {
-        Route::post('checklist-sessions/daily', CreateDailySessionAction::class);
+
         Route::delete('checklist-schedules/daily', DeleteDailyChecklistSchedulesAction::class);
 
         // Checklist Sessions

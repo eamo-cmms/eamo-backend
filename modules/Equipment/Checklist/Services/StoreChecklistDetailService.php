@@ -23,24 +23,11 @@ final class StoreChecklistDetailService
     public function execute(array $data, ?User $currentUser): array
     {
         return DB::transaction(function () use ($data, $currentUser): array {
-            $sessionId = $data['session_id'] ?? null;
+            $sessionId = $data['session_id'];
             $sessionDate = $data['session_date'] ?? now()->toDateString();
             $dateString = Carbon::parse($sessionDate)->toDateString();
 
-            if (! $sessionId) {
-                $sessionName = $data['session_name'] ?? ('Checklist - '.$data['equipment_id']);
-                $session = ChecklistSession::firstOrCreate(
-                    [
-                        'equipment_id' => $data['equipment_id'],
-                    ],
-                    [
-                        'name' => $sessionName,
-                    ]
-                );
-                $sessionId = $session->id;
-            } else {
-                $session = ChecklistSession::findOrFail($sessionId);
-            }
+            $session = ChecklistSession::findOrFail($sessionId);
 
             $details = [];
             foreach ($data['checklists'] as $item) {

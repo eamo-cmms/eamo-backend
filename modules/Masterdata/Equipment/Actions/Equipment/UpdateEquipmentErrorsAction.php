@@ -5,24 +5,20 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Actions\Equipment;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Masterdata\Equipment\Models\Equipment;
+use Modules\Masterdata\Equipment\Requests\Equipment\UpdateEquipmentErrorsRequest;
 
 final class UpdateEquipmentErrorsAction
 {
     use AsAction;
 
-    public function asController(Request $request, string $id): JsonResponse
+    public function asController(UpdateEquipmentErrorsRequest $request, string $id): JsonResponse
     {
         $equipment = Equipment::findOrFail($id);
-
-        $data = $request->validate([
-            'equipment_error_ids' => ['required', 'array'],
-            'equipment_error_ids.*' => ['string', 'exists:eamo_equipment_errors,id'],
-            'occurred_at' => ['nullable', 'date'],
-        ]);
+        $data = $request->validated();
 
         $errorIds = array_values(array_unique(array_filter($data['equipment_error_ids'])));
         $occurredAt = $data['occurred_at'] ?? null;
@@ -55,13 +51,12 @@ final class UpdateEquipmentErrorsAction
                         ]);
                 } else {
                     DB::table('eamo_equipment_error_logs')->insert([
-                        'id' => (string) \Illuminate\Support\Str::uuid(),
+                        'id' => (string) Str::uuid(),
                         'equipment_id' => $equipment->id,
                         'equipment_error_id' => $errorId,
                         'occurred_at' => $occurredAt,
                         'restarted_at' => null,
                         'handled_at' => null,
-                        'is_synced' => false,
                         'created_at' => $now,
                         'updated_at' => $now,
                         'deleted_at' => null,
@@ -75,4 +70,3 @@ final class UpdateEquipmentErrorsAction
         );
     }
 }
-

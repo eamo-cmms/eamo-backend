@@ -22,7 +22,7 @@ final class StoreEquipmentErrorLogService
         unset($data['handler_ids']);
         unset($data['handler_id']);
 
-        $currentUserId = auth('api')->id() ?? auth()->id();
+        $currentUserId = auth('api')->id();
 
         if (! empty($data['is_handled'])) {
             if (empty($data['handled_at'])) {

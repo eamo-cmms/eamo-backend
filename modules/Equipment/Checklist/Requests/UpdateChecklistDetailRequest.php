@@ -23,7 +23,7 @@ class UpdateChecklistDetailRequest extends FormRequest
                 'max:36',
                 'exists:eamo_checklist_sessions,id',
             ],
-            'date' => ['nullable', 'date'],
+            'date' => ['required', 'date'],
             'checklists' => ['required', 'array'],
             'checklists.*.checklist_id' => [
                 'required',

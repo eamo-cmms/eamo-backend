@@ -27,9 +27,7 @@ final class UpdateChecklistDetailService
         $session = ChecklistSession::findOrFail($sessionId);
         $equipmentId = $session->equipment_id;
 
-        $dateString = ! empty($data['date'])
-            ? Carbon::parse($data['date'])->toDateString()
-            : (ChecklistSchedule::where('checklist_session_id', $sessionId)->latest('date')->value('date') ?? Carbon::today()->toDateString());
+        $dateString = Carbon::parse($data['date'])->toDateString();
 
         return DB::transaction(function () use ($sessionId, $equipmentId, $dateString, $data, $currentUser): array {
             $details = [];

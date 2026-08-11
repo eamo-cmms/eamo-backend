@@ -6,20 +6,21 @@ namespace Modules\Equipment\Checklist\Actions\ChecklistDetail;
 
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Modules\Equipment\Checklist\Models\ChecklistDetail;
 use Modules\Equipment\Checklist\Requests\IndexChecklistDetailRequest;
-use Modules\Equipment\Checklist\Services\IndexChecklistDetailService;
 
 final class IndexChecklistDetailAction
 {
     use AsAction;
 
-    public function __construct(
-        private readonly IndexChecklistDetailService $service
-    ) {}
-
     public function asController(IndexChecklistDetailRequest $request): JsonResponse
     {
-        $details = $this->service->execute($request->all());
+        $filters = $request->all();
+        $perPage = (int) ($filters['per_page'] ?? 15);
+
+        $details = ChecklistDetail::query()
+            ->filter($filters)
+            ->paginate($perPage);
 
         return response()->json($details);
     }

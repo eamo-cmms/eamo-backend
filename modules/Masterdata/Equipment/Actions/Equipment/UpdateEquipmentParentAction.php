@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Actions\Equipment;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Masterdata\Equipment\Models\Equipment;
+use Modules\Masterdata\Equipment\Requests\Equipment\UpdateEquipmentParentRequest;
 
 final class UpdateEquipmentParentAction
 {
@@ -17,19 +16,10 @@ final class UpdateEquipmentParentAction
     /**
      * Update the parent_id of the specified equipment.
      */
-    public function asController(Request $request, string $id): JsonResponse
+    public function asController(UpdateEquipmentParentRequest $request, string $id): JsonResponse
     {
         $equipment = Equipment::findOrFail($id);
-
-        $data = $request->validate([
-            'parent_id' => [
-                'nullable',
-                'string',
-                'uuid',
-                'exists:eamo_equipment,id',
-                Rule::notIn([$id]),
-            ],
-        ]);
+        $data = $request->validated();
 
         $parentId = $data['parent_id'];
 
