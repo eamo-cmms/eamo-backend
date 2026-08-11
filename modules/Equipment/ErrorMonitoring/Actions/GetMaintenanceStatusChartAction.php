@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\ErrorMonitoring\Actions;
 
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -31,7 +32,7 @@ final class GetMaintenanceStatusChartAction
 
             $actualOp = OperatingTime::where('equipment_id', $equipment->id)
                 ->when($lastMaintenanceDate, function ($query) use ($lastMaintenanceDate) {
-                    $query->where('start_time', '>=', $lastMaintenanceDate);
+                    $query->where('start_time', '>=', Carbon::parse($lastMaintenanceDate));
                 })
                 ->sum('actual_operating_time');
 

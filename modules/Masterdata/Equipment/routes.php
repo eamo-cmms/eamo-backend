@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Masterdata\Equipment\Actions\Equipment\DecodeQrAndGetEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\DeleteEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\GetDashboardSummaryAction;
+use Modules\Masterdata\Equipment\Actions\Equipment\MarkLastMaintenanceAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\IndexEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\ShowEquipmentAction;
 use Modules\Masterdata\Equipment\Actions\Equipment\StoreEquipmentAction;
@@ -42,6 +43,7 @@ Route::group([], function (): void {
     Route::prefix('v1/equipment')->name('equipment.')->group(function (): void {
         Route::middleware('engineer')->group(function (): void {
             Route::get('/dashboard/summary', GetDashboardSummaryAction::class)->name('dashboard.summary');
+            Route::patch('/{id}/last-maintenance', MarkLastMaintenanceAction::class)->name('mark-last-maintenance');
             Route::get('/', IndexEquipmentAction::class)->name('index');
             Route::post('/decode-qr', DecodeQrAndGetEquipmentAction::class)->name('decode-qr');
             Route::get('/{id}', ShowEquipmentAction::class)->name('show');
