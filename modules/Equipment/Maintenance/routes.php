@@ -17,6 +17,7 @@ use Modules\Equipment\Maintenance\Actions\MaintenanceLog\StoreMaintenanceLogActi
 use Modules\Equipment\Maintenance\Actions\MaintenanceLog\UpdateMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\DeleteMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\IndexMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\MaintenancePlan\JudgeMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\ShowMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\StoreMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\UpdateMaintenancePlanAction;
@@ -29,6 +30,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     Route::middleware('engineer')->group(function (): void {
         Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
         Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
+        Route::post('maintenance-plans/judge', JudgeMaintenancePlanAction::class);
         Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
         Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
         Route::post('maintenance-logs', StoreMaintenanceLogAction::class);

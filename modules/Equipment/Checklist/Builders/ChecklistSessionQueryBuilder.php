@@ -95,7 +95,12 @@ final class ChecklistSessionQueryBuilder extends Builder
                 $query->whereSessionDate($date);
             })
             ->when(($filters['start_date'] ?? null) && ($filters['end_date'] ?? null), function (self $query) use ($filters) {
-                $query->whereSessionDateBetween($filters['start_date'], $filters['end_date']);
+                $query->where(function (self $subQuery) use ($filters) {
+                    $subQuery->whereBetween('session_date', [$filters['start_date'], $filters['end_date']])
+                        ->orWhereHas('schedules', function ($q) use ($filters) {
+                            $q->whereBetween('date', [$filters['start_date'], $filters['end_date']]);
+                        });
+                });
             })
             ->when($filters['created_by'] ?? null, function (self $query, $createdBy) {
                 $query->whereCreatedBy($createdBy);

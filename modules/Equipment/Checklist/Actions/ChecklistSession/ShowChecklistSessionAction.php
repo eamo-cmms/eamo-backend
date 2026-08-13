@@ -20,6 +20,11 @@ final class ShowChecklistSessionAction
 
         $relations = ['users', 'equipment'];
         if (! empty($options['with_details']) || ! empty($options['include_details'])) {
+            $relations['details.schedules'] = function ($q) use ($options) {
+                $q->when(! empty($options['date']), function ($sub) use ($options) {
+                    $sub->whereDate('date', $options['date']);
+                });
+            };
             $relations[] = 'details.schedules.logs';
         }
 

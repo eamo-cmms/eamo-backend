@@ -19,7 +19,16 @@ final class IndexChecklistSessionAction
 
         $query = ChecklistSession::query()
             ->filter($filters)
-            ->with(['equipment', 'details.schedules.logs', 'users']);
+            ->with([
+                'equipment',
+                'users',
+                'details.schedules' => function ($q) use ($filters) {
+                    $q->when(($filters['start_date'] ?? null) && ($filters['end_date'] ?? null), function ($sub) use ($filters) {
+                        $sub->whereBetween('date', [$filters['start_date'], $filters['end_date']]);
+                    });
+                },
+                'details.schedules.logs',
+            ]);
 
         $perPage = (int) ($filters['per_page'] ?? 15);
         $sessions = $query->orderBy('created_at', 'desc')

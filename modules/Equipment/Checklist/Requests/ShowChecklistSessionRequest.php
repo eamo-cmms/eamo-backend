@@ -28,6 +28,7 @@ class ShowChecklistSessionRequest extends FormRequest
             'include_details' => ['nullable', 'boolean'],
             'only_trashed' => ['nullable', 'boolean'],
             'with_trashed' => ['nullable', 'boolean'],
+            'date' => ['nullable', 'date'],
         ];
     }
 }
