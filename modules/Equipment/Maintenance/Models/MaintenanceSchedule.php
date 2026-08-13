@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+
 /**
  * Class MaintenanceSchedule
  *
@@ -33,7 +35,9 @@ final class MaintenanceSchedule extends Model
 {
     protected $table = 'eamo_maintenance_schedules';
 
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['maintenanceLogs'];
 
     protected $fillable = [
         'equipment_id',

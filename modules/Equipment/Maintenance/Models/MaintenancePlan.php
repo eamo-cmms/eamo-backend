@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 
 /**
  * Class MaintenancePlan
@@ -66,7 +67,9 @@ final class MaintenancePlan extends Model
         });
     }
 
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['maintenanceSchedule'];
 
     protected $fillable = [
         'equipment_id',

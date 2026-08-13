@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -26,7 +27,9 @@ use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class ChecklistSession extends Model
 {
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['schedules', 'details'];
 
     /**
      * @param  QueryBuilder  $query

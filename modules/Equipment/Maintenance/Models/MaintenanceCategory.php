@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+
 /**
  * @property int $id
  * @property string $name
@@ -20,7 +22,9 @@ class MaintenanceCategory extends Model
 {
     protected $table = 'eamo_maintenance_categories';
 
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['maintenanceItems', 'maintenancePlans'];
 
     protected $fillable = [
         'name',

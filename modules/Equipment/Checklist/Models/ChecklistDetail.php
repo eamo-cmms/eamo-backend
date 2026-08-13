@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Modules\Equipment\Checklist\Builders\ChecklistDetailQueryBuilder;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+
 /**
  * @property string $id
  * @property string $checklist_id
@@ -24,7 +26,9 @@ use Modules\Equipment\Checklist\Builders\ChecklistDetailQueryBuilder;
  */
 final class ChecklistDetail extends Model
 {
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['schedules'];
 
     /**
      * @param  QueryBuilder  $query

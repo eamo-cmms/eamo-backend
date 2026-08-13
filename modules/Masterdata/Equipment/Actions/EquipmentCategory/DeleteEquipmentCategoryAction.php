@@ -14,10 +14,10 @@ final class DeleteEquipmentCategoryAction
 {
     use AsAction;
 
-    public function asController(Request $request, string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
+    public function asController(Request $request, string $id): JsonResponse
     {
         $category = EquipmentCategory::findOrFail($id);
-        $cascadeService->deleteCategory($category);
+        $category->delete();
 
         return response()->json(['message' => 'Equipment category deleted successfully.']);
     }

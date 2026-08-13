@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
+
 /**
  * Class Unit
  *
@@ -21,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 final class Unit extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     public $incrementing = false;
 
@@ -44,12 +47,17 @@ final class Unit extends Model
         return $this->hasMany(EquipmentParameter::class);
     }
 
-    /**
-     * @return HasMany<StandardParameter, $this>
-     */
-    public function standardParameters(): HasMany
+    public function parameterLogs(): HasMany
     {
-        return $this->hasMany(StandardParameter::class);
+        return $this->hasMany(EquipmentParameterLog::class, 'unit_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (self $unit): void {
+            $unit->equipmentParameters()->update(['unit_id' => null]);
+            $unit->parameterLogs()->update(['unit_id' => null]);
+        });
     }
 
     protected function casts(): array

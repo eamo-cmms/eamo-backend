@@ -21,8 +21,8 @@ use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 
 /**
  * Class Equipment
@@ -41,7 +41,19 @@ use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
  */
 final class Equipment extends Model
 {
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = [
+        'children',
+        'equipmentParameters',
+        'equipmentState',
+        'equipmentImages',
+        'checklistSessions',
+        'maintenancePlans',
+        'operatingTimes',
+        'parameterLogs',
+        'errorLogs',
+    ];
 
     public $incrementing = false;
 
@@ -169,21 +181,6 @@ final class Equipment extends Model
             if (empty($equipment->device_id)) {
                 $equipment->device_id = (string) Str::uuid();
             }
-        });
-
-        static::deleting(function (self $equipment): bool|null {
-            if ($equipment->isForceDeleting()) {
-                return null;
-            }
-
-            $cascadeService = app(EquipmentCascadeSoftDeleteService::class);
-            if ($cascadeService->isDeletingEquipment($equipment)) {
-                return null;
-            }
-
-            $cascadeService->deleteEquipment($equipment);
-
-            return false;
         });
     }
 

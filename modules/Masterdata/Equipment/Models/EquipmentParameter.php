@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Models;
 
 use Carbon\CarbonImmutable;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 
 /**
  * Class EquipmentParameter
@@ -31,7 +34,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 final class EquipmentParameter extends Model
 {
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['parameterLogs'];
 
     public $incrementing = false;
 
@@ -64,6 +69,11 @@ final class EquipmentParameter extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    public function parameterLogs(): HasMany
+    {
+        return $this->hasMany(EquipmentParameterLog::class, 'equipment_parameter_id');
     }
 
     protected function casts(): array

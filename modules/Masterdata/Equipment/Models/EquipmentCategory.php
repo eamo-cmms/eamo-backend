@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Models;
 
 use Carbon\CarbonImmutable;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 /**
  * Class EquipmentCategory
@@ -22,7 +22,9 @@ use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
  */
 final class EquipmentCategory extends Model
 {
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['equipment', 'equipmentParameters'];
 
     public $incrementing = false;
 
@@ -44,24 +46,6 @@ final class EquipmentCategory extends Model
     public function equipmentParameters(): HasMany
     {
         return $this->hasMany(EquipmentParameter::class);
-    }
-
-    protected static function booted(): void
-    {
-        static::deleting(function (self $category): bool|null {
-            if ($category->isForceDeleting()) {
-                return null;
-            }
-
-            $cascadeService = app(EquipmentCascadeSoftDeleteService::class);
-            if ($cascadeService->isDeletingCategory($category)) {
-                return null;
-            }
-
-            $cascadeService->deleteCategory($category);
-
-            return false;
-        });
     }
 
     protected function casts(): array

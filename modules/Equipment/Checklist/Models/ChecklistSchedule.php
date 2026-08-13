@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+
 /**
  * Class ChecklistSchedule
  *
@@ -30,7 +32,9 @@ use Modules\Masterdata\Equipment\Models\Equipment;
  */
 final class ChecklistSchedule extends Model
 {
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['logs'];
 
     protected $table = 'eamo_checklist_schedules';
 

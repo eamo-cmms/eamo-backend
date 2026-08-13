@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Modules\Masterdata\Equipment\Models;
 
 use Carbon\CarbonImmutable;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Masterdata\Equipment\Builders\EquipmentErrorQueryBuilder;
 
 /**
@@ -25,7 +28,9 @@ use Modules\Masterdata\Equipment\Builders\EquipmentErrorQueryBuilder;
  */
 final class EquipmentError extends Model
 {
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['errorLogs'];
 
     public $incrementing = false;
 
@@ -42,6 +47,11 @@ final class EquipmentError extends Model
     protected $table = 'eamo_equipment_errors';
 
     private array $pendingEquipmentIds = [];
+
+    public function errorLogs(): HasMany
+    {
+        return $this->hasMany(EquipmentErrorLog::class, 'equipment_error_id');
+    }
 
     /**
      * @return BelongsToMany<Equipment, $this>

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+
 /**
  * @property string $id
  * @property string $name
@@ -26,7 +28,9 @@ class MaintenanceItem extends Model
 {
     protected $table = 'eamo_maintenance_items';
 
-    use HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
+
+    protected array $cascadeDeletes = ['maintenanceSchedules'];
 
     protected $fillable = [
         'name',
@@ -52,12 +56,5 @@ class MaintenanceItem extends Model
     public function maintenanceSchedules(): HasMany
     {
         return $this->hasMany(MaintenanceSchedule::class, 'maintenance_item_id');
-    }
-
-    protected static function booted(): void
-    {
-        static::deleting(function (self $item): void {
-            $item->maintenanceSchedules()->get()->each->delete();
-        });
     }
 }

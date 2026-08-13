@@ -15,7 +15,23 @@ final class IndexUnitAction
 
     public function asController(Request $request): JsonResponse
     {
-        $units = Unit::paginate($request->integer('per_page', 100));
+        $query = Unit::query();
+
+        if ($request->boolean('only_trashed')) {
+            $query->onlyTrashed();
+        } elseif ($request->boolean('with_trashed')) {
+            $query->withTrashed();
+        }
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('code', 'like', "%{$q}%");
+            });
+        }
+
+        $units = $query->paginate($request->integer('per_page', 100));
 
         return response()->json($units);
     }

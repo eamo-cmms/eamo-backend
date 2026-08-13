@@ -9,11 +9,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 #[Fillable(['name', 'contact'])]
 class Company extends Model
 {
     /** @use HasFactory<CompanyFactory> */
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes, CascadeSoftDeletes;
+
+    protected array $cascadeDeletes = ['departments'];
 
     /**
      * Get the departments for the company.

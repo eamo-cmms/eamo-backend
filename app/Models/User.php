@@ -20,12 +20,14 @@ use Laravel\Passport\HasApiTokens;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 #[Fillable(['name', 'email', 'password', 'department_id', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements OAuthenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasUuids, Notifiable;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     /**
      * @param  Builder  $query
