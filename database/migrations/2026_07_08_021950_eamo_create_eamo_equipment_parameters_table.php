@@ -26,6 +26,7 @@ return new class extends Migration
 
             $table->foreign('equipment_id')->references('id')->on('eamo_equipment')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign('equipment_category_id')->references('id')->on('eamo_equipment_categories')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('unit_id')->references('id')->on('eamo_units')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

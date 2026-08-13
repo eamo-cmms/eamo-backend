@@ -27,22 +27,10 @@ return new class extends Migration
                 ->on('users')
                 ->cascadeOnDelete();
         });
-
-        if (Schema::hasColumn('eamo_equipment_error_logs', 'handler_id')) {
-            Schema::table('eamo_equipment_error_logs', function (Blueprint $table) {
-                $table->dropColumn('handler_id');
-            });
-        }
     }
 
     public function down(): void
     {
-        if (! Schema::hasColumn('eamo_equipment_error_logs', 'handler_id')) {
-            Schema::table('eamo_equipment_error_logs', function (Blueprint $table) {
-                $table->string('handler_id')->nullable();
-            });
-        }
-
         Schema::dropIfExists('eamo_equipment_error_log_user');
     }
 };

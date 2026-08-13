@@ -20,6 +20,16 @@ return new class extends Migration
             $table->timestamp('recorded_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('equipment_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete();
+
+            $table->foreign('equipment_parameter_id')
+                ->references('id')
+                ->on('eamo_equipment_parameters')
+                ->restrictOnDelete();
         });
     }
 

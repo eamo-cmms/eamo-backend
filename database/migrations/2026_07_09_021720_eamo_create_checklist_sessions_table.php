@@ -16,9 +16,15 @@ return new class extends Migration
             $table->string('name');
             $table->string('equipment_id', 36);
             $table->datetime('session_date')->nullable();
-            $table->string('created_by', 36);
+            $table->string('cycle_type', 255)->nullable();
+            $table->integer('cycle_interval')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('equipment_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete();
         });
     }
 

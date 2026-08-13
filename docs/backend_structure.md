@@ -61,7 +61,7 @@ backend/
 ### 2.4. `Services` (Lớp Xử lý Nghiệp vụ)
 - **Mục đích**: Chứa toàn bộ Business Logic của hệ thống. Controller chỉ nhận Request, gọi Service xử lý và trả về Response.
 - **Thành phần chính**:
-  - `EquipmentCascadeSoftDeleteService`: Dịch vụ dọn dẹp và xóa liên hoàn (soft delete) các bản ghi phụ thuộc khi xóa thiết bị, checklist hoặc bảo trì.
+  - `EquipmentCascadeSoftDeleteService`: Dịch vụ điều phối dọn dẹp thêm khi xóa (nếu cần), hiện tại các Eloquent model đã tự động cascade thông qua package `dyrynda/laravel-cascade-soft-deletes`.
 
 ---
 
@@ -87,5 +87,5 @@ Quản lý các hoạt động vận hành & bảo trì thiết bị:
 1. **Strict Types & Declarations**: 100% file PHP trong dự án đều khai báo `declare(strict_types=1);` và khai báo kiểu dữ liệu trả về/tham số rõ ràng.
 2. **Single Action Action/Controller**: Sử dụng gói `lorisleiva/laravel-actions` hoặc Invokable Controller giúp code cực kỳ gọn gàng.
 3. **Database UUID**: Bảng `users`, `oauth_*` và toàn bộ thực thể trong mô-đun đều dùng UUID làm Primary Key.
-4. **Cascade Soft Delete**: Đảm bảo toàn vẹn dữ liệu khi xóa bằng dịch vụ xóa liên hoàn.
+4. **Cascade Soft Delete (Dyrynda Package)**: Dự án áp dụng `dyrynda/laravel-cascade-soft-deletes` cho toàn bộ các model có quan hệ cha-con. Các Model khai báo `$cascadeDeletes = ['relationship1', 'relationship2']`. Việc xóa liên hoàn được kích hoạt tự động qua Eloquent Model Event khi gọi `$model->delete()`.
 5. **Format API Response**: Toàn bộ API trả về response đồng nhất theo định dạng `{ "status": "success", "data": ... }` hoặc `{ "message": "...", "data": ... }`.

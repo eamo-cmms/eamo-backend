@@ -30,10 +30,6 @@ return new class extends Migration
 
             $table->primary(['checklist_session_id', 'user_id']);
         });
-
-        Schema::table('eamo_checklist_sessions', function (Blueprint $table) {
-            $table->dropColumn('created_by');
-        });
     }
 
     /**
@@ -41,10 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('eamo_checklist_sessions', function (Blueprint $table) {
-            $table->string('created_by', 36)->nullable();
-        });
-
         Schema::dropIfExists('eamo_checklist_session_users');
     }
 };

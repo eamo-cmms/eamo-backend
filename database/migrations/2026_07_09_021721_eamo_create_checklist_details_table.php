@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('session_id', 36);
 
             $table->string('description')->nullable();
-            $table->enum('result', ['pass', 'fail'])->nullable();
             // $table->json('image_ids')->nullable();
             $table->timestamps();
             $table->softDeletes();

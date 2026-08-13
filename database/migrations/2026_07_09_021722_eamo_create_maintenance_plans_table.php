@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->string('cycle_type', 255)->nullable();
             $table->integer('cycle_interval')->nullable();
+            $table->unsignedSmallInteger('occurrences')->nullable();
             $table->text('notes')->nullable();
             $table->string('maintenance_type', 255);
             $table->string('maintenance_category_id', 36)->nullable();
@@ -34,6 +35,11 @@ return new class extends Migration
                 ->on('eamo_maintenance_categories')
                 ->nullOnDelete()
                 ->cascadeOnUpdate();
+
+            $table->foreign('equipment_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete();
         });
     }
 

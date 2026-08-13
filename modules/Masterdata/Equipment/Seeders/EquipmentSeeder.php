@@ -8,7 +8,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Modules\Masterdata\Equipment\Models\Equipment;
 use Modules\Masterdata\Equipment\Models\EquipmentCategory;
-use Modules\Masterdata\Equipment\Models\EquipmentError;
 use Modules\Masterdata\Equipment\Models\EquipmentParameter;
 use Modules\Masterdata\Equipment\Models\EquipmentState;
 use Modules\Masterdata\Equipment\Models\Unit;
@@ -17,49 +16,6 @@ class EquipmentSeeder extends Seeder
 {
     public function run(): void
     {
-        // Define common errors
-        $errors = [
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Overheating (Lỗi quá nhiệt)',
-                'reason' => 'Ventilation blocked or low coolant level.',
-                'fix' => 'Clean air filters and refill coolant reservoir.',
-                'protection_measures' => 'Install temperature sensors and auto shutdown triggers.',
-            ],
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Motor Jam (Kẹt động cơ)',
-                'reason' => 'Mechanical obstruction or bearing failure.',
-                'fix' => 'Remove obstruction and lubricate or replace bearings.',
-                'protection_measures' => 'Regular maintenance lubrication schedule.',
-            ],
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Low Hydraulic Pressure (Áp suất thủy lực thấp)',
-                'reason' => 'Leak in hydraulic line or pump malfunction.',
-                'fix' => 'Inspect for leaks, replace seals, and check pump.',
-                'protection_measures' => 'Weekly pressure checks and leak inspection.',
-            ],
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Emergency Stop Activated (Kích hoạt dừng khẩn cấp)',
-                'reason' => 'Manual button press or safety guard interlock open.',
-                'fix' => 'Inspect work area, close safety guards, and reset E-stop button.',
-                'protection_measures' => 'Safety training for operators.',
-            ],
-            [
-                'id' => (string) Str::uuid(),
-                'name' => 'Sensor Failure (Lỗi cảm biến)',
-                'reason' => 'Electrical fault or dust build-up on lens.',
-                'fix' => 'Clean sensor lens or replace damaged sensor wiring.',
-                'protection_measures' => 'Daily cleaning of optoelectronic sensors.',
-            ],
-        ];
-
-        $createdErrors = [];
-        foreach ($errors as $errData) {
-            $createdErrors[] = EquipmentError::create($errData);
-        }
 
         // Define categories
         $categories = [
@@ -119,10 +75,6 @@ class EquipmentSeeder extends Seeder
                     'maintenance_interval_hours' => rand(200, 2000),
                     'is_active' => true,
                 ]);
-
-                // Sync 1-2 random errors to this equipment
-                $errorSlice = array_slice($createdErrors, 0, rand(1, 2));
-                $equipment->equipmentErrors()->sync(collect($errorSlice)->pluck('id')->toArray());
 
                 // Seed initial equipment state
                 $states = ['Running', 'Idle', 'Under Maintenance', 'Stopped', 'Fault'];

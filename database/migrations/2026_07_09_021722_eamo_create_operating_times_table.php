@@ -26,6 +26,11 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('equipment_id')
+                ->references('id')
+                ->on('eamo_equipment')
+                ->restrictOnDelete();
         });
     }
 
