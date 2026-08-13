@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Modules\Equipment\Checklist\Services;
 
 use Modules\Equipment\Checklist\Models\ChecklistSession;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class DeleteChecklistSessionService
 {
-    public function __construct(
-        private readonly EquipmentCascadeSoftDeleteService $cascadeService
-    ) {}
+    public function __construct() {}
 
     /**
      * @return array{message: string}
@@ -19,7 +16,7 @@ final class DeleteChecklistSessionService
     public function execute(string $id): array
     {
         $session = ChecklistSession::findOrFail($id);
-        $this->cascadeService->deleteChecklistSession($session);
+        $session->delete();
 
         return [
             'message' => 'Checklist session deleted successfully.',

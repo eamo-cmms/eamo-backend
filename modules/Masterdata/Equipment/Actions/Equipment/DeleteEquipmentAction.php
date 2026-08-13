@@ -7,7 +7,6 @@ namespace Modules\Masterdata\Equipment\Actions\Equipment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class DeleteEquipmentAction

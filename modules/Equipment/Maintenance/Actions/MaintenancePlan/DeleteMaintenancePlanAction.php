@@ -7,16 +7,15 @@ namespace Modules\Equipment\Maintenance\Actions\MaintenancePlan;
 use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class DeleteMaintenancePlanAction
 {
     use AsAction;
 
-    public function asController(string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
+    public function asController(string $id): JsonResponse
     {
         $plan = MaintenancePlan::findOrFail($id);
-        $cascadeService->deleteMaintenancePlan($plan);
+        $plan->delete();
 
         return response()->json(['message' => 'Maintenance plan deleted successfully.']);
     }

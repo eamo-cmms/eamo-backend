@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenanceCategory;
 use Modules\Equipment\Maintenance\Requests\UpdateMaintenanceCategoryRequest;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Throwable;
 
 final class UpdateMaintenanceCategoryAction
@@ -21,8 +20,7 @@ final class UpdateMaintenanceCategoryAction
      */
     public function asController(
         string $id,
-        UpdateMaintenanceCategoryRequest $request,
-        EquipmentCascadeSoftDeleteService $cascadeService
+        UpdateMaintenanceCategoryRequest $request
     ): JsonResponse {
         $category = MaintenanceCategory::findOrFail($id);
         $validated = $request->validated();
@@ -40,7 +38,7 @@ final class UpdateMaintenanceCategoryAction
             $category->maintenanceItems()
                 ->whereNotIn('id', $keepIds)
                 ->get()
-                ->each(fn ($item) => $cascadeService->deleteMaintenanceItem($item));
+                ->each(fn ($item) => $item->delete());
 
             foreach ($itemsInput as $itemData) {
                 if (! empty($itemData['id'])) {

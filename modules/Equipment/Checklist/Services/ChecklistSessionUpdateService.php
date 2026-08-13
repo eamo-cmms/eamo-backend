@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Modules\Equipment\Checklist\Models\ChecklistLog;
 use Modules\Equipment\Checklist\Models\ChecklistSchedule;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
-use Throwable;
 
 final class ChecklistSessionUpdateService
 {
@@ -19,7 +17,6 @@ final class ChecklistSessionUpdateService
 
     public function __construct(
         private readonly ChecklistScheduleGeneratorService $generatorService,
-        private readonly EquipmentCascadeSoftDeleteService $cascadeService,
     ) {}
 
     /**
@@ -151,7 +148,7 @@ final class ChecklistSessionUpdateService
             ->whereNotIn('id', $protectedIds)
             ->get();
 
-        $this->cascadeService->deleteChecklistSchedules($schedules);
+        $schedules->each->delete();
 
         foreach ($schedules as $scheduleData) {
             if (! empty($scheduleData['id'])) {

@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Modules\Equipment\Checklist\Services;
 
 use Modules\Equipment\Checklist\Models\ChecklistDetail;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class DeleteChecklistDetailService
 {
-    public function __construct(
-        private readonly EquipmentCascadeSoftDeleteService $cascadeService
-    ) {}
+    public function __construct() {}
 
     /**
      * @return array{message: string}
@@ -19,7 +16,7 @@ final class DeleteChecklistDetailService
     public function execute(string $id): array
     {
         $detail = ChecklistDetail::findOrFail($id);
-        $this->cascadeService->deleteChecklistDetail($detail);
+        $detail->delete();
 
         return [
             'message' => 'Checklist detail deleted successfully.',

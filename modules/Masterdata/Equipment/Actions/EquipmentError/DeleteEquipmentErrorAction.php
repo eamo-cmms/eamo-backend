@@ -7,7 +7,6 @@ namespace Modules\Masterdata\Equipment\Actions\EquipmentError;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 use Modules\Masterdata\Equipment\Models\EquipmentError;
 
 final class DeleteEquipmentErrorAction
@@ -18,7 +17,7 @@ final class DeleteEquipmentErrorAction
         'emergency_stop',
     ];
 
-    public function asController(Request $request, string $id, EquipmentCascadeSoftDeleteService $cascadeService): JsonResponse
+    public function asController(Request $request, string $id): JsonResponse
     {
         $error = EquipmentError::findOrFail($id);
 
@@ -26,7 +25,7 @@ final class DeleteEquipmentErrorAction
             return response()->json(['message' => 'This equipment error is a system default and cannot be deleted.'], 422);
         }
 
-        $cascadeService->deleteEquipmentError($error);
+        $error->delete();
 
         return response()->json(['message' => 'Equipment error deleted successfully.']);
     }

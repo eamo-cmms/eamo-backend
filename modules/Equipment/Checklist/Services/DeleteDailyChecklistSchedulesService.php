@@ -6,13 +6,10 @@ namespace Modules\Equipment\Checklist\Services;
 
 use Carbon\Carbon;
 use Modules\Equipment\Checklist\Queries\ChecklistScheduleQuery;
-use Modules\Equipment\Services\EquipmentCascadeSoftDeleteService;
 
 final class DeleteDailyChecklistSchedulesService
 {
-    public function __construct(
-        private readonly EquipmentCascadeSoftDeleteService $cascadeService
-    ) {}
+    public function __construct() {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -26,7 +23,7 @@ final class DeleteDailyChecklistSchedulesService
             ->forDate(Carbon::parse($data['date'])->toDateString())
             ->get();
 
-        $this->cascadeService->deleteChecklistSchedules($schedules);
+        $schedules->each->delete();
 
         return [
             'deleted_count' => $schedules->count(),
