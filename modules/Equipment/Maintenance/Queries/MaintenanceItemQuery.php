@@ -44,15 +44,6 @@ final class MaintenanceItemQuery
 
     // ─── Eager Load Toggles ──────────────────────────────────────────────────
 
-    /**
-     * Load assigned users for each item.
-     */
-    public function withUsers(): self
-    {
-        $this->relations[] = 'users';
-
-        return $this;
-    }
 
     /**
      * Load parent category for each item.

@@ -12,7 +12,7 @@ use Modules\Equipment\Maintenance\Requests\StoreMaintenanceItemRequest;
 
 final class UpdateMaintenanceItemAction
 {
-    use AsAction, SyncsUsersWithNotification;
+    use AsAction;
 
     public function asController(string $id, StoreMaintenanceItemRequest $request): JsonResponse
     {
@@ -23,16 +23,6 @@ final class UpdateMaintenanceItemAction
             'description' => $request->validated('description'),
         ]);
 
-        if ($request->has('user_ids')) {
-            $this->syncUsersAndNotify(
-                $item->users(),
-                $request->validated('user_ids') ?? [],
-                'maintenance_item',
-                $item->id,
-                $item->name
-            );
-        }
-
-        return response()->json($item->load('users'));
+        return response()->json($item);
     }
 }

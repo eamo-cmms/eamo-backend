@@ -13,7 +13,7 @@ use Throwable;
 
 final class StoreMaintenanceCategoryAction
 {
-    use AsAction, SyncsUsersWithNotification;
+    use AsAction;
 
     /**
      * @throws Throwable
@@ -28,23 +28,13 @@ final class StoreMaintenanceCategoryAction
 
         if (! empty($validated['items'])) {
             foreach ($validated['items'] as $itemData) {
-                $item = $category->maintenanceItems()->create([
+                $category->maintenanceItems()->create([
                     'name' => $itemData['name'],
                     'description' => $itemData['description'] ?? null,
                 ]);
-
-                if (! empty($itemData['user_ids'])) {
-                    $this->syncUsersAndNotify(
-                        $item->users(),
-                        $itemData['user_ids'],
-                        'maintenance_item',
-                        $item->id,
-                        $item->name
-                    );
-                }
             }
         }
 
-        return response()->json($category->load('maintenanceItems.users'), 201);
+        return response()->json($category->load('maintenanceItems'), 201);
     }
 }

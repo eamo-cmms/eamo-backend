@@ -73,6 +73,13 @@ final class MaintenancePlanUpdateService
             // Regenerate plans (keeping protected ones)
             $this->generatorService->regenerateForPlan($plan);
 
+            $planUserIds = $data['user_ids'] ?? null;
+            if ($planUserIds !== null) {
+                $plan->maintenanceSchedule()
+                    ->get()
+                    ->each(fn (MaintenanceSchedule $schedule) => $this->syncScheduleUsers($schedule, $planUserIds));
+            }
+
             // Sync users for each schedule (either specific by id, or bulk fallback by item)
             if (! empty($data['schedules'])) {
                 foreach ($data['schedules'] as $scheduleData) {
@@ -93,6 +100,7 @@ final class MaintenancePlanUpdateService
             }
         } elseif (array_key_exists('schedules', $data)) {
             $schedulesInput = $data['schedules'] ?? [];
+            $planUserIds = $data['user_ids'] ?? null;
             $keepIds = collect($schedulesInput)->pluck('id')->filter()->values()->toArray();
 
             // Delete schedules no longer in the list
@@ -117,7 +125,8 @@ final class MaintenancePlanUpdateService
                         }
 
                         $schedule->update($updateData);
-                        $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
+                        $targetUserIds = isset($scheduleData['user_ids']) ? $scheduleData['user_ids'] : ($planUserIds ?? []);
+                        $this->syncScheduleUsers($schedule, $targetUserIds);
                     }
                 } else {
                     // Create new schedule
@@ -129,9 +138,14 @@ final class MaintenancePlanUpdateService
                         'original_date' => $scheduleData['date'],
                         'is_rescheduled' => false,
                     ]);
-                    $this->syncScheduleUsers($schedule, $scheduleData['user_ids'] ?? []);
+                    $targetUserIds = isset($scheduleData['user_ids']) ? $scheduleData['user_ids'] : ($planUserIds ?? []);
+                    $this->syncScheduleUsers($schedule, $targetUserIds);
                 }
             }
+        } elseif (isset($data['user_ids'])) {
+            $plan->maintenanceSchedule()
+                ->get()
+                ->each(fn (MaintenanceSchedule $schedule) => $this->syncScheduleUsers($schedule, $data['user_ids']));
         }
 
         return $plan->fresh()->load([

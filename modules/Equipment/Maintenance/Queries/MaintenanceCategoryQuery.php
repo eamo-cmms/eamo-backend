@@ -48,7 +48,7 @@ final class MaintenanceCategoryQuery
      */
     public function withItems(): self
     {
-        $this->relations[] = 'maintenanceItems.users';
+        $this->relations[] = 'maintenanceItems';
 
         return $this;
     }

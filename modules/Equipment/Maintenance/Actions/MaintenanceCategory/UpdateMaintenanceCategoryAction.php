@@ -13,7 +13,7 @@ use Throwable;
 
 final class UpdateMaintenanceCategoryAction
 {
-    use AsAction, SyncsUsersWithNotification;
+    use AsAction;
 
     /**
      * @throws Throwable
@@ -50,23 +50,14 @@ final class UpdateMaintenanceCategoryAction
                     ]);
                 } else {
                     // Create new item
-                    $item = $category->maintenanceItems()->create([
+                    $category->maintenanceItems()->create([
                         'name' => $itemData['name'],
                         'description' => $itemData['description'] ?? null,
                     ]);
                 }
-
-                $userIds = $itemData['user_ids'] ?? [];
-                $this->syncUsersAndNotify(
-                    $item->users(),
-                    $userIds,
-                    'maintenance_item',
-                    $item->id,
-                    $item->name
-                );
             }
         }
 
-        return response()->json($category->fresh()->load('maintenanceItems.users'));
+        return response()->json($category->fresh()->load('maintenanceItems'));
     }
 }

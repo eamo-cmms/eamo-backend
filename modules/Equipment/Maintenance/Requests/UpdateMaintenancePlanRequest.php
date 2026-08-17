@@ -31,6 +31,8 @@ final class UpdateMaintenancePlanRequest extends FormRequest
             'cycle_interval' => ['required_with:cycle_type', 'nullable', 'integer', 'min:1'],
             'occurrences' => ['required_with:cycle_type', 'nullable', 'integer', 'min:1', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['string', 'exists:users,id'],
             'schedules' => ['nullable', 'array'],
             'schedules.*.id' => ['nullable', 'string', 'exists:eamo_maintenance_schedules,id'],
             'schedules.*.maintenance_item_id' => ['required_with:schedules', 'string', 'exists:eamo_maintenance_items,id'],
