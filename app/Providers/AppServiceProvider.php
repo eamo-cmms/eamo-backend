@@ -38,12 +38,12 @@ class AppServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
 
-        // Bind custom AccessTokenRepository to include roles in JWT
+        // Bind custom AccessTokenRepository & AccessToken to include roles in JWT
+        Passport::useAccessTokenEntity(\App\Bridge\AccessToken::class);
         $this->app->singleton(
             AccessTokenRepositoryInterface::class,
             function ($app) {
                 return new AccessTokenRepository(
-                    $app->make(TokenRepository::class),
                     $app->make(Dispatcher::class)
                 );
             }

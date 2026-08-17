@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\ParameterLog\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -36,7 +35,7 @@ use Modules\Masterdata\Equipment\Models\Unit;
  */
 final class EquipmentParameterLog extends Model
 {
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'equipment_id',

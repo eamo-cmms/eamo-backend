@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Requests;
 
-use App\Concerns\PreparesBooleanInputs;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShowDailySessionRequest extends FormRequest
 {
-    use PreparesBooleanInputs;
-
     protected function prepareForValidation(): void
     {
-        $this->prepareBooleans(['only_trashed', 'with_trashed']);
+        $merge = [];
+        foreach (['only_trashed', 'with_trashed'] as $field) {
+            if ($this->has($field)) {
+                $merge[$field] = $this->boolean($field);
+            }
+        }
+
+        if (! empty($merge)) {
+            $this->merge($merge);
+        }
     }
 
     public function authorize(): bool

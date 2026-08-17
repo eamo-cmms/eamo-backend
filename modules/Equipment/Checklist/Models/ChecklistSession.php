@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -27,7 +26,7 @@ use Modules\Masterdata\Equipment\Models\Equipment;
 
 final class ChecklistSession extends Model
 {
-    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
 
     protected array $cascadeDeletes = ['schedules', 'details'];
 

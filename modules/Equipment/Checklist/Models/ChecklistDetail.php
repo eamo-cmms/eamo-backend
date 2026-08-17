@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 // use Modules\Masterdata\Checklist\Infrastructure\Models\Checklist;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +25,7 @@ use Dyrynda\Database\Support\CascadeSoftDeletes;
  */
 final class ChecklistDetail extends Model
 {
-    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
 
     protected array $cascadeDeletes = ['schedules'];
 

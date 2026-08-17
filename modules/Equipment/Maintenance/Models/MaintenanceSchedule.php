@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -35,7 +34,7 @@ final class MaintenanceSchedule extends Model
 {
     protected $table = 'eamo_maintenance_schedules';
 
-    use CascadeSoftDeletes, HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use CascadeSoftDeletes, HasUuids, SoftDeletes;
 
     protected array $cascadeDeletes = ['maintenanceLogs'];
 

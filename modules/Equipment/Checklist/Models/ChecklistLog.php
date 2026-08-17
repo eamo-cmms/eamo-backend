@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Checklist\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -24,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 final class ChecklistLog extends Model
 {
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes;
 
     protected $table = 'eamo_checklist_logs';
 

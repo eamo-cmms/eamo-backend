@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Equipment\Maintenance\Models;
 
-use App\Concerns\HasDefaultRouteBinding;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +27,7 @@ final class MaintenanceLog extends Model
 {
     protected $table = 'eamo_maintenance_logs';
 
-    use HasDefaultRouteBinding, HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes;
 
     protected $fillable = [
         'maintenance_schedule_id',
