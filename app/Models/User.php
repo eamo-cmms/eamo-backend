@@ -19,6 +19,7 @@ use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
+use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -104,5 +105,15 @@ class User extends Authenticatable implements OAuthenticatable
             'user_id',
             'maintenance_plan_id'
         );
+    }
+
+    public function maintenanceSchedules(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MaintenanceSchedule::class,
+            'eamo_maintenance_schedule_user',
+            'user_id',
+            'maintenance_schedule_id'
+        )->wherePivotNull('deleted_at');
     }
 }

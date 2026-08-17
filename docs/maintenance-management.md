@@ -13,6 +13,7 @@ Mô-đun bảo trì được quản lý dựa trên các thực thể sau:
 - **`eamo_maintenance_items` (`MaintenanceItem`)**: Hạng mục bảo trì cụ thể thuộc danh mục (VD: *"Thay dầu nhớt"*, *"Kiểm tra dây curoa"*).
 - **`eamo_maintenance_plans` (`MaintenancePlan`)**: Kế hoạch bảo trì thiết bị. Lưu trữ ngày bắt đầu (`date`), loại chu kỳ (`cycle_type`), khoảng lặp (`cycle_interval`), và số lần lặp (`occurrences`).
 - **`eamo_maintenance_schedules` (`MaintenanceSchedule`)**: Bản ghi lịch bảo trì thực tế theo từng mốc ngày cho từng hạng mục công việc.
+- **`eamo_maintenance_schedule_user`**: Bảng trung gian (pivot n-n) phân công kỹ sư phụ trách cho từng lịch bảo trì cụ thể.
 - **`eamo_maintenance_logs` (`MaintenanceLog`)**: Nhật ký ghi nhận kết quả bảo trì thực tế (`result`, `note`, `log_date`).
 
 ### 1.2. Sơ đồ Quan hệ Thực thể (ERD)
@@ -25,6 +26,7 @@ erDiagram
     
     eamo_maintenance_plans ||--o{ eamo_maintenance_schedules : "sinh ra các mốc lịch"
     eamo_maintenance_items ||--o{ eamo_maintenance_schedules : "xác định công việc"
+    eamo_maintenance_schedules ||--o{ eamo_maintenance_schedule_user : "phân công kỹ sư"
     eamo_maintenance_schedules ||--o{ eamo_maintenance_logs : "kết quả thực hiện"
 ```
 
@@ -74,7 +76,7 @@ Khi tạo mới Plan (`StoreMaintenancePlanAction`):
 2. Kiểm tra giới hạn `occurrences * itemsCount <= 100`.
 3. Sinh danh sách ngày theo chu kỳ.
 4. Với mỗi mốc ngày $\times$ mỗi hạng mục $\rightarrow$ Tạo 1 bản ghi `MaintenanceSchedule` (với `original_date = date`, `is_rescheduled = false`).
-5. Gán kỹ sư phụ trách từ hạng mục sang lịch bảo trì và phát thông báo.
+5. Phân công kỹ sư phụ trách cho lịch bảo trì (`eamo_maintenance_schedule_user`) và phát thông báo.
 
 ### 2.4. Cơ chế Bảo vệ Lịch sử khi Cập nhật Plan (`regenerateForPlan`)
 Khi sửa đổi Kế hoạch bảo trì (`UpdateMaintenancePlanAction`):
