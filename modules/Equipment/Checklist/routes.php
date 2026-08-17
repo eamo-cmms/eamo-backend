@@ -19,17 +19,17 @@ use Modules\Equipment\Checklist\Actions\ChecklistSession\StoreChecklistSessionAc
 use Modules\Equipment\Checklist\Actions\ChecklistSession\UpdateChecklistSessionAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
+    Route::get('checklist-sessions/equipment-status', GetEquipmentChecklistStatusAction::class);
+    Route::get('checklist-sessions/daily', ShowDailySessionAction::class);
+
+    // Checklist Sessions
+    Route::get('checklist-sessions', IndexChecklistSessionAction::class);
+    Route::get('checklist-sessions/{id}', ShowChecklistSessionAction::class);
+
+    // Checklist Details
+    Route::get('checklist-details', IndexChecklistDetailAction::class);
+
     Route::middleware('engineer')->group(function (): void {
-        Route::get('checklist-sessions/equipment-status', GetEquipmentChecklistStatusAction::class);
-        Route::get('checklist-sessions/daily', ShowDailySessionAction::class);
-
-        // Checklist Sessions
-        Route::get('checklist-sessions', IndexChecklistSessionAction::class);
-        Route::get('checklist-sessions/{id}', ShowChecklistSessionAction::class);
-
-        // Checklist Details
-        Route::get('checklist-details', IndexChecklistDetailAction::class);
-
         // Complete Checklist Schedule
         Route::post('checklist-schedules/{id}/complete', CompleteChecklistScheduleAction::class);
 

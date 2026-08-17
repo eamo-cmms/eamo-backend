@@ -66,6 +66,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user has the guest role.
+     */
+    public function guest(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Guest,
+        ]);
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static

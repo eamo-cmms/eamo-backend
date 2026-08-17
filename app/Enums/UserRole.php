@@ -8,6 +8,7 @@ enum UserRole: string
     case Manager = 'manager';
     case Engineer = 'engineer';
     case User = 'user';
+    case Guest = 'guest';
 
     /**
      * Get the hierarchy level of the role.
@@ -20,6 +21,7 @@ enum UserRole: string
             self::Manager => 3,
             self::Engineer => 2,
             self::User => 1,
+            self::Guest => 0,
         };
     }
 

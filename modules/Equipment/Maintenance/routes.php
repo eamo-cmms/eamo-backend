@@ -27,16 +27,17 @@ use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\IndexMaintenanceSc
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\UpdateMaintenanceScheduleAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
+    Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
+    Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
+    Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
+    Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
+    Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
+    Route::get('maintenance-items', IndexMaintenanceItemAction::class);
+
     Route::middleware('engineer')->group(function (): void {
-        Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
-        Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);
         Route::post('maintenance-plans/judge', JudgeMaintenancePlanAction::class);
-        Route::get('maintenance-schedules', IndexMaintenanceScheduleAction::class);
-        Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
         Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
         Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
-        Route::get('maintenance-categories', IndexMaintenanceCategoryAction::class);
-        Route::get('maintenance-items', IndexMaintenanceItemAction::class);
 
         // Complete Maintenance Schedule
         Route::post('maintenance-schedules/{id}/complete', CompleteMaintenanceScheduleAction::class);

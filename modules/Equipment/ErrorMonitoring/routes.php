@@ -16,9 +16,7 @@ use Modules\Equipment\ErrorMonitoring\Actions\UpdateOperatingTimeAction;
 
 Route::group([], function (): void {
     Route::prefix('v1/equipment/error-monitoring/equipment-error-logs')->name('equipment-error-logs.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentErrorLogAction::class)->name('index');
-        });
+        Route::get('/', IndexEquipmentErrorLogAction::class)->name('index');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentErrorLogAction::class)->name('store');
@@ -28,10 +26,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/equipment/error-monitoring/operating-times')->name('operating-times.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexOperatingTimeAction::class)->name('index');
-            Route::get('/maintenance-status', GetMaintenanceStatusChartAction::class)->name('maintenance-status');
-        });
+        Route::get('/', IndexOperatingTimeAction::class)->name('index');
+        Route::get('/maintenance-status', GetMaintenanceStatusChartAction::class)->name('maintenance-status');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreOperatingTimeAction::class)->name('store');

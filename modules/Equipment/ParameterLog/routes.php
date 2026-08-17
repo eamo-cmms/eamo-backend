@@ -15,12 +15,10 @@ use Modules\Equipment\ParameterLog\Actions\UpdateEquipmentParameterLogAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     Route::prefix('equipment/equipment-parameter/logs')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentParameterLogAction::class)->name('equipment-parameter-logs.index');
-            Route::get('/weekly/{equipmentId}', GetWeeklyEquipmentParameterLogsAction::class)->name('equipment-parameter-logs.weekly');
-            Route::get('/overview/{id}', OverviewEquipmentParameterLogAction::class)->name('equipment-parameter-logs.overview');
-            Route::get('/{id}', ShowEquipmentParameterLogAction::class)->name('equipment-parameter-logs.show');
-        });
+        Route::get('/', IndexEquipmentParameterLogAction::class)->name('equipment-parameter-logs.index');
+        Route::get('/weekly/{equipmentId}', GetWeeklyEquipmentParameterLogsAction::class)->name('equipment-parameter-logs.weekly');
+        Route::get('/overview/{id}', OverviewEquipmentParameterLogAction::class)->name('equipment-parameter-logs.overview');
+        Route::get('/{id}', ShowEquipmentParameterLogAction::class)->name('equipment-parameter-logs.show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentParameterLogAction::class)->name('equipment-parameter-logs.store');

@@ -41,12 +41,13 @@ use Modules\Masterdata\Equipment\Actions\Unit\UpdateUnitAction;
 
 Route::group([], function (): void {
     Route::prefix('v1/equipment')->name('equipment.')->group(function (): void {
+        Route::get('/dashboard/summary', GetDashboardSummaryAction::class)->name('dashboard.summary');
+        Route::get('/', IndexEquipmentAction::class)->name('index');
+        Route::post('/decode-qr', DecodeQrAndGetEquipmentAction::class)->name('decode-qr');
+        Route::get('/{id}', ShowEquipmentAction::class)->name('show');
+
         Route::middleware('engineer')->group(function (): void {
-            Route::get('/dashboard/summary', GetDashboardSummaryAction::class)->name('dashboard.summary');
             Route::patch('/{id}/last-maintenance', MarkLastMaintenanceAction::class)->name('mark-last-maintenance');
-            Route::get('/', IndexEquipmentAction::class)->name('index');
-            Route::post('/decode-qr', DecodeQrAndGetEquipmentAction::class)->name('decode-qr');
-            Route::get('/{id}', ShowEquipmentAction::class)->name('show');
         });
 
         Route::middleware('manager')->group(function (): void {
@@ -59,10 +60,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/equipment-parameters')->name('equipment-parameters.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentParameterAction::class)->name('index');
-            Route::get('/{id}', ShowEquipmentParameterAction::class)->name('show');
-        });
+        Route::get('/', IndexEquipmentParameterAction::class)->name('index');
+        Route::get('/{id}', ShowEquipmentParameterAction::class)->name('show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentParameterAction::class)->name('store');
@@ -72,10 +71,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/equipment-errors')->name('equipment-errors.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentErrorAction::class)->name('index');
-            Route::get('/{id}', ShowEquipmentErrorAction::class)->name('show');
-        });
+        Route::get('/', IndexEquipmentErrorAction::class)->name('index');
+        Route::get('/{id}', ShowEquipmentErrorAction::class)->name('show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentErrorAction::class)->name('store');
@@ -85,10 +82,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/equipment-categories')->name('equipment-categories.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentCategoryAction::class)->name('index');
-            Route::get('/{id}', ShowEquipmentCategoryAction::class)->name('show');
-        });
+        Route::get('/', IndexEquipmentCategoryAction::class)->name('index');
+        Route::get('/{id}', ShowEquipmentCategoryAction::class)->name('show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentCategoryAction::class)->name('store');
@@ -98,10 +93,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/units')->name('units.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexUnitAction::class)->name('index');
-            Route::get('/{id}', ShowUnitAction::class)->name('show');
-        });
+        Route::get('/', IndexUnitAction::class)->name('index');
+        Route::get('/{id}', ShowUnitAction::class)->name('show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreUnitAction::class)->name('store');
@@ -111,10 +104,8 @@ Route::group([], function (): void {
     });
 
     Route::prefix('v1/equipment-states')->name('equipment-states.')->group(function (): void {
-        Route::middleware('engineer')->group(function (): void {
-            Route::get('/', IndexEquipmentStateAction::class)->name('index');
-            Route::get('/{id}', ShowEquipmentStateAction::class)->name('show');
-        });
+        Route::get('/', IndexEquipmentStateAction::class)->name('index');
+        Route::get('/{id}', ShowEquipmentStateAction::class)->name('show');
 
         Route::middleware('manager')->group(function (): void {
             Route::post('/', StoreEquipmentStateAction::class)->name('store');

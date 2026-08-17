@@ -31,8 +31,8 @@ const props = defineProps({
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: 'guest@gmail.com',
+    password: '12345678',
     remember: false,
 });
 
