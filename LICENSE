@@ -1,0 +1,30 @@
+PROPRIETARY AND COMMERCIAL SOFTWARE LICENSE AGREEMENT
+
+Copyright (c) 2026 EAMO (LavioDev). All rights reserved.
+
+IMPORTANT - READ CAREFULLY BEFORE USING, DOWNLOADING, INSTALLING, OR DISTRIBUTING THIS SOFTWARE.
+
+1. PROPRIETARY RIGHTS & OWNERSHIP
+This software ("Software"), including all associated backend PHP / Laravel code, APIs, database migrations, controllers, services, and configurations, is the sole property and confidential trade secret of the copyright holder ("Licensor" / EAMO / LavioDev). The Software is protected under national copyright laws and international intellectual property treaties.
+
+2. COMMERCIAL LICENSE REQUIREMENT & MANDATORY PURCHASE
+This Software is NOT open-source or free software. 
+Any individual, corporation, organization, or legal entity ("Licensee") wishing to deploy, install, host, execute, modify, or distribute this Software or any of its components MUST purchase a valid paid Commercial License directly from the Licensor prior to use.
+
+3. RESTRICTIONS
+Unless explicitly granted under a signed, written Commercial License Agreement executed by the Licensor, the Licensee shall NOT:
+a) Copy, distribute, sublicense, rent, lease, sell, or transfer the Software or any portion thereof to any third party;
+b) Reverse engineer, decompile, disassemble, decrypt, or attempt to derive source code from compiled, minified, or obfuscated assets;
+c) Remove, alter, or obscure any copyright, trademark, watermark, or proprietary rights notices contained in or on the Software;
+d) Deploy, host, or execute the Software on any server, domain name, IP address, or infrastructure not explicitly authorized under a valid license key or commercial contract.
+
+4. DISCLAIMER OF WARRANTY
+THIS SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF OR INABILITY TO USE THIS SOFTWARE.
+
+5. ENFORCEMENT & TERMINATION
+Any unauthorized use, deployment, copying, or redistribution of this Software automatically terminates any rights granted and constitutes willful violation of copyright and intellectual property laws, subjecting the violator to civil and criminal penalties under applicable law.
+
+For commercial licensing requests, enterprise pricing, or legal inquiries, please contact:
+Author / Licensor: LavioDev (EAMO)
+Email: khanhnd05@gmail.com
+Website: https://eamo.vn
