@@ -84,13 +84,6 @@ class DatabaseSeeder extends Seeder
             'department_id' => $techDepartment->id,
         ]);
 
-        // 50 Random Users distributed across departments
-        User::factory()->count(50)->sequence(fn () => [
-            'department_id' => $allDepartments->random()->id,
-        ])->create([
-            'password' => $password,
-        ]);
-
         // 4. Module Seeders
         $this->call(EquipmentSeeder::class);
         $this->call(MaintenanceCategorySeeder::class);
