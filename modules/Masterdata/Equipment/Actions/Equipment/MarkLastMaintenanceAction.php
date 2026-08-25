@@ -28,10 +28,12 @@ final class MarkLastMaintenanceAction
     {
         $equipment = Equipment::findOrFail($id);
 
+        $datetime = $request->input('datetime') ?? now()->toIso8601String();
+
         $equipment->update([
             'last_maintenance' => [
                 'equipment_id' => $equipment->id,
-                'datetime'     => $request->input('datetime') ?? now()->toDateTimeString(),
+                'datetime'     => $datetime,
                 'user_id'      => $request->user()?->id,
             ],
         ]);

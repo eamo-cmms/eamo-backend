@@ -23,13 +23,10 @@ final class UpdateEquipmentErrorLogRequest extends FormRequest
     }
 
     /**
-     * Normalize datetime fields sent as Vietnam local time (UTC+7) to UTC.
-     * Frontend sends plain "YYYY-MM-DD HH:mm:ss" strings in VN local time.
-     * Laravel/MySQL expects UTC so we must convert before validation & storage.
+     * Normalize datetime fields to Asia/Ho_Chi_Minh (UTC+7) standard format.
      */
     protected function prepareForValidation(): void
     {
-        $vnTimezone = 'Asia/Ho_Chi_Minh';
         $fields = ['occurred_at', 'handled_at', 'restarted_at'];
 
         $merge = [];
@@ -37,8 +34,8 @@ final class UpdateEquipmentErrorLogRequest extends FormRequest
             $value = $this->input($field);
             if (! empty($value)) {
                 try {
-                    $merge[$field] = Carbon::parse($value, $vnTimezone)
-                        ->setTimezone('UTC')
+                    $merge[$field] = Carbon::parse($value)
+                        ->setTimezone('Asia/Ho_Chi_Minh')
                         ->format('Y-m-d H:i:s');
                 } catch (\Throwable) {
                     // Leave invalid values as-is; validation rule 'date' will reject them

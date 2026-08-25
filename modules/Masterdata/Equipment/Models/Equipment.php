@@ -61,7 +61,6 @@ final class Equipment extends Model
         'name',
         'code',
         'parent_id',
-        'work_center_id',
         'equipment_category_id',
         'device_id',
         'qr_code_path',

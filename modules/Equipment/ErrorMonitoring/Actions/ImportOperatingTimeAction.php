@@ -211,7 +211,7 @@ final class ImportOperatingTimeAction
             $validatedData['planned_operating_time'] = $plannedOperatingTime;
             $validatedData['actual_operating_time'] = $actualOperatingTime;
             $validatedData['availability_factor'] = $availabilityFactor;
-            $validatedData['date'] = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+            $validatedData['date'] = now()->toDateString();
 
             // Track for subsequent row duplicate checks
             $importedIntervals[$equipmentId][] = [
