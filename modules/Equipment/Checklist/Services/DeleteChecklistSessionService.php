@@ -19,7 +19,7 @@ final class DeleteChecklistSessionService
         $session->delete();
 
         return [
-            'message' => 'Checklist session deleted successfully.',
+            'message' => __('checklist.session_deleted'),
         ];
     }
 }

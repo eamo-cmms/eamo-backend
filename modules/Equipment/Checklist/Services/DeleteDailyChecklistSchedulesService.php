@@ -27,7 +27,7 @@ final class DeleteDailyChecklistSchedulesService
 
         return [
             'deleted_count' => $schedules->count(),
-            'message' => 'Checklist schedules deleted successfully.',
+            'message' => __('checklist.schedules_deleted'),
         ];
     }
 }

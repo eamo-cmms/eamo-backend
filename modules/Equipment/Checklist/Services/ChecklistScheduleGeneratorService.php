@@ -70,7 +70,7 @@ final class ChecklistScheduleGeneratorService
 
         if ($totalSchedules > self::MAX_SCHEDULES) {
             throw ValidationException::withMessages([
-                'end_date' => ["The total number of expected checklist schedules ({$totalSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
+                'end_date' => [__('checklist.exceeds_max_schedules', ['total' => $totalSchedules, 'max' => self::MAX_SCHEDULES])],
             ]);
         }
 
@@ -144,7 +144,7 @@ final class ChecklistScheduleGeneratorService
         $totalNewSchedules = count($dates) * $details->count();
         if ($totalNewSchedules > self::MAX_SCHEDULES) {
             throw ValidationException::withMessages([
-                'end_date' => ["The total number of expected checklist schedules ({$totalNewSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
+                'end_date' => [__('checklist.exceeds_max_schedules', ['total' => $totalNewSchedules, 'max' => self::MAX_SCHEDULES])],
             ]);
         }
 
