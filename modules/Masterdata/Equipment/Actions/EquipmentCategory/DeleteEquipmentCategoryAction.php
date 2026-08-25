@@ -21,6 +21,6 @@ final class DeleteEquipmentCategoryAction
 
         $category->delete();
 
-        return response()->json(['message' => 'Equipment category deleted successfully.']);
+        return response()->json(['message' => __('equipment.category_deleted')]);
     }
 }

@@ -21,6 +21,6 @@ final class DeleteEquipmentParameterAction
 
         $parameter->delete();
 
-        return response()->json(['message' => 'Equipment parameter deleted successfully.']);
+        return response()->json(['message' => __('equipment.parameter_deleted')]);
     }
 }

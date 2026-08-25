@@ -21,6 +21,6 @@ final class DeleteEquipmentStateAction
 
         $state->delete();
 
-        return response()->json(['message' => 'Equipment state deleted successfully.']);
+        return response()->json(['message' => __('equipment.state_deleted')]);
     }
 }

@@ -21,6 +21,6 @@ final class DeleteUnitAction
 
         $unit->delete();
 
-        return response()->json(['message' => 'Unit deleted successfully.']);
+        return response()->json(['message' => __('equipment.unit_deleted')]);
     }
 }

@@ -24,11 +24,11 @@ final class DeleteEquipmentErrorAction
         Gate::authorize('delete', $error);
 
         if (in_array($error->id, self::SYSTEM_EQUIPMENT_ERROR_IDS, strict: true)) {
-            return response()->json(['message' => 'This equipment error is a system default and cannot be deleted.'], 422);
+            return response()->json(['message' => __('equipment.error_system_default_cannot_delete')], 422);
         }
 
         $error->delete();
 
-        return response()->json(['message' => 'Equipment error deleted successfully.']);
+        return response()->json(['message' => __('equipment.error_deleted')]);
     }
 }

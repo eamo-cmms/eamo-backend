@@ -21,6 +21,6 @@ final class DeleteEquipmentAction
 
         $equipment->delete();
 
-        return response()->json(['message' => 'Equipment deleted successfully.']);
+        return response()->json(['message' => __('equipment.deleted')]);
     }
 }
