@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class GetUnreadCountNotificationController extends Controller
 {
@@ -17,12 +16,8 @@ class GetUnreadCountNotificationController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-        }
+        abort_unless($user, 401);
 
-        $count = $user->unreadNotifications()->count();
-
-        return response()->json(['unread_count' => $count]);
+        return response()->json(['unread_count' => $user->unreadNotifications()->count()]);
     }
 }

@@ -14,7 +14,7 @@ final class StoreEquipmentParameterLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', \Modules\Equipment\ParameterLog\Models\EquipmentParameterLog::class) ?? false;
     }
 
     /**

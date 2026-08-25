@@ -31,7 +31,7 @@ final class JudgeMaintenancePlanService
             ? Carbon::parse($data['timestamp'])->toDateString()
             : Carbon::today()->toDateString();
 
-        $logs = DB::transaction(function () use ($dateString, $data): array {
+        $logs = DB::transaction(function () use ($dateString, $data, $currentUser): array {
             $createdLogs = [];
             foreach ($data['results'] as $item) {
                 $schedule = MaintenanceSchedule::findOrFail($item['schedule_id']);
@@ -42,14 +42,18 @@ final class JudgeMaintenancePlanService
                     ->first();
 
                 if (! $log) {
-                    $log = $schedule->maintenanceLogs()
-                        ->where('result', 'Pending')
-                        ->first();
+                    $log = $schedule->maintenanceLogs()->first();
+                }
+
+                $userId = $currentUser?->id;
+                if (! empty($data['user_ids']) && is_array($data['user_ids'])) {
+                    $userId = $data['user_ids'][0] ?? $userId;
                 }
 
                 if (! $log) {
                     $log = $schedule->maintenanceLogs()->create([
-                        'result' => 'Pending',
+                        'equipment_id' => $schedule->equipment_id,
+                        'user_id' => $userId,
                         'log_date' => $dateString,
                     ]);
                 }
@@ -59,7 +63,8 @@ final class JudgeMaintenancePlanService
                     : Carbon::now();
 
                 $log->update([
-                    'result' => $item['result'],
+                    'equipment_id' => $schedule->equipment_id,
+                    'user_id' => $userId,
                     'log_date' => $logDate,
                     'note' => $item['note'] ?? null,
                 ]);
@@ -81,7 +86,7 @@ final class JudgeMaintenancePlanService
         });
 
         return [
-            'message' => 'Maintenance plan schedules judged successfully.',
+            'message' => __('maintenance.plan_judged'),
             'logs' => $logs,
         ];
     }

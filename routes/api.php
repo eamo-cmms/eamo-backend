@@ -53,7 +53,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/{user}', ShowUserController::class);
 });
 
-Route::middleware(['auth:api', 'admin'])->group(function () {
+use App\Http\Controllers\Permission\GetUserPermissionsController;
+use App\Http\Controllers\Permission\IndexPermissionController;
+use App\Http\Controllers\Permission\SyncUserPermissionsController;
+
+Route::middleware('auth:api')->group(function () {
     // Companies Mutation
     Route::post('/companies', StoreCompanyController::class);
     Route::put('/companies/{company}', UpdateCompanyController::class);
@@ -71,6 +75,12 @@ Route::middleware(['auth:api', 'admin'])->group(function () {
     Route::put('/users/{user}', UpdateUserController::class);
     Route::patch('/users/{user}', UpdateUserController::class);
     Route::delete('/users/{user}', DestroyUserController::class);
+});
+
+Route::middleware(['auth:api', 'admin'])->group(function () {
+    Route::get('/permissions', IndexPermissionController::class);
+    Route::get('/users/{user}/permissions', GetUserPermissionsController::class);
+    Route::put('/users/{user}/permissions', SyncUserPermissionsController::class);
 });
 
 Route::middleware('auth:api')->group(function () {

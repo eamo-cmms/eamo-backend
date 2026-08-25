@@ -38,7 +38,7 @@ final class SaveEquipmentParameterLogAction
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Equipment parameter logs recorded successfully',
+            'message' => __('parameter_log.recorded_successfully'),
             'data' => $savedLogs,
         ]);
     }

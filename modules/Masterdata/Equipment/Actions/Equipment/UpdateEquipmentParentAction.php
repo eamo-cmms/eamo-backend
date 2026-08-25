@@ -30,9 +30,9 @@ final class UpdateEquipmentParentAction
             while ($ancestor !== null) {
                 if ($ancestor->id === $id) {
                     return response()->json([
-                        'message' => 'The parent equipment cannot be a child or descendant of this equipment.',
+                        'message' => __('equipment.parent_circular_reference'),
                         'errors' => [
-                            'parent_id' => ['Circular reference detected.'],
+                            'parent_id' => [__('equipment.parent_circular_reference_error')],
                         ],
                     ], 422);
                 }

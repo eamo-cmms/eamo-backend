@@ -6,6 +6,7 @@ namespace Modules\Masterdata\Equipment\Actions\Equipment;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Masterdata\Equipment\Models\Equipment;
 
@@ -16,8 +17,10 @@ final class DeleteEquipmentAction
     public function asController(Request $request, string $id): JsonResponse
     {
         $equipment = Equipment::findOrFail($id);
+        Gate::authorize('delete', $equipment);
+
         $equipment->delete();
 
-        return response()->json(['message' => 'Equipment deleted successfully.']);
+        return response()->json(['message' => __('equipment.deleted')]);
     }
 }

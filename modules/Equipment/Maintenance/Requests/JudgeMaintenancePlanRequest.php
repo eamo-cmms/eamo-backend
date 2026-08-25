@@ -10,7 +10,7 @@ class JudgeMaintenancePlanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('judge', \Modules\Equipment\Maintenance\Models\MaintenancePlan::class) ?? false;
     }
 
     public function rules(): array

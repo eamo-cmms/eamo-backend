@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Bridge\AccessToken;
 use App\Bridge\AccessTokenRepository;
+use App\Enums\UserRole;
 use App\Models\OAuth\Client;
+use App\Models\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
-use Laravel\Passport\TokenRepository;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            AccessTokenRepositoryInterface::class,
+            fn ($app) => new AccessTokenRepository($app->make(Dispatcher::class))
+        );
     }
 
     /**
@@ -28,25 +36,41 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        Passport::useClientModel(Client::class);
+        $this->configureAuthorization();
+        $this->configurePassport();
+    }
 
-        Passport::authorizationView(function () {
-            return response('Authorization view not configured. Please use first-party trusted clients.', 403);
-        });
+    /**
+     * Configure automatic policy discovery and super-admin gate authorization.
+     */
+    private function configureAuthorization(): void
+    {
+        // Automatically resolve policies across Core App and all Modules:
+        // [Namespace]\Models\[Model] -> [Namespace]\Policies\[Model]Policy
+        Gate::guessPolicyNamesUsing(
+            fn (string $modelClass): string => str_replace('\\Models\\', '\\Policies\\', $modelClass).'Policy'
+        );
+
+        // Super-admin bypass: Admin gets unrestricted access to all abilities
+        Gate::before(
+            fn (User $user, string $ability): ?bool => $user->hasRole(UserRole::Admin) ? true : null
+        );
+    }
+
+    /**
+     * Configure Laravel Passport OAuth2 settings and token lifetimes.
+     */
+    private function configurePassport(): void
+    {
+        Passport::useClientModel(Client::class);
+        Passport::useAccessTokenEntity(AccessToken::class);
+
+        Passport::authorizationView(
+            fn () => response('Authorization view not configured. Please use first-party trusted clients.', 403)
+        );
 
         Passport::tokensExpireIn(now()->addMinutes(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
-
-        // Bind custom AccessTokenRepository & AccessToken to include roles in JWT
-        Passport::useAccessTokenEntity(\App\Bridge\AccessToken::class);
-        $this->app->singleton(
-            AccessTokenRepositoryInterface::class,
-            function ($app) {
-                return new AccessTokenRepository(
-                    $app->make(Dispatcher::class)
-                );
-            }
-        );
     }
 }

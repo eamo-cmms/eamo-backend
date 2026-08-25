@@ -18,9 +18,7 @@ final class GetUserTodaySchedulesAction
     public function asController(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+        abort_unless($user, 401);
 
         $userId = $user->id;
         $today = Carbon::today()->toDateString();

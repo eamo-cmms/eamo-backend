@@ -25,30 +25,18 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
     // Checklist Sessions
     Route::get('checklist-sessions', IndexChecklistSessionAction::class);
     Route::get('checklist-sessions/{id}', ShowChecklistSessionAction::class);
+    Route::post('checklist-sessions', StoreChecklistSessionAction::class);
+    Route::put('checklist-sessions/{id}', UpdateChecklistSessionAction::class);
+    Route::delete('checklist-sessions/{id}', DeleteChecklistSessionAction::class);
+    Route::post('checklist-sessions/judge', JudgeSessionAction::class);
 
     // Checklist Details
     Route::get('checklist-details', IndexChecklistDetailAction::class);
+    Route::post('checklist-details', StoreChecklistDetailAction::class);
+    Route::put('checklist-details', UpdateChecklistDetailAction::class);
+    Route::delete('checklist-details/{id}', DeleteChecklistDetailAction::class);
 
-    Route::middleware('engineer')->group(function (): void {
-        // Complete Checklist Schedule
-        Route::post('checklist-schedules/{id}/complete', CompleteChecklistScheduleAction::class);
-
-        // Judge Session
-        Route::post('checklist-sessions/judge', JudgeSessionAction::class);
-    });
-
-    Route::middleware('manager')->group(function (): void {
-
-        Route::delete('checklist-schedules/daily', DeleteDailyChecklistSchedulesAction::class);
-
-        // Checklist Sessions
-        Route::post('checklist-sessions', StoreChecklistSessionAction::class);
-        Route::put('checklist-sessions/{id}', UpdateChecklistSessionAction::class);
-        Route::delete('checklist-sessions/{id}', DeleteChecklistSessionAction::class);
-
-        // Checklist Details
-        Route::post('checklist-details', StoreChecklistDetailAction::class);
-        Route::put('checklist-details', UpdateChecklistDetailAction::class);
-        Route::delete('checklist-details/{id}', DeleteChecklistDetailAction::class);
-    });
+    // Checklist Schedules
+    Route::post('checklist-schedules/{id}/complete', CompleteChecklistScheduleAction::class);
+    Route::delete('checklist-schedules/daily', DeleteDailyChecklistSchedulesAction::class);
 });

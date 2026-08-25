@@ -19,7 +19,7 @@ final class DeleteChecklistDetailService
         $detail->delete();
 
         return [
-            'message' => 'Checklist detail deleted successfully.',
+            'message' => __('checklist.detail_deleted'),
         ];
     }
 }

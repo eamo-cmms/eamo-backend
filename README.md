@@ -81,14 +81,17 @@ The server will run on: http://localhost:8000
 
 ## 3. Seeded Accounts
 
-The seeding process registers a default administrative user account:
-- Username: admin
-- Password: 12345678
+The seeding process (`php artisan migrate:fresh --seed`) creates 4 standard role user accounts with password `12345678`:
+- **Admin**: `admin@gmail.com` (Super-Admin full system bypass)
+- **Manager**: `manager@gmail.com` (Organization & Technical operations governance)
+- **Engineer**: `engineer@gmail.com` (Technical, Checklist, Maintenance & Logs execution)
+- **Guest**: `guest@gmail.com` (View-only audit access)
 
 ---
 
 ## 4. Documentation References
 
 For in-depth analysis of the system architecture, authentication flow, and directory layouts, consult the following reports:
+- [Dynamic Permissions & RBAC Developer Guide](docs/permissions-and-rbac.md)
 - [OAuth 2.0 PKCE Authentication Flow Report](docs/auth.md)
 - [Backend Directory Structure and Architecture Report](docs/backend_structure.md)

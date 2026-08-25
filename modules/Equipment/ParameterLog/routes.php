@@ -19,13 +19,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
         Route::get('/weekly/{equipmentId}', GetWeeklyEquipmentParameterLogsAction::class)->name('equipment-parameter-logs.weekly');
         Route::get('/overview/{id}', OverviewEquipmentParameterLogAction::class)->name('equipment-parameter-logs.overview');
         Route::get('/{id}', ShowEquipmentParameterLogAction::class)->name('equipment-parameter-logs.show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentParameterLogAction::class)->name('equipment-parameter-logs.store');
-            Route::post('/import', ImportEquipmentParameterLogAction::class)->name('equipment-parameter-logs.import');
-            Route::put('/{id}', UpdateEquipmentParameterLogAction::class)->name('equipment-parameter-logs.update');
-            Route::delete('/{id}', DeleteEquipmentParameterLogAction::class)->name('equipment-parameter-logs.delete');
-            Route::post('/save', SaveEquipmentParameterLogAction::class)->name('equipment-parameter-logs.save');
-        });
+        Route::post('/', StoreEquipmentParameterLogAction::class)->name('equipment-parameter-logs.store');
+        Route::post('/import', ImportEquipmentParameterLogAction::class)->name('equipment-parameter-logs.import');
+        Route::put('/{id}', UpdateEquipmentParameterLogAction::class)->name('equipment-parameter-logs.update');
+        Route::delete('/{id}', DeleteEquipmentParameterLogAction::class)->name('equipment-parameter-logs.delete');
+        Route::post('/save', SaveEquipmentParameterLogAction::class)->name('equipment-parameter-logs.save');
     });
 });

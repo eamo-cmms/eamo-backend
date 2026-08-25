@@ -23,7 +23,7 @@ final class DecodeQrEquipmentService
         $uuid = $qrcode->text();
 
         if (empty($uuid)) {
-            throw new \Exception('No QR code found or unable to decode QR from this image.', 422);
+            throw new \Exception(__('equipment.no_qr_found'), 422);
         }
 
         // 2. Tìm kiếm thiết bị theo ID hoặc device_id
@@ -33,7 +33,7 @@ final class DecodeQrEquipmentService
         })->first();
 
         if (! $equipment) {
-            throw new \Exception('Equipment not found in system.', 404);
+            throw new \Exception(__('equipment.equipment_not_found'), 404);
         }
 
         return $equipment;

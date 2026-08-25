@@ -8,6 +8,8 @@ use App\Services\Department\DestroyDepartmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Gate;
+
 class DestroyDepartmentController extends Controller
 {
     /**
@@ -15,10 +17,12 @@ class DestroyDepartmentController extends Controller
      */
     public function __invoke(Request $request, Department $department, DestroyDepartmentService $service): JsonResponse
     {
+        Gate::authorize('delete', $department);
+
         $service->execute($department);
 
         return response()->json([
-            'message' => 'Department deleted successfully.',
+            'message' => __('department.deleted'),
         ]);
     }
 }

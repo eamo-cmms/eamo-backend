@@ -10,7 +10,7 @@ class DeleteDailyChecklistSchedulesRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('deleteDaily', \Modules\Equipment\Checklist\Models\ChecklistSchedule::class) ?? false;
     }
 
     public function rules(): array

@@ -11,7 +11,7 @@ final class StoreMaintenancePlanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', \Modules\Equipment\Maintenance\Models\MaintenancePlan::class) ?? false;
     }
 
     /**

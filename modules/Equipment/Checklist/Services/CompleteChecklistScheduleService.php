@@ -39,7 +39,7 @@ final class CompleteChecklistScheduleService
         }
 
         return [
-            'message' => 'Checklist schedule marked completed successfully.',
+            'message' => __('checklist.schedule_completed'),
             'schedule_id' => $schedule->id,
             'is_completed' => true,
         ];

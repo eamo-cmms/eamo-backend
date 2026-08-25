@@ -14,7 +14,7 @@ final class UpdateEquipmentParameterLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Equipment\ParameterLog\Models\EquipmentParameterLog::class) ?? false;
     }
 
     /**

@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class GetUserNotificationsController extends Controller
 {
@@ -18,9 +17,7 @@ class GetUserNotificationsController extends Controller
     public function __invoke(Request $request, string $userId): JsonResponse
     {
         $user = $request->user();
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-        }
+        abort_unless($user, 401);
 
         $query = $user->notifications()->latest('created_at');
 

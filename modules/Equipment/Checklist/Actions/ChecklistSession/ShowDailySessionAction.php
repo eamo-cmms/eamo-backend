@@ -39,7 +39,7 @@ final class ShowDailySessionAction
 
         if ($schedules->isEmpty()) {
             return response()->json([
-                'message' => 'Checklist session not found for this date.',
+                'message' => __('checklist.session_not_found_for_date'),
             ], 200);
         }
 

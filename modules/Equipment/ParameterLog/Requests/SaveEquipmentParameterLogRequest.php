@@ -14,7 +14,7 @@ final class SaveEquipmentParameterLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('save', \Modules\Equipment\ParameterLog\Models\EquipmentParameterLog::class) ?? false;
     }
 
     public function rules(): array

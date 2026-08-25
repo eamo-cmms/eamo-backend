@@ -19,6 +19,7 @@ use Modules\Equipment\Checklist\Models\ChecklistDetail;
 use Modules\Equipment\Checklist\Models\ChecklistSession;
 use Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog;
 use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
+use Modules\Equipment\Maintenance\Models\MaintenanceLog;
 use Modules\Equipment\Maintenance\Models\MaintenancePlan;
 use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
 use Modules\Masterdata\Equipment\Builders\EquipmentQueryBuilder;
@@ -61,7 +62,6 @@ final class Equipment extends Model
         'name',
         'code',
         'parent_id',
-        'work_center_id',
         'equipment_category_id',
         'device_id',
         'qr_code_path',
@@ -158,6 +158,11 @@ final class Equipment extends Model
     public function maintenancePlans(): HasMany
     {
         return $this->hasMany(MaintenancePlan::class, 'equipment_id');
+    }
+
+    public function maintenanceLogs(): HasMany
+    {
+        return $this->hasMany(MaintenanceLog::class, 'equipment_id');
     }
 
     public function operatingTimes(): HasMany

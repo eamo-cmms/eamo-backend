@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Equipment\ErrorMonitoring\Actions;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\ErrorMonitoring\Models\OperatingTime;
 
@@ -15,11 +16,13 @@ final class DeleteOperatingTimeAction
     public function asController(string $id): JsonResponse
     {
         $time = OperatingTime::findOrFail($id);
+        Gate::authorize('delete', $time);
+
         $time->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Operating time deleted successfully',
+            'message' => __('error_monitoring.operating_time_deleted'),
         ]);
     }
 }

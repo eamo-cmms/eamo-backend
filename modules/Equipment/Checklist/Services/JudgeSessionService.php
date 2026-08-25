@@ -87,7 +87,7 @@ final class JudgeSessionService
         });
 
         return [
-            'message' => 'Checklist session judged successfully.',
+            'message' => __('checklist.session_judged'),
             'details' => $details,
         ];
     }

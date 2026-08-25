@@ -23,7 +23,7 @@ final class DecodeQrAndGetEquipmentAction
         $equipment = $service->decodeAndFind($file->getPathname());
 
         return response()->json([
-            'message' => 'QR code decoded successfully!',
+            'message' => __('equipment.qr_decoded_success'),
             'data' => $equipment->load([
                 'equipmentCategory',
                 'equipmentErrors',

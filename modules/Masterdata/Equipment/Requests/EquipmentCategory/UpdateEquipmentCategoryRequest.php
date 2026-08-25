@@ -10,7 +10,7 @@ class UpdateEquipmentCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Masterdata\Equipment\Models\EquipmentCategory::class) ?? false;
     }
 
     public function rules(): array

@@ -15,18 +15,28 @@ final class IndexMaintenanceLogAction
 
     public function asController(Request $request): JsonResponse
     {
-        $query = MaintenanceLog::query();
+        $query = MaintenanceLog::query()
+            ->with([
+                'equipment' => function ($q) {
+                    $q->select(['id', 'code', 'name', 'equipment_category_id', 'is_active'])
+                      ->with('equipmentCategory:id,code,name');
+                },
+                'user:id,name,email',
+                'maintenanceSchedule' => function ($q) {
+                    $q->select(['id', 'equipment_id', 'maintenance_plan_id', 'date', 'is_rescheduled'])
+                      ->with('maintenancePlan:id,plan_code,maintenance_type');
+                },
+            ])
+            ->filter($request->all())
+            ->orderByDesc('log_date')
+            ->orderByDesc('created_at');
 
-        if ($request->boolean('only_trashed')) {
-            $query->onlyTrashed();
-        } elseif ($request->boolean('with_trashed')) {
-            $query->withTrashed();
+        if ($request->boolean('all') || $request->input('paginate') === 'false') {
+            return response()->json($query->get());
         }
 
-        if ($request->filled('maintenance_schedule_id')) {
-            $query->where('maintenance_schedule_id', $request->input('maintenance_schedule_id'));
-        }
+        $perPage = $request->integer('per_page', 15);
 
-        return response()->json($query->get());
+        return response()->json($query->paginate($perPage));
     }
 }

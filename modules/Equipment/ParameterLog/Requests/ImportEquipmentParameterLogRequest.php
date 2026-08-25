@@ -6,12 +6,20 @@ namespace Modules\Equipment\ParameterLog\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Validator;
+use Modules\Equipment\ParameterLog\Models\EquipmentParameterLog;
+use Modules\Equipment\ParameterLog\Services\ImportEquipmentParameterLogService;
 
 final class ImportEquipmentParameterLogRequest extends FormRequest
 {
+    /**
+     * @var array<int, array<string, mixed>>
+     */
+    private array $validatedRecords = [];
+
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('import', EquipmentParameterLog::class) ?? false;
     }
 
     /**
@@ -29,10 +37,82 @@ final class ImportEquipmentParameterLogRequest extends FormRequest
     }
 
     /**
-     * @return array<int, \Closure>
+     * Perform deep spreadsheet parsing and validation in the after validation hook.
+     *
+     * @return array<int, \Closure(Validator): void>
      */
     public function after(): array
     {
-        return [];
+        return [
+            function (Validator $validator): void {
+                if ($validator->errors()->isNotEmpty()) {
+                    return;
+                }
+
+                $file = $this->file('file');
+                if (! $file) {
+                    $validator->errors()->add('file', 'No file uploaded.');
+
+                    return;
+                }
+
+                $service = app(ImportEquipmentParameterLogService::class);
+
+                try {
+                    $rows = $service->loadRowsFromFile($file);
+                } catch (\Throwable) {
+                    $validator->errors()->add('file', 'Unable to read the uploaded file. Please ensure it is a valid Excel or CSV file.');
+
+                    return;
+                }
+
+                $headerRow = array_shift($rows);
+                if (! $headerRow) {
+                    $validator->errors()->add('file', 'The uploaded file is empty.');
+
+                    return;
+                }
+
+                $headerResult = $service->resolveHeaderColumns($headerRow);
+                if (! empty($headerResult['missing'])) {
+                    $missingText = implode(', ', $headerResult['missing']);
+                    $validator->errors()->add('file', "The file is missing required headers: {$missingText}");
+
+                    return;
+                }
+
+                $result = $service->parseAndValidateRows(
+                    $rows,
+                    $headerResult['columns'],
+                    $this->user()?->id
+                );
+
+                if (! empty($result['errors'])) {
+                    foreach ($result['errors'] as $error) {
+                        $validator->errors()->add('file', $error);
+                    }
+
+                    return;
+                }
+
+                if (empty($result['records'])) {
+                    $validator->errors()->add('file', 'No records found to import.');
+
+                    return;
+                }
+
+                $this->validatedRecords = $result['records'];
+            },
+        ];
+    }
+
+    /**
+     * Get records validated and prepared for insertion.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getValidatedRecords(): array
+    {
+        return $this->validatedRecords;
     }
 }

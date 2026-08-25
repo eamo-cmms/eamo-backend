@@ -10,7 +10,7 @@ final class StoreMaintenanceLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', \Modules\Equipment\Maintenance\Models\MaintenanceLog::class) ?? false;
     }
 
     /**
@@ -19,8 +19,10 @@ final class StoreMaintenanceLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'maintenance_schedule_id' => ['required', 'string', 'exists:eamo_maintenance_schedules,id'],
-            'result' => ['required', 'string', 'in:Completed,Partial,Failed'],
+            'equipment_id' => ['required_without:maintenance_schedule_id', 'nullable', 'string', 'exists:eamo_equipment,id'],
+            'maintenance_schedule_id' => ['nullable', 'string', 'exists:eamo_maintenance_schedules,id'],
+            'user_id' => ['nullable', 'string', 'exists:users,id'],
+            'log_date' => ['nullable', 'date'],
             'note' => ['nullable', 'string'],
             'type' => ['nullable', 'string'],
         ];

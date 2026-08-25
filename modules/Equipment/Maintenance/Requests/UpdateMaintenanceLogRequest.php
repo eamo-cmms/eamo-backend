@@ -10,7 +10,7 @@ final class UpdateMaintenanceLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Equipment\Maintenance\Models\MaintenanceLog::class) ?? false;
     }
 
     /**
@@ -19,8 +19,8 @@ final class UpdateMaintenanceLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'result' => ['required', 'string', 'in:Completed,Partial,Failed'],
             'note' => ['nullable', 'string'],
+            'type' => ['nullable', 'string'],
         ];
     }
 }

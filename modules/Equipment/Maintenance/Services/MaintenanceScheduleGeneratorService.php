@@ -71,7 +71,7 @@ final class MaintenanceScheduleGeneratorService
 
         if ($totalSchedules > self::MAX_SCHEDULES) {
             throw ValidationException::withMessages([
-                'occurrences' => ["The total number of expected maintenance schedules ({$totalSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
+                'end_date' => [__('maintenance.exceeds_max_schedules', ['total' => $totalSchedules, 'max' => self::MAX_SCHEDULES])],
             ]);
         }
 
@@ -158,7 +158,7 @@ final class MaintenanceScheduleGeneratorService
 
         if ($totalNewSchedules > self::MAX_SCHEDULES) {
             throw ValidationException::withMessages([
-                'occurrences' => ["The total number of expected maintenance schedules ({$totalNewSchedules}) exceeds the maximum limit of ".self::MAX_SCHEDULES.'.'],
+                'occurrences' => [__('maintenance.exceeds_max_schedules', ['total' => $totalNewSchedules, 'max' => self::MAX_SCHEDULES])],
             ]);
         }
 

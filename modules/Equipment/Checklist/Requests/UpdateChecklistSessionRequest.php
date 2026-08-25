@@ -10,7 +10,7 @@ final class UpdateChecklistSessionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Equipment\Checklist\Models\ChecklistSession::class) ?? false;
     }
 
     public function rules(): array

@@ -39,7 +39,7 @@ final class StoreOperatingTimeAction
         $data['planned_operating_time'] = $plannedOperatingTime;
         $data['actual_operating_time'] = $actualOperatingTime;
         $data['availability_factor'] = $availabilityFactor;
-        $data['date'] = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+        $data['date'] = now()->toDateString();
 
         $time = OperatingTime::create($data);
         $time->load('equipment');

@@ -12,7 +12,7 @@ final class UpdateOperatingTimeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', OperatingTime::class) ?? false;
     }
 
     /**

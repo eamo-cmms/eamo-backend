@@ -13,7 +13,7 @@ final class MarkLastMaintenanceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('markLastMaintenance', \Modules\Masterdata\Equipment\Models\Equipment::class) ?? false;
     }
 
     /**
@@ -25,6 +25,8 @@ final class MarkLastMaintenanceRequest extends FormRequest
     {
         return [
             'datetime' => ['required', 'date'],
+            'note'     => ['nullable', 'string', 'max:1000'],
+            'type'     => ['nullable', 'string', 'max:50'],
         ];
     }
 }
