@@ -21,7 +21,7 @@ class SyncUserPermissionsController extends Controller
         $user->syncPermissions($permissions);
 
         return response()->json([
-            'message' => 'Permissions updated successfully.',
+            'message' => __('permission.updated'),
             'user_id' => $user->id,
             'permissions' => $user->permissions()->pluck('permissions.id'),
         ]);

@@ -22,7 +22,7 @@ class DestroyUserController extends Controller
         $service->execute($user);
 
         return response()->json([
-            'message' => 'User deleted successfully.',
+            'message' => __('user.deleted'),
         ]);
     }
 }

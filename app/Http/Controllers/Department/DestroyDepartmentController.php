@@ -22,7 +22,7 @@ class DestroyDepartmentController extends Controller
         $service->execute($department);
 
         return response()->json([
-            'message' => 'Department deleted successfully.',
+            'message' => __('department.deleted'),
         ]);
     }
 }

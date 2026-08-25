@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class IndexNotificationController extends Controller
 {
@@ -17,9 +16,7 @@ class IndexNotificationController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-        }
+        abort_unless($user, 401);
 
         $notifications = $user->notifications()->paginate(15);
 

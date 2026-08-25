@@ -22,7 +22,7 @@ class DestroyCompanyController extends Controller
         $service->execute($company);
 
         return response()->json([
-            'message' => 'Company deleted successfully.',
+            'message' => __('company.deleted'),
         ]);
     }
 }

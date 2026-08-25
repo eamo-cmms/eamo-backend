@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class ReadNotificationController extends Controller
 {
@@ -17,18 +16,13 @@ class ReadNotificationController extends Controller
     public function __invoke(Request $request, string $id): JsonResponse
     {
         $user = $request->user();
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-        }
+        abort_unless($user, 401);
 
         $notification = $user->notifications()->find($id);
-
-        if (! $notification) {
-            return response()->json(['message' => 'Notification not found'], Response::HTTP_NOT_FOUND);
-        }
+        abort_unless($notification, 404, __('notification.not_found'));
 
         $notification->markAsRead();
 
-        return response()->json(['message' => 'Notification marked as read']);
+        return response()->json(['message' => __('notification.read_success')]);
     }
 }

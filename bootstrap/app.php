@@ -78,4 +78,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 404);
             }
         });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $statusCode = $e->getStatusCode();
+                $customMsg = $e->getMessage();
+                $defaultMessages = ['', 'Unauthorized', 'Forbidden', 'Not Found', 'This action is unauthorized.'];
+
+                if (! $customMsg || in_array($customMsg, $defaultMessages, true)) {
+                    $key = "http_statuses.{$statusCode}";
+                    $translated = __($key);
+                    $customMsg = ($translated !== $key) ? $translated : $customMsg;
+                }
+
+                return response()->json([
+                    'message' => $customMsg ?: __('http_statuses.500'),
+                ], $statusCode);
+            }
+        });
     })->create();
