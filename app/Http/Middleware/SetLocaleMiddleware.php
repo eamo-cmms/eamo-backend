@@ -22,8 +22,8 @@ class SetLocaleMiddleware
             ?? $request->header('Accept-Language')
             ?? config('app.fallback_locale', 'en');
 
-        // FE chỉ gửi dạng 'vi', 'vi-VN', 'en', 'en-US'
-        $locale = (str_starts_with(strtolower(trim($rawLocale)), 'vi') || str_contains(strtolower($rawLocale), 'vi'))
+        // FE gửi dạng 'vi', 'vi-VN', 'zh-CN' (được dịch sang Tiếng Việt trong Vben) hoặc 'en', 'en-US'
+        $locale = (str_starts_with(strtolower(trim($rawLocale)), 'vi') || str_contains(strtolower($rawLocale), 'vi') || str_contains(strtolower($rawLocale), 'zh'))
             ? 'vi'
             : 'en';
 
