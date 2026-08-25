@@ -12,7 +12,7 @@ final class UpdateEquipmentParentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('updateParent', \Modules\Masterdata\Equipment\Models\Equipment::class) ?? false;
     }
 
     /**

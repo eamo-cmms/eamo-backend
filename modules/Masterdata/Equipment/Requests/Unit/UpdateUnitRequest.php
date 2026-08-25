@@ -10,7 +10,7 @@ class UpdateUnitRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Masterdata\Equipment\Models\Unit::class) ?? false;
     }
 
     public function rules(): array

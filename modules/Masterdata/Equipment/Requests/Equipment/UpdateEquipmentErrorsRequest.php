@@ -10,7 +10,7 @@ final class UpdateEquipmentErrorsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('updateErrors', \Modules\Masterdata\Equipment\Models\Equipment::class) ?? false;
     }
 
     /**

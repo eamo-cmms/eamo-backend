@@ -8,6 +8,8 @@ use App\Services\Company\DestroyCompanyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Gate;
+
 class DestroyCompanyController extends Controller
 {
     /**
@@ -15,6 +17,8 @@ class DestroyCompanyController extends Controller
      */
     public function __invoke(Request $request, Company $company, DestroyCompanyService $service): JsonResponse
     {
+        Gate::authorize('delete', $company);
+
         $service->execute($company);
 
         return response()->json([

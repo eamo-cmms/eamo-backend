@@ -19,7 +19,7 @@ final class UpdateEquipmentErrorLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', \Modules\Equipment\ErrorMonitoring\Models\EquipmentErrorLog::class) ?? false;
     }
 
     /**

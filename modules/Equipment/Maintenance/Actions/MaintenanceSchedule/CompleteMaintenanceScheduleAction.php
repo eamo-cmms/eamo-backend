@@ -7,6 +7,7 @@ namespace Modules\Equipment\Maintenance\Actions\MaintenanceSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Modules\Equipment\Maintenance\Models\MaintenanceSchedule;
 
@@ -17,6 +18,7 @@ final class CompleteMaintenanceScheduleAction
     public function asController(Request $request, string $id): JsonResponse
     {
         $schedule = MaintenanceSchedule::findOrFail($id);
+        Gate::authorize('complete', $schedule);
 
         $log = $schedule->maintenanceLogs()->first();
         if ($log) {

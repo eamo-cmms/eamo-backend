@@ -11,7 +11,7 @@ final class ImportEquipmentParameterLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('import', \Modules\Equipment\ParameterLog\Models\EquipmentParameterLog::class) ?? false;
     }
 
     /**

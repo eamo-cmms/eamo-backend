@@ -23,7 +23,7 @@ final class StoreMaintenanceCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', \Modules\Equipment\Maintenance\Models\MaintenanceCategory::class) ?? false;
     }
 
     /**

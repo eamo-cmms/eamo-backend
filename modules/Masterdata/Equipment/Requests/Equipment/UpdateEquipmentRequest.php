@@ -11,7 +11,7 @@ class UpdateEquipmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('update', Equipment::class) ?? false;
     }
 
     public function rules(): array

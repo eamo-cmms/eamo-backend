@@ -45,72 +45,51 @@ Route::group([], function (): void {
         Route::get('/', IndexEquipmentAction::class)->name('index');
         Route::post('/decode-qr', DecodeQrAndGetEquipmentAction::class)->name('decode-qr');
         Route::get('/{id}', ShowEquipmentAction::class)->name('show');
-
-        Route::middleware('engineer')->group(function (): void {
-            Route::patch('/{id}/last-maintenance', MarkLastMaintenanceAction::class)->name('mark-last-maintenance');
-        });
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentAction::class)->name('update');
-            Route::patch('/{id}/parent', UpdateEquipmentParentAction::class)->name('update-parent');
-            Route::post('/{id}/errors', UpdateEquipmentErrorsAction::class)->name('update-errors');
-            Route::delete('/{id}', DeleteEquipmentAction::class)->name('destroy');
-        });
+        Route::patch('/{id}/last-maintenance', MarkLastMaintenanceAction::class)->name('mark-last-maintenance');
+        Route::post('/', StoreEquipmentAction::class)->name('store');
+        Route::put('/{id}', UpdateEquipmentAction::class)->name('update');
+        Route::patch('/{id}/parent', UpdateEquipmentParentAction::class)->name('update-parent');
+        Route::post('/{id}/errors', UpdateEquipmentErrorsAction::class)->name('update-errors');
+        Route::delete('/{id}', DeleteEquipmentAction::class)->name('destroy');
     });
 
     Route::prefix('v1/equipment-parameters')->name('equipment-parameters.')->group(function (): void {
         Route::get('/', IndexEquipmentParameterAction::class)->name('index');
         Route::get('/{id}', ShowEquipmentParameterAction::class)->name('show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentParameterAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentParameterAction::class)->name('update');
-            Route::delete('/{id}', DeleteEquipmentParameterAction::class)->name('destroy');
-        });
+        Route::post('/', StoreEquipmentParameterAction::class)->name('store');
+        Route::put('/{id}', UpdateEquipmentParameterAction::class)->name('update');
+        Route::delete('/{id}', DeleteEquipmentParameterAction::class)->name('destroy');
     });
 
     Route::prefix('v1/equipment-errors')->name('equipment-errors.')->group(function (): void {
         Route::get('/', IndexEquipmentErrorAction::class)->name('index');
         Route::get('/{id}', ShowEquipmentErrorAction::class)->name('show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentErrorAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentErrorAction::class)->name('update');
-            Route::delete('/{id}', DeleteEquipmentErrorAction::class)->name('destroy');
-        });
+        Route::post('/', StoreEquipmentErrorAction::class)->name('store');
+        Route::put('/{id}', UpdateEquipmentErrorAction::class)->name('update');
+        Route::delete('/{id}', DeleteEquipmentErrorAction::class)->name('destroy');
     });
 
     Route::prefix('v1/equipment-categories')->name('equipment-categories.')->group(function (): void {
         Route::get('/', IndexEquipmentCategoryAction::class)->name('index');
         Route::get('/{id}', ShowEquipmentCategoryAction::class)->name('show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentCategoryAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentCategoryAction::class)->name('update');
-            Route::delete('/{id}', DeleteEquipmentCategoryAction::class)->name('destroy');
-        });
+        Route::post('/', StoreEquipmentCategoryAction::class)->name('store');
+        Route::put('/{id}', UpdateEquipmentCategoryAction::class)->name('update');
+        Route::delete('/{id}', DeleteEquipmentCategoryAction::class)->name('destroy');
     });
 
     Route::prefix('v1/units')->name('units.')->group(function (): void {
         Route::get('/', IndexUnitAction::class)->name('index');
         Route::get('/{id}', ShowUnitAction::class)->name('show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreUnitAction::class)->name('store');
-            Route::put('/{id}', UpdateUnitAction::class)->name('update');
-            Route::delete('/{id}', DeleteUnitAction::class)->name('destroy');
-        });
+        Route::post('/', StoreUnitAction::class)->name('store');
+        Route::put('/{id}', UpdateUnitAction::class)->name('update');
+        Route::delete('/{id}', DeleteUnitAction::class)->name('destroy');
     });
 
     Route::prefix('v1/equipment-states')->name('equipment-states.')->group(function (): void {
         Route::get('/', IndexEquipmentStateAction::class)->name('index');
         Route::get('/{id}', ShowEquipmentStateAction::class)->name('show');
-
-        Route::middleware('manager')->group(function (): void {
-            Route::post('/', StoreEquipmentStateAction::class)->name('store');
-            Route::put('/{id}', UpdateEquipmentStateAction::class)->name('update');
-            Route::delete('/{id}', DeleteEquipmentStateAction::class)->name('destroy');
-        });
+        Route::post('/', StoreEquipmentStateAction::class)->name('store');
+        Route::put('/{id}', UpdateEquipmentStateAction::class)->name('update');
+        Route::delete('/{id}', DeleteEquipmentStateAction::class)->name('destroy');
     });
 });

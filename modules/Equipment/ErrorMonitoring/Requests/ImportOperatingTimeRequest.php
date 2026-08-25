@@ -10,7 +10,7 @@ final class ImportOperatingTimeRequest extends StoreOperatingTimeRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('import', \Modules\Equipment\ErrorMonitoring\Models\OperatingTime::class) ?? false;
     }
 
     /**

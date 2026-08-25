@@ -10,7 +10,7 @@ class StoreEquipmentErrorRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', \Modules\Masterdata\Equipment\Models\EquipmentError::class) ?? false;
     }
 
     public function rules(): array
