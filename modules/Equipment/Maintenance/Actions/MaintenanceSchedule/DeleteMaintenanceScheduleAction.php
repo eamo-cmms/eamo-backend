@@ -21,7 +21,7 @@ final class DeleteMaintenanceScheduleAction
         $schedule->delete();
 
         return response()->json([
-            'message' => 'Maintenance schedule deleted successfully.',
+            'message' => __('maintenance.schedule_deleted'),
         ]);
     }
 }

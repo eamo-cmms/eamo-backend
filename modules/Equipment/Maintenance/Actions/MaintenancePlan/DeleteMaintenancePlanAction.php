@@ -20,6 +20,6 @@ final class DeleteMaintenancePlanAction
 
         $plan->delete();
 
-        return response()->json(['message' => 'Maintenance plan deleted successfully.']);
+        return response()->json(['message' => __('maintenance.plan_deleted')]);
     }
 }

@@ -24,9 +24,9 @@ final class ImportOperatingTimeAction
         $file = $request->file('file');
         if (! $file) {
             return response()->json([
-                'message' => 'No file uploaded.',
+                'message' => __('error_monitoring.no_file_uploaded'),
                 'errors' => [
-                    'file' => ['No file uploaded.'],
+                    'file' => [__('error_monitoring.no_file_uploaded')],
                 ],
             ], 422);
         }
@@ -37,7 +37,7 @@ final class ImportOperatingTimeAction
             $rows = $worksheet->toArray();
         } catch (\Throwable $e) {
             return response()->json([
-                'message' => 'Unable to read the uploaded file. Please ensure it is a valid Excel or CSV file.',
+                'message' => __('error_monitoring.unable_to_read_file'),
                 'errors' => [
                     'file' => [$e->getMessage()],
                 ],
@@ -47,9 +47,9 @@ final class ImportOperatingTimeAction
         $headerRow = array_shift($rows);
         if (! $headerRow) {
             return response()->json([
-                'message' => 'The uploaded file is empty.',
+                'message' => __('error_monitoring.file_is_empty'),
                 'errors' => [
-                    'file' => ['The uploaded file is empty.'],
+                    'file' => [__('error_monitoring.file_is_empty')],
                 ],
             ], 422);
         }
@@ -94,9 +94,9 @@ final class ImportOperatingTimeAction
             $missingText = implode(', ', $missingRequired);
 
             return response()->json([
-                'message' => "The file is missing required headers: {$missingText}",
+                'message' => __('error_monitoring.missing_required_headers', ['headers' => $missingText]),
                 'errors' => [
-                    'file' => ["The file is missing required headers: {$missingText}"],
+                    'file' => [__('error_monitoring.missing_required_headers', ['headers' => $missingText])],
                 ],
             ], 422);
         }
@@ -224,7 +224,7 @@ final class ImportOperatingTimeAction
 
         if (! empty($errors)) {
             return response()->json([
-                'message' => 'The given data was invalid.',
+                'message' => __('http_statuses.422'),
                 'errors' => [
                     'file' => $errors,
                 ],
@@ -233,9 +233,9 @@ final class ImportOperatingTimeAction
 
         if (empty($recordsToInsert)) {
             return response()->json([
-                'message' => 'No records found to import.',
+                'message' => __('error_monitoring.no_records_to_import'),
                 'errors' => [
-                    'file' => ['No records found to import.'],
+                    'file' => [__('error_monitoring.no_records_to_import')],
                 ],
             ], 422);
         }
@@ -248,7 +248,7 @@ final class ImportOperatingTimeAction
 
         return response()->json([
             'status' => 'success',
-            'message' => count($recordsToInsert).' operating time records imported successfully.',
+            'message' => __('error_monitoring.records_imported_successfully', ['count' => count($recordsToInsert)]),
         ], 201);
     }
 

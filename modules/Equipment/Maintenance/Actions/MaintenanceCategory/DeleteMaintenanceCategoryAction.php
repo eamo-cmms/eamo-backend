@@ -20,6 +20,6 @@ final class DeleteMaintenanceCategoryAction
 
         $category->delete();
 
-        return response()->json(['message' => 'Maintenance category deleted successfully.']);
+        return response()->json(['message' => __('maintenance.category_deleted')]);
     }
 }

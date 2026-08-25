@@ -21,7 +21,7 @@ final class ImportEquipmentParameterLogAction
 
         return response()->json([
             'status' => 'success',
-            'message' => "{$importedCount} equipment parameter log records imported successfully.",
+            'message' => __('parameter_log.records_imported_successfully', ['count' => $importedCount]),
         ], 201);
     }
 }

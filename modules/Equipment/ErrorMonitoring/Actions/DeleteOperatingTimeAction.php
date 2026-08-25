@@ -22,7 +22,7 @@ final class DeleteOperatingTimeAction
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Operating time deleted successfully',
+            'message' => __('error_monitoring.operating_time_deleted'),
         ]);
     }
 }

@@ -86,7 +86,7 @@ final class JudgeMaintenancePlanService
         });
 
         return [
-            'message' => 'Maintenance plan schedules judged successfully.',
+            'message' => __('maintenance.plan_judged'),
             'logs' => $logs,
         ];
     }

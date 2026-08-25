@@ -35,7 +35,7 @@ final class CompleteMaintenanceScheduleAction
         }
 
         return response()->json([
-            'message' => 'Maintenance schedule marked completed successfully.',
+            'message' => __('maintenance.schedule_completed'),
             'schedule_id' => $schedule->id,
             'is_completed' => true,
         ]);

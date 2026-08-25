@@ -20,6 +20,6 @@ final class DeleteMaintenanceItemAction
 
         $item->delete();
 
-        return response()->json(['message' => 'Maintenance item deleted successfully.']);
+        return response()->json(['message' => __('maintenance.item_deleted')]);
     }
 }

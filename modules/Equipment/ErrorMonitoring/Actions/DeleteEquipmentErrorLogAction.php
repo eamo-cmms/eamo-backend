@@ -22,7 +22,7 @@ final class DeleteEquipmentErrorLogAction
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Equipment error log deleted successfully',
+            'message' => __('error_monitoring.error_log_deleted'),
         ]);
     }
 }
