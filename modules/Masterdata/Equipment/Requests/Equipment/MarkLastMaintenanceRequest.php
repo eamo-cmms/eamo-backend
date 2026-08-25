@@ -25,6 +25,8 @@ final class MarkLastMaintenanceRequest extends FormRequest
     {
         return [
             'datetime' => ['required', 'date'],
+            'note'     => ['nullable', 'string', 'max:1000'],
+            'type'     => ['nullable', 'string', 'max:50'],
         ];
     }
 }

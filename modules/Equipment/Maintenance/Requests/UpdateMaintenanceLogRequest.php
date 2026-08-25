@@ -19,8 +19,8 @@ final class UpdateMaintenanceLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'result' => ['required', 'string', 'in:Completed,Partial,Failed'],
             'note' => ['nullable', 'string'],
+            'type' => ['nullable', 'string'],
         ];
     }
 }

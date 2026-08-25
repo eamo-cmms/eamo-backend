@@ -89,6 +89,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MaintenanceCategorySeeder::class);
         $this->call(OperatingTimeSeeder::class);
         $this->call(EquipmentParameterLogSeeder::class);
+        $this->call(MaintenanceLogSeeder::class);
 
         // 5. Create the default public OAuth client for Eamo Frontend if it does not exist
         Client::updateOrCreate(

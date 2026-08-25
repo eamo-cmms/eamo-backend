@@ -12,7 +12,9 @@ use Modules\Equipment\Maintenance\Actions\MaintenanceItem\IndexMaintenanceItemAc
 use Modules\Equipment\Maintenance\Actions\MaintenanceItem\StoreMaintenanceItemAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceItem\UpdateMaintenanceItemAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceLog\DeleteMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\GetMaintenanceStatsAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceLog\IndexMaintenanceLogAction;
+use Modules\Equipment\Maintenance\Actions\MaintenanceLog\ShowMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceLog\StoreMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceLog\UpdateMaintenanceLogAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\DeleteMaintenancePlanAction;
@@ -43,6 +45,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
 
     // Maintenance Logs
     Route::get('maintenance-logs', IndexMaintenanceLogAction::class);
+    Route::get('maintenance-logs/stats', GetMaintenanceStatsAction::class);
+    Route::get('maintenance-logs/{id}', ShowMaintenanceLogAction::class);
     Route::post('maintenance-logs', StoreMaintenanceLogAction::class);
     Route::put('maintenance-logs/{id}', UpdateMaintenanceLogAction::class);
     Route::delete('maintenance-logs/{id}', DeleteMaintenanceLogAction::class);
