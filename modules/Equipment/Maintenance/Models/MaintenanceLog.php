@@ -48,6 +48,7 @@ final class MaintenanceLog extends Model
         'user_id',
         'log_date',
         'note',
+        'result',
         'type',
     ];
 

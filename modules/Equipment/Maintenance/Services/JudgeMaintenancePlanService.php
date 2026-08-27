@@ -55,6 +55,7 @@ final class JudgeMaintenancePlanService
                         'equipment_id' => $schedule->equipment_id,
                         'user_id' => $userId,
                         'log_date' => $dateString,
+                        'result' => $item['result'],
                     ]);
                 }
 
@@ -66,6 +67,7 @@ final class JudgeMaintenancePlanService
                     'equipment_id' => $schedule->equipment_id,
                     'user_id' => $userId,
                     'log_date' => $logDate,
+                    'result' => $item['result'],
                     'note' => $item['note'] ?? null,
                 ]);
 
