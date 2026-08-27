@@ -22,6 +22,7 @@ use Modules\Equipment\Maintenance\Actions\MaintenancePlan\IndexMaintenancePlanAc
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\JudgeMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\ShowMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\StoreMaintenancePlanAction;
+use Modules\Equipment\Maintenance\Actions\GetWorkspaceStatisticsAction;
 use Modules\Equipment\Maintenance\Actions\MaintenancePlan\UpdateMaintenancePlanAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\CompleteMaintenanceScheduleAction;
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\DeleteMaintenanceScheduleAction;
@@ -29,6 +30,9 @@ use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\IndexMaintenanceSc
 use Modules\Equipment\Maintenance\Actions\MaintenanceSchedule\UpdateMaintenanceScheduleAction;
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function (): void {
+    // Workspace Statistics
+    Route::get('workspace/statistics', GetWorkspaceStatisticsAction::class);
+
     // Maintenance Plans
     Route::get('maintenance-plans', IndexMaintenancePlanAction::class);
     Route::get('maintenance-plans/{id}', ShowMaintenancePlanAction::class);

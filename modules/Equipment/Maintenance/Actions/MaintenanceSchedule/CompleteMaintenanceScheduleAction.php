@@ -24,12 +24,14 @@ final class CompleteMaintenanceScheduleAction
         if ($log) {
             $log->update([
                 'log_date' => Carbon::today(),
+                'result' => 'Completed',
                 'note' => $log->note ?: 'Quick completed from dashboard',
             ]);
         } else {
             $log = $schedule->maintenanceLogs()->create([
                 'equipment_id' => $schedule->equipment_id,
                 'log_date' => Carbon::today(),
+                'result' => 'Completed',
                 'note' => 'Quick completed from dashboard',
             ]);
         }

@@ -7,5 +7,8 @@ return [
     'session_deleted' => 'Checklist session deleted successfully.',
     'schedules_deleted' => 'Checklist schedules deleted successfully.',
     'session_judged' => 'Checklist session judged successfully.',
+    'session_created' => 'Checklist session created successfully.',
+    'session_updated' => 'Checklist session updated successfully.',
+    'details_updated' => 'Checklist details updated successfully.',
     'exceeds_max_schedules' => 'The total number of expected checklist schedules (:total) exceeds the maximum limit of :max.',
 ];
