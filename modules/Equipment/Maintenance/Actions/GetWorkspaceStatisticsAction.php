@@ -20,15 +20,22 @@ final class GetWorkspaceStatisticsAction
     public function asController(Request $request): JsonResponse
     {
         $today = Carbon::today()->toDateString();
+        $startDate = $request->filled('start_date')
+            ? Carbon::parse((string) $request->input('start_date'))->toDateString()
+            : Carbon::today()->subMonth()->toDateString();
+        $endDate = $request->filled('end_date')
+            ? Carbon::parse((string) $request->input('end_date'))->toDateString()
+            : $today;
 
-        // 1. Maintenance Statistics
-        $totalMaintenance = MaintenanceSchedule::count();
-        $completedMaintenance = MaintenanceSchedule::whereHas('maintenanceLogs', function ($q): void {
+        // 1. Maintenance Statistics (Filtered from 1 month ago to today)
+        $maintBaseQuery = MaintenanceSchedule::whereBetween('date', [$startDate, $endDate]);
+        $totalMaintenance = (clone $maintBaseQuery)->count();
+        $completedMaintenance = (clone $maintBaseQuery)->whereHas('maintenanceLogs', function ($q): void {
             $q->where('result', 'Completed');
         })->count();
 
         $pendingMaintenance = $totalMaintenance - $completedMaintenance;
-        $overdueMaintenance = MaintenanceSchedule::where('date', '<', $today)
+        $overdueMaintenance = (clone $maintBaseQuery)->where('date', '<', $today)
             ->whereDoesntHave('maintenanceLogs', function ($q): void {
                 $q->where('result', 'Completed');
             })->count();
@@ -37,19 +44,20 @@ final class GetWorkspaceStatisticsAction
             ? round(($completedMaintenance / $totalMaintenance) * 100, 1)
             : 0;
 
-        // 2. Checklist Statistics
-        $totalChecklist = ChecklistSchedule::count();
-        $completedChecklist = ChecklistSchedule::whereHas('logs', function ($q): void {
+        // 2. Checklist Statistics (Filtered from 1 month ago to today)
+        $chkBaseQuery = ChecklistSchedule::whereBetween('date', [$startDate, $endDate]);
+        $totalChecklist = (clone $chkBaseQuery)->count();
+        $completedChecklist = (clone $chkBaseQuery)->whereHas('logs', function ($q): void {
             $q->where('status', 'completed')->where('result', 'pass');
         })->count();
-        $failedChecklist = ChecklistSchedule::whereHas('logs', function ($q): void {
+        $failedChecklist = (clone $chkBaseQuery)->whereHas('logs', function ($q): void {
             $q->where('status', 'completed')->where('result', 'fail');
         })->count();
 
-        $pendingChecklist = ChecklistSchedule::whereDoesntHave('logs', function ($q): void {
+        $pendingChecklist = (clone $chkBaseQuery)->whereDoesntHave('logs', function ($q): void {
             $q->where('status', 'completed');
         })->count();
-        $overdueChecklist = ChecklistSchedule::where('date', '<', $today)
+        $overdueChecklist = (clone $chkBaseQuery)->where('date', '<', $today)
             ->whereDoesntHave('logs', function ($q): void {
                 $q->where('status', 'completed');
             })->count();
@@ -58,12 +66,16 @@ final class GetWorkspaceStatisticsAction
             ? round(($completedChecklist / $totalChecklist) * 100, 1)
             : 0;
 
-        // 3. Top Performer Users
-        // Maintenance completions by user from eamo_maintenance_logs (direct user_id)
+        // 3. Top Performer Users (Filtered from 1 month ago to today)
+        $startDateTime = Carbon::parse($startDate)->startOfDay()->toDateTimeString();
+        $endDateTime = Carbon::parse($endDate)->endOfDay()->toDateTimeString();
+
+        // Maintenance completions by user from eamo_maintenance_logs
         $maintenanceScores = DB::table('eamo_maintenance_logs')
             ->whereNotNull('user_id')
             ->where('result', 'Completed')
             ->whereNull('deleted_at')
+            ->whereBetween('created_at', [$startDateTime, $endDateTime])
             ->groupBy('user_id')
             ->select('user_id', DB::raw('COUNT(id) as count'))
             ->pluck('count', 'user_id')
@@ -75,6 +87,7 @@ final class GetWorkspaceStatisticsAction
             ->where('eamo_checklist_logs.status', 'completed')
             ->whereNull('eamo_checklist_logs.deleted_at')
             ->whereNull('eamo_checklist_log_users.deleted_at')
+            ->whereBetween('eamo_checklist_logs.created_at', [$startDateTime, $endDateTime])
             ->groupBy('eamo_checklist_log_users.user_id')
             ->select('eamo_checklist_log_users.user_id', DB::raw('COUNT(DISTINCT eamo_checklist_logs.id) as count'))
             ->pluck('count', 'user_id')
@@ -83,7 +96,9 @@ final class GetWorkspaceStatisticsAction
         // All user IDs with any completion
         $allUserIds = array_unique(array_merge(array_keys($maintenanceScores), array_keys($checklistScores)));
 
-        $users = User::whereIn('id', $allUserIds)->get()->keyBy('id');
+        $users = ! empty($allUserIds)
+            ? User::findMany($allUserIds)->keyBy('id')
+            : collect();
 
         $leaderboard = [];
         foreach ($allUserIds as $userId) {
