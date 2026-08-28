@@ -9,7 +9,7 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.4
+- php - 8.5
 - inertiajs/inertia-laravel (INERTIA_LARAVEL) - v2
 - laravel/framework (LARAVEL) - v13
 - laravel/passport (PASSPORT) - v13
@@ -150,13 +150,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 ## APIs & Eloquent Resources
 
 - For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## Cascade Soft Deletes
-
-- Use `SoftDeletes` and `Dyrynda\Database\Support\CascadeSoftDeletes` traits in models to handle related records deletion automatically.
-- Declare `protected array $cascadeDeletes = [...]` in models to list the relationships that should be soft-deleted.
-- Call standard `$model->delete()` in Actions/Services to trigger cascading automatically.
-- For non-soft-deleted models (like `Unit`), use custom `deleting` hooks to nullify references on related records rather than manual loops.
 
 ## URL Generation
 

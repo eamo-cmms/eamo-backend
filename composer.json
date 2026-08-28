@@ -41,7 +41,10 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\Masterdata\\": "modules/Masterdata/",
             "Modules\\Equipment\\": "modules/Equipment/"
-        }
+        },
+        "exclude-from-classmap": [
+            "vendor/laviodev/eam-mes-package/src/Modules/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -32,6 +32,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Module Discovery
+    |--------------------------------------------------------------------------
+    |
+    | Controls which modules are automatically discovered and booted.
+    | Set `discovery` to false to disable auto-discovery entirely.
+    | Add module identifiers (e.g. 'equipment.checklist') to `disabled`
+    | to selectively turn off specific modules.
+    |
+    */
+
+    'modules' => [
+        'discovery' => env('EAM_MODULE_DISCOVERY', true),
+        'disabled'  => [
+            // 'equipment.error-monitoring',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Auto Migrate
     |--------------------------------------------------------------------------
     |

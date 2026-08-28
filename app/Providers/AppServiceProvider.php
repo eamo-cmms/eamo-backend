@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use Spatie\LaravelPackageTools\Modules\ModuleRegistry;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +39,18 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureAuthorization();
         $this->configurePassport();
+        $this->discoverModules();
+    }
+
+    /**
+     * Register host-app modules with the package's ModuleRegistry so their
+     * routes are auto-loaded alongside the package's own modules.
+     */
+    private function discoverModules(): void
+    {
+        /** @var ModuleRegistry $registry */
+        $registry = $this->app->make(ModuleRegistry::class);
+        $registry->discover(base_path('modules'));
     }
 
     /**
