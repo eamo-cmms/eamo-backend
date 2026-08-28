@@ -86,6 +86,7 @@ class DatabaseSeeder extends Seeder
 
         // 4. Module Seeders
         $this->call(EquipmentSeeder::class);
+        $this->call(EquipmentErrorSeeder::class);
         $this->call(MaintenanceCategorySeeder::class);
         $this->call(OperatingTimeSeeder::class);
         $this->call(EquipmentParameterLogSeeder::class);

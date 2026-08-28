@@ -26,8 +26,20 @@ final class IndexEquipmentParameterLogAction
             $query->where('equipment_id', $request->query('equipment_id'));
         }
 
-        if ($request->filled('equipment_parameter_id')) {
-            $query->where('equipment_parameter_id', $request->query('equipment_parameter_id'));
+        if ($request->filled('equipment_parameter_ids')) {
+            $paramIds = is_array($request->query('equipment_parameter_ids'))
+                ? $request->query('equipment_parameter_ids')
+                : explode(',', (string) $request->query('equipment_parameter_ids'));
+            $query->whereIn('equipment_parameter_id', array_filter($paramIds));
+        } elseif ($request->filled('equipment_parameter_id')) {
+            $paramId = $request->query('equipment_parameter_id');
+            if (is_array($paramId)) {
+                $query->whereIn('equipment_parameter_id', array_filter($paramId));
+            } elseif (str_contains((string) $paramId, ',')) {
+                $query->whereIn('equipment_parameter_id', array_filter(explode(',', (string) $paramId)));
+            } else {
+                $query->where('equipment_parameter_id', $paramId);
+            }
         }
 
         if ($request->filled('start_date')) {
