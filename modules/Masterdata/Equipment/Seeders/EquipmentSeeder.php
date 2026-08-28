@@ -76,8 +76,8 @@ class EquipmentSeeder extends Seeder
                     'is_active' => true,
                 ]);
 
-                // Seed initial equipment state
-                $states = ['Running', 'Idle', 'Under Maintenance', 'Stopped', 'Fault'];
+                // Seed initial equipment state (default Running / Idle)
+                $states = ['Running', 'Running', 'Running', 'Running', 'Idle'];
                 EquipmentState::create([
                     'id' => (string) Str::uuid(),
                     'equipment_id' => $equipment->id,

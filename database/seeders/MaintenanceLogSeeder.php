@@ -111,6 +111,7 @@ class MaintenanceLogSeeder extends Seeder
                     'log_date'                => $logDate,
                     'type'                    => $type,
                     'note'                    => $note,
+                    'result'                  => 'Completed successfully',
                     'created_at'              => $now->copy()->subDays($daysAgo)->setTime(rand(8, 17), rand(0, 59)),
                     'updated_at'              => $now->copy()->subDays($daysAgo)->setTime(rand(8, 17), rand(0, 59)),
                 ]);
