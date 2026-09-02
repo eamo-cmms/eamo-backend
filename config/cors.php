@@ -21,11 +21,15 @@ return [
 
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:5173'),
+        'https://eamo.io.vn',
+        'https://www.eamo.io.vn',
         'http://localhost:5173',
         'http://127.0.0.1:5173',
     ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '#^https?://.*\.?eamo\.io\.vn$#',
+    ],
 
     'allowed_headers' => ['*'],
 

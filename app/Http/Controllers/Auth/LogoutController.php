@@ -20,6 +20,6 @@ class LogoutController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('http://localhost:5173');
+        return redirect(rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/'));
     }
 }

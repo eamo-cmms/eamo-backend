@@ -32,7 +32,7 @@ Open the `.env` file and configure the PostgreSQL connection parameters:
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=eam
+DB_DATABASE=eamo
 DB_USERNAME=postgres
 DB_PASSWORD=your_postgres_password
 ```
@@ -81,11 +81,11 @@ The server will run on: http://localhost:8000
 
 ## 3. Seeded Accounts
 
-The seeding process (`php artisan migrate:fresh --seed`) creates 4 standard role user accounts with password `12345678`:
-- **Admin**: `admin@gmail.com` (Super-Admin full system bypass)
-- **Manager**: `manager@gmail.com` (Organization & Technical operations governance)
-- **Engineer**: `engineer@gmail.com` (Technical, Checklist, Maintenance & Logs execution)
-- **Guest**: `guest@gmail.com` (View-only audit access)
+The seeding process (`php artisan migrate:fresh --seed`) creates 4 standard role user accounts. Passwords for non-guest roles are not kept in code and must be configured in `.env` (e.g. `SEED_<ROLE>_PASSWORD=<role>eamo12345`), while Guest defaults to `12345678`:
+- **Admin**: `admin@gmail.com` (configured via `SEED_ADMIN_PASSWORD` in `.env`)
+- **Manager**: `manager@gmail.com` (configured via `SEED_MANAGER_PASSWORD` in `.env`)
+- **Engineer**: `engineer@gmail.com` (configured via `SEED_ENGINEER_PASSWORD` in `.env`)
+- **Guest**: `guest@gmail.com` (password: `12345678`)
 
 ---
 

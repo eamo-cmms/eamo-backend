@@ -21,7 +21,7 @@ class GuestUserSeeder extends Seeder
             ['email' => 'guest@gmail.com'],
             [
                 'name' => 'Guest User',
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make(config('auth.seed_passwords.guest', '12345678')),
                 'role' => UserRole::Guest,
                 'department_id' => $department?->id,
             ]

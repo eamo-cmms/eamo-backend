@@ -77,9 +77,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/users/{user}', DestroyUserController::class);
 });
 
-Route::middleware(['auth:api', 'admin'])->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::get('/permissions', IndexPermissionController::class);
     Route::get('/users/{user}/permissions', GetUserPermissionsController::class);
+});
+
+Route::middleware(['auth:api', 'admin'])->group(function () {
     Route::put('/users/{user}/permissions', SyncUserPermissionsController::class);
 });
 

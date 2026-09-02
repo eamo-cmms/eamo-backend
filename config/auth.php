@@ -22,6 +22,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Seed User Passwords
+    |--------------------------------------------------------------------------
+    |
+    | Passwords used when seeding initial user accounts.
+    | Non-guest passwords must be configured in environment variables (.env).
+    |
+    */
+
+    'seed_passwords' => [
+        'admin' => env('SEED_ADMIN_PASSWORD', env('ADMIN_PASSWORD')),
+        'manager' => env('SEED_MANAGER_PASSWORD', env('MANAGER_PASSWORD')),
+        'engineer' => env('SEED_ENGINEER_PASSWORD', env('ENGINEER_PASSWORD')),
+        'user' => env('SEED_USER_PASSWORD', env('USER_PASSWORD')),
+        'guest' => env('SEED_GUEST_PASSWORD', env('GUEST_PASSWORD', '12345678')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------
     |

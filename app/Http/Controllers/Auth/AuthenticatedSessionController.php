@@ -18,18 +18,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
+        $intended = $request->session()->get('url.intended');
+
         if (Auth::check()) {
+            if ($intended) {
+                return redirect()->intended();
+            }
+
+            $frontendUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/');
             $targetInterface = $request->query('target_interface') ?? $request->input('target_interface');
 
-            $intended = $request->session()->get('url.intended');
-            if ($intended && (str_contains($intended, 'state=%2Fportal') || str_contains($intended, 'state=/portal'))) {
-                $targetInterface = 'OI';
-            }
-
             if ($targetInterface === 'OI') {
-                return redirect('http://localhost:5173/portal');
+                return redirect($frontendUrl . '/portal');
             }
-            return redirect('http://localhost:5173');
+            return redirect($frontendUrl);
         }
 
         // Detect which interface the user came from based on the intended URL state
