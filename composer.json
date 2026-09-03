@@ -7,7 +7,7 @@
         "laravel",
         "framework"
     ],
-    "license": "Proprietary",
+    "license": "MIT",
     "require": {
         "php": "^8.3",
         "dyrynda/laravel-cascade-soft-deletes": "^4.6",
