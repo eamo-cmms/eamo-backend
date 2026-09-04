@@ -25,7 +25,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->intended();
             }
 
-            $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
+            $frontendUrl = rtrim((string) (config('app.frontend_url') ?: env('FRONTEND_URL')), '/');
             $targetInterface = $request->query('target_interface') ?? $request->input('target_interface');
 
             if ($targetInterface === 'OI') {
@@ -41,7 +41,7 @@ class AuthenticatedSessionController extends Controller
             $defaultInterface = 'OI';
         }
 
-        $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
+        $frontendUrl = rtrim((string) (config('app.frontend_url') ?: env('FRONTEND_URL')), '/');
 
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
@@ -60,7 +60,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
+        $frontendUrl = rtrim((string) (config('app.frontend_url') ?: env('FRONTEND_URL')), '/');
         $targetInterface = $request->input('target_interface', 'UI');
         $targetPath = ($targetInterface === 'OI') ? '/portal' : '/dashboard/workspace';
 
@@ -94,6 +94,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        $frontendUrl = config('app.frontend_url') ?: env('FRONTEND_URL', '/');
+
+        return redirect($frontendUrl);
     }
 }

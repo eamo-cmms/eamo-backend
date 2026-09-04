@@ -20,6 +20,8 @@ class LogoutController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect(rtrim((string) env('FRONTEND_URL'), '/'));
+        $frontendUrl = config('app.frontend_url') ?: env('FRONTEND_URL', '/');
+
+        return redirect(rtrim((string) $frontendUrl, '/') ?: '/');
     }
 }

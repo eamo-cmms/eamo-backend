@@ -1,6 +1,9 @@
 *.log
 .DS_Store
 .env
+.env.*
+.env*.local
+*.env
 .env.backup
 .env.production
 .env.localhost
@@ -20,6 +23,9 @@
 /public/hot
 /public/storage
 /storage/*.key
+storage/*.key
+oauth-*.key
+*.key
 /storage/pail
 /vendor
 _ide_helper.php
