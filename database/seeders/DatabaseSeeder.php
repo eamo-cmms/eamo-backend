@@ -91,7 +91,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MaintenanceLogSeeder::class);
 
         // 5. Create the default public OAuth client for Eamo Frontend if it does not exist
-        $frontendUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/');
+        $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
         $redirectUris = array_values(array_unique([
             $frontendUrl . '/auth/callback',
             'https://eamo.io.vn/auth/callback',

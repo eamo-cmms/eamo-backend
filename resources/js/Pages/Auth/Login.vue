@@ -28,6 +28,10 @@ const props = defineProps({
         type: String,
         default: 'UI',
     },
+    frontendUrl: {
+        type: String,
+        default: '',
+    },
 });
 
 const form = useForm({
@@ -38,8 +42,10 @@ const form = useForm({
 
 const selectedTab = ref(props.defaultInterface === 'OI' ? 'OI' : 'UI');
 
-const webUrl = 'http://localhost:5173/#/dashboard/workspace';
-const mobileUrl = 'http://localhost:5173/#/portal';
+const baseFrontendUrl = (props.frontendUrl || '').replace(/\/+$/, '');
+
+const webUrl = `${baseFrontendUrl}/#/dashboard/workspace`;
+const mobileUrl = `${baseFrontendUrl}/#/portal`;
 
 function handleSelectTab(tab) {
     selectedTab.value = tab;

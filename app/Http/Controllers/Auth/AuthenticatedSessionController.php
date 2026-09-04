@@ -25,13 +25,13 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->intended();
             }
 
-            $frontendUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/');
+            $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
             $targetInterface = $request->query('target_interface') ?? $request->input('target_interface');
 
             if ($targetInterface === 'OI') {
-                return redirect($frontendUrl . '/portal');
+                return redirect($frontendUrl . '/#/portal');
             }
-            return redirect($frontendUrl);
+            return redirect($frontendUrl . '/#/dashboard/workspace');
         }
 
         // Detect which interface the user came from based on the intended URL state
@@ -41,10 +41,13 @@ class AuthenticatedSessionController extends Controller
             $defaultInterface = 'OI';
         }
 
+        $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
             'defaultInterface' => $defaultInterface,
+            'frontendUrl' => $frontendUrl,
         ]);
     }
 
@@ -57,7 +60,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
         $targetInterface = $request->input('target_interface', 'UI');
         $targetPath = ($targetInterface === 'OI') ? '/portal' : '/dashboard/workspace';
 

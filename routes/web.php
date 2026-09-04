@@ -3,10 +3,10 @@
 use App\Http\Controllers\Auth\LogoutController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', env('FRONTEND_URL', 'http://localhost:5173'));
+Route::redirect('/', env('FRONTEND_URL'));
 
 Route::get('/dashboard', function (Illuminate\Http\Request $request) {
-    $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/');
+    $frontendUrl = rtrim((string) env('FRONTEND_URL'), '/');
     $targetInterface = $request->query('target_interface') ?? $request->input('target_interface');
 
     $intended = session()->get('url.intended');
@@ -15,10 +15,10 @@ Route::get('/dashboard', function (Illuminate\Http\Request $request) {
     }
 
     if ($targetInterface === 'OI') {
-        return redirect($frontendUrl . '/portal');
+        return redirect($frontendUrl . '/#/portal');
     }
 
-    return redirect($frontendUrl);
+    return redirect($frontendUrl . '/#/dashboard/workspace');
 })->name('dashboard');
 
 Route::get('/logout', LogoutController::class)->name('logout');
