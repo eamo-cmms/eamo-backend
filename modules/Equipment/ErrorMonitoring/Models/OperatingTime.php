@@ -80,4 +80,24 @@ final class OperatingTime extends Model
     {
         return $this->belongsTo(\Modules\Masterdata\Equipment\Models\Equipment::class, 'equipment_id');
     }
+
+    public function calculateMetrics(): self
+    {
+        if ($this->start_time && $this->end_time) {
+            $diffInMinutes = $this->start_time->diffInMinutes($this->end_time);
+            $this->working_time = round($diffInMinutes / 60.0, 2);
+
+            $plannedStopTime = (float) ($this->planned_stop_time ?? 0);
+            $unplannedStopTime = (float) ($this->unplanned_stop_time ?? 0);
+
+            $this->planned_operating_time = max(0.0, $this->working_time - $plannedStopTime);
+            $this->actual_operating_time = max(0.0, $this->planned_operating_time - $unplannedStopTime);
+
+            $this->availability_factor = $this->planned_operating_time > 0
+                ? round(($this->actual_operating_time / $this->planned_operating_time) * 100, 2)
+                : 0.0;
+        }
+
+        return $this;
+    }
 }
